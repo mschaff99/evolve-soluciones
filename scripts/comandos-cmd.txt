@@ -1,0 +1,26 @@
+# COMANDOS PARA CMD - EVOLVE SOLUCIONES CON TUNNELMOLE
+# =====================================================
+
+# 1. CAMBIAR AL DIRECTORIO DEL PROYECTO
+cd C:\Users\Administrator\Desktop\evolve-soluciones
+
+# 2. INICIAR FLASK (Ventana 1)
+python aplicacion.py
+
+# 3. CREAR TÚNEL (Ventana 2 - después de que Flask inicie)
+tunnelmole 5000
+
+# 4. ALTERNATIVA: TODO EN UNA SOLA LÍNEA
+start python aplicacion.py && timeout /t 8 && tunnelmole 5000
+
+# 5. VERIFICAR QUE TUNNELMOLE ESTÁ INSTALADO
+tunnelmole --version
+
+# 6. VER AYUDA DE TUNNELMOLE
+tunnelmole --help
+
+# 7. CREAR TÚNEL CON SUBDOMINIO (si está disponible)
+tunnelmole 5000 --subdomain mi-evolve
+
+# 8. DETENER TODO
+# Presionar Ctrl+C en ambas ventanas

@@ -1,0 +1,328 @@
+/* Estilos para el Modal de Observaciones */
+
+/* Overlay del modal */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+    backdrop-filter: blur(4px);
+}
+
+/* Contenedor principal del modal */
+.modal-container {
+    background: #1a1a1a;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    max-width: 900px;
+    width: 90%;
+    max-height: 80vh;
+    overflow: hidden;
+    animation: modalAppear 0.3s ease-out;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Animación de aparición del modal */
+@keyframes modalAppear {
+    from {
+        opacity: 0;
+        transform: scale(0.9) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Encabezado del modal */
+.modal-header {
+    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%);
+    color: white;
+    padding: 20px 30px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.modal-header h3 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+/* Botón de cerrar */
+.modal-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 2rem;
+    cursor: pointer;
+    padding: 0;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: rotate(90deg);
+}
+
+/* Contenido del modal */
+.modal-content {
+    padding: 30px;
+    max-height: 60vh;
+    overflow-y: auto;
+    background: #1a1a1a;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Pie del modal */
+.modal-footer {
+    background: rgba(0, 0, 0, 0.3);
+    padding: 20px 30px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Información de observaciones */
+.observaciones-info {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 10px;
+    border-left: 4px solid #7A007B;
+}
+
+.info-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.info-item strong {
+    color: #E13278;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.info-item span {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+/* Contenedor de la tabla de observaciones */
+.observaciones-tabla-container {
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Tabla de observaciones */
+.tabla-observaciones {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1a1a1a;
+    border-radius: 10px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tabla-observaciones th {
+    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%);
+    color: white;
+    padding: 15px 12px;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-observaciones td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: top;
+    background: #1a1a1a;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.tabla-observaciones tr:hover {
+    background: rgba(122, 0, 123, 0.08);
+}
+
+.tabla-observaciones tr:last-child td {
+    border-bottom: none;
+}
+
+/* Estilos para las celdas de observaciones */
+.codigo-badge {
+    display: inline-block;
+    background: #7A007B;
+    color: white;
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    text-align: center;
+    min-width: 50px;
+    box-shadow: 0 2px 4px rgba(122, 0, 123, 0.3);
+}
+
+.descripcion-celda {
+    text-align: left;
+    line-height: 1.4;
+    padding-right: 15px;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.monto-celda {
+    text-align: right;
+    font-weight: 600;
+    color: #53BED3;
+    font-family: monospace;
+    font-size: 0.95rem;
+}
+
+/* Ajustar anchos de columnas */
+.tabla-observaciones th:first-child,
+.tabla-observaciones td:first-child {
+    width: 80px;
+    text-align: center;
+}
+
+.tabla-observaciones th:last-child,
+.tabla-observaciones td:last-child {
+    width: 120px;
+    text-align: right;
+}
+
+.tabla-observaciones th:nth-child(2),
+.tabla-observaciones td:nth-child(2) {
+    width: auto;
+    text-align: left;
+}
+
+/* Estados de carga y error */
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.spinner {
+    width: 40px;
+    height: 40px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top: 4px solid #7A007B;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin-bottom: 20px;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+.error-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+    color: #E13278;
+    text-align: center;
+}
+
+.error-message i {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.error-message p {
+    font-size: 1.1rem;
+    margin: 0;
+}
+
+/* Sin observaciones */
+.sin-observaciones {
+    text-align: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-style: italic;
+    padding: 40px 20px;
+}
+
+.sin-observaciones i {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+    display: block;
+}
+
+/* Botones del modal */
+.btn-secondary {
+    background: #2268AD;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background: #1a5389;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(34, 104, 173, 0.4);
+}
+
+/* Responsividad del modal */
+@media (max-width: 768px) {
+    .modal-container {
+        width: 95%;
+        max-height: 90vh;
+    }
+
+    .modal-header,
+    .modal-content,
+    .modal-footer {
+        padding: 20px;
+    }
+
+    .observaciones-info {
+        grid-template-columns: 1fr;
+        gap: 15px;
+    }
+
+    .tabla-observaciones th,
+    .tabla-observaciones td {
+        padding: 8px;
+        font-size: 0.9rem;
+    }
+}

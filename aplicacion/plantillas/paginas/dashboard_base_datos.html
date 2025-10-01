@@ -1,0 +1,593 @@
+{% extends "diseños/base.html" %}
+
+{% block titulo %}Dashboard - {{ base_datos|upper }}{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid px-4 py-4">
+    <!-- Header del Dashboard -->
+    <div class="dashboard-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="dashboard-title mb-2">Dashboard {{ base_datos|upper }}</h1>
+                <p class="dashboard-subtitle mb-0">Sistema de gestión empresarial</p>
+            </div>
+            <div class="text-end">
+                <span class="badge-empresas">
+                    <i class="fas fa-building me-2"></i>
+                    {{ total_empresas }} empresas
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas Generales -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card stat-card-primary">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ total_empresas }}</div>
+                            <div class="stat-label">Total Empresas</div>
+                        </div>
+                        <div class="stat-icon" style="background: #16A39A;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card stat-card-success">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ empresas_por_auditor|length }}</div>
+                            <div class="stat-label">Auditores Activos</div>
+                        </div>
+                        <div class="stat-icon" style="background: #2268AD;">
+                            <i class="fas fa-user-tie"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card stat-card-info">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ current_user.nombre_usuario }}</div>
+                            <div class="stat-label">Usuario Actual</div>
+                        </div>
+                        <div class="stat-icon" style="background: #E13278;">
+                            <i class="fas fa-user"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card stat-card-warning">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ base_datos|upper }}</div>
+                            <div class="stat-label">Base de Datos</div>
+                        </div>
+                        <div class="stat-icon" style="background: #53BED3;">
+                            <i class="fas fa-database"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navegación Rápida -->
+    <div class="row mb-4">
+        <div class="col-12">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h5 class="dashboard-card-title">
+                        <i class="fas fa-rocket me-2"></i>
+                        Acceso Rápido
+                    </h5>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="row g-3">
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/consulta-integral-f29" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #16A39A;">
+                                    <i class="fas fa-check"></i>
+                                </div>
+                                <span class="quick-access-text">Consulta Integral F29</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/consolidado" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #2268AD;">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <span class="quick-access-text">Consolidado</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/tareas" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #E13278;">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <span class="quick-access-text">Gestión de Tareas</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/observaciones" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #53BED3;">
+                                    <i class="fas fa-sticky-note"></i>
+                                </div>
+                                <span class="quick-access-text">Observaciones</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Distribución por Auditor -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h5 class="dashboard-card-title">
+                        <i class="fas fa-users me-2"></i>
+                        Distribución por Auditor
+                    </h5>
+                </div>
+                <div class="dashboard-card-body">
+                    {% if empresas_por_auditor %}
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Auditor</th>
+                                        <th class="text-end">Empresas</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for auditor, cantidad in empresas_por_auditor.items() %}
+                                    <tr>
+                                        <td>
+                                            <i class="fas fa-user-circle me-2" style="color: #7A007B;"></i>
+                                            {{ auditor }}
+                                        </td>
+                                        <td class="text-end">
+                                            <span class="table-badge">{{ cantidad }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted-custom">No hay datos disponibles</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h5 class="dashboard-card-title">
+                        <i class="fas fa-building me-2"></i>
+                        Empresas Recientes
+                    </h5>
+                </div>
+                <div class="dashboard-card-body">
+                    {% if empresas %}
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Empresa</th>
+                                        <th>RUT</th>
+                                        <th>Auditor</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for empresa in empresas %}
+                                    <tr>
+                                        <td>{{ empresa.empresa }}</td>
+                                        <td>
+                                            <span class="rut-text">{{ empresa.run_rut }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="auditor-badge">{{ empresa.auditor }}</span>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <p class="text-muted-custom">No hay empresas disponibles</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Información del Sistema -->
+    <div class="row">
+        <div class="col-12">
+            <div class="dashboard-card">
+                <div class="dashboard-card-header">
+                    <h5 class="dashboard-card-title">
+                        <i class="fas fa-info-circle me-2"></i>
+                        Información del Sistema
+                    </h5>
+                </div>
+                <div class="dashboard-card-body">
+                    <div class="row g-4">
+                        <div class="col-md-4">
+                            <div class="system-info-item">
+                                <i class="fas fa-database me-2" style="color: #53BED3;"></i>
+                                <strong>Base de Datos:</strong>
+                                <span class="ms-2">{{ base_datos|upper }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="system-info-item">
+                                <i class="fas fa-user me-2" style="color: #E13278;"></i>
+                                <strong>Usuario:</strong>
+                                <span class="ms-2">{{ current_user.nombre_usuario }}</span>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="system-info-item">
+                                <i class="fas fa-shield-alt me-2" style="color: #16A39A;"></i>
+                                <strong>Rol:</strong>
+                                <span class="ms-2">{{ current_user.rol|title }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ============================================
+   DASHBOARD - ESTILO PROFESIONAL
+   ============================================ */
+
+/* Header del Dashboard */
+.dashboard-header {
+    margin-bottom: 2rem;
+}
+
+.dashboard-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.dashboard-subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.65);
+}
+
+.badge-empresas {
+    display: inline-flex;
+    align-items: center;
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    border-radius: 12px;
+    color: white;
+    font-weight: 600;
+    font-size: 15px;
+    box-shadow: 0 4px 12px rgba(122, 0, 123, 0.3);
+}
+
+/* ============================================
+   TARJETAS DE ESTADÍSTICAS
+   ============================================ */
+.stat-card {
+    background: #1a1a1a;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255, 255, 255, 0.1);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+}
+
+.stat-card-body {
+    padding: 24px;
+}
+
+.stat-value {
+    font-size: 32px;
+    font-weight: 700;
+    color: #ffffff;
+    margin-bottom: 8px;
+    line-height: 1;
+}
+
+.stat-label {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.6);
+    font-weight: 500;
+}
+
+.stat-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.stat-icon i {
+    font-size: 26px;
+    color: white;
+}
+
+/* ============================================
+   TARJETAS DEL DASHBOARD
+   ============================================ */
+.dashboard-card {
+    background: #1a1a1a;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    overflow: hidden;
+    margin-bottom: 0;
+}
+
+.dashboard-card-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.dashboard-card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.dashboard-card-title i {
+    color: #7A007B;
+}
+
+.dashboard-card-body {
+    padding: 24px;
+}
+
+/* ============================================
+   BOTONES DE ACCESO RÁPIDO
+   ============================================ */
+.quick-access-btn {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    text-decoration: none;
+    color: #ffffff;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+.quick-access-btn:hover {
+    background: rgba(0, 0, 0, 0.4);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+}
+
+.quick-access-icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.quick-access-icon i {
+    font-size: 20px;
+    color: white;
+}
+
+.quick-access-text {
+    flex: 1;
+    font-weight: 500;
+    font-size: 14px;
+}
+
+.quick-access-arrow {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    transition: all 0.3s ease;
+}
+
+.quick-access-btn:hover .quick-access-arrow {
+    color: rgba(255, 255, 255, 0.8);
+    transform: translateX(4px);
+}
+
+/* ============================================
+   TABLAS DEL DASHBOARD
+   ============================================ */
+.dashboard-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.dashboard-table thead th {
+    padding: 12px 16px;
+    background: rgba(0, 0, 0, 0.25);
+    color: rgba(255, 255, 255, 0.8);
+    font-weight: 600;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border: none;
+}
+
+.dashboard-table thead th:first-child {
+    border-radius: 10px 0 0 0;
+}
+
+.dashboard-table thead th:last-child {
+    border-radius: 0 10px 0 0;
+}
+
+.dashboard-table tbody tr {
+    transition: all 0.2s ease;
+}
+
+.dashboard-table tbody tr:hover {
+    background: rgba(122, 0, 123, 0.05);
+}
+
+.dashboard-table tbody td {
+    padding: 14px 16px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.dashboard-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    padding: 4px 10px;
+    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    border-radius: 8px;
+    color: white;
+    font-weight: 600;
+    font-size: 13px;
+}
+
+.auditor-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    background: rgba(122, 0, 123, 0.15);
+    border: 1px solid rgba(122, 0, 123, 0.3);
+    border-radius: 8px;
+    color: #E13278;
+    font-weight: 500;
+    font-size: 12px;
+}
+
+.rut-text {
+    font-family: 'Courier New', monospace;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+}
+
+/* ============================================
+   INFORMACIÓN DEL SISTEMA
+   ============================================ */
+.system-info-item {
+    display: flex;
+    align-items: center;
+    padding: 14px 18px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 12px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+}
+
+.system-info-item strong {
+    color: #ffffff;
+}
+
+.system-info-item span {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+/* ============================================
+   UTILIDADES
+   ============================================ */
+.text-muted-custom {
+    color: rgba(255, 255, 255, 0.5);
+    font-style: italic;
+    text-align: center;
+    padding: 20px;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 768px) {
+    .dashboard-title {
+        font-size: 22px;
+    }
+
+    .stat-value {
+        font-size: 24px;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+    }
+
+    .stat-icon i {
+        font-size: 22px;
+    }
+
+    .quick-access-text {
+        font-size: 13px;
+    }
+
+    .dashboard-card-body {
+        padding: 16px;
+    }
+}
+</style>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Auto-refresh cada 5 minutos para mantener datos actualizados
+    setTimeout(function() {
+        location.reload();
+    }, 300000); // 5 minutos
+</script>
+{% endblock %}

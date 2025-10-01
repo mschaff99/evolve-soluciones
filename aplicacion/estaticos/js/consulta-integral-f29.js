@@ -1,0 +1,576 @@
+/**
+ * JavaScript para funcionalidades de Consulta Integral F29
+ * Maneja expansión de tablas, filtros dinámicos y modal de observaciones
+ */
+
+console.log('Cargando consulta-integral-f29.js...');
+
+// Variables globales
+let empresasExpandidas = new Set();
+
+/**
+ * Alterna la expansión de una empresa (mostrar/ocultar períodos)
+ * @param {HTMLElement} boton - El botón que se clickeó
+ */
+function alternarEmpresa(boton) {
+    try {
+        const fila = boton.closest('tr');
+        if (!fila) {
+            console.error('❌ No se pudo encontrar la fila padre del botón');
+            return;
+        }
+
+        const rut = fila.dataset.rut || boton.dataset.rut;
+        if (!rut) {
+            console.error('❌ No se pudo encontrar el RUT de la empresa');
+            return;
+        }
+
+        // Buscar todas las filas de períodos de esta empresa
+        const filasPeriodos = document.querySelectorAll(`tr[data-parent-rut="${rut}"]`);
+
+        if (empresasExpandidas.has(rut)) {
+            // Colapsar
+            filasPeriodos.forEach(fila => fila.style.display = 'none');
+            empresasExpandidas.delete(rut);
+
+            // Cambiar ícono del botón
+            const icono = boton.querySelector('i');
+            if (icono) {
+                icono.className = 'fas fa-chevron-right';
+            }
+            boton.title = 'Expandir períodos';
+
+            console.log(`📂 Empresa ${rut} colapsada`);
+        } else {
+            // Expandir
+            filasPeriodos.forEach(fila => fila.style.display = '');
+            empresasExpandidas.add(rut);
+
+            // Cambiar ícono del botón
+            const icono = boton.querySelector('i');
+            if (icono) {
+                icono.className = 'fas fa-chevron-down';
+            }
+            boton.title = 'Colapsar períodos';
+
+            console.log(`📂 Empresa ${rut} expandida`);
+        }
+    } catch (error) {
+        console.error('❌ Error en alternarEmpresa:', error);
+    }
+}
+
+// Helper para obtener valor seguro de input/select
+function getVal(id) {
+    const el = document.getElementById(id);
+    return el ? el.value : '';
+}
+
+// Debounce para optimizar el rendimiento de los filtros
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// ==================== FUNCIONES DE EXPANSIÓN DE TABLAS ====================
+
+/**
+ * Expandir/contraer empresa individual
+ * @param {HTMLElement} boton - Botón de expansión clickeado
+ */
+function alternarEmpresa(boton) {
+    const empresaKey = boton.getAttribute('data-empresa');
+    const icono = boton.querySelector('.icono-alternar');
+
+    const filasDetalle = document.querySelectorAll(`.fila-mes-detalle[data-empresa="${empresaKey}"]`);
+    if (filasDetalle.length === 0) return;
+
+    const estaVisible = filasDetalle[0].style.display !== 'none';
+
+    filasDetalle.forEach(fila => {
+        fila.style.display = estaVisible ? 'none' : 'table-row';
+    });
+
+    if (estaVisible) {
+        // Colapsar: cambiar a ícono de plus
+        icono.className = 'fas fa-plus icono-alternar';
+        boton.classList.remove('expandido');
+        empresasExpandidas.delete(empresaKey);
+    } else {
+        // Expandir: cambiar a ícono de minus
+        icono.className = 'fas fa-minus icono-alternar';
+        boton.classList.add('expandido');
+        empresasExpandidas.add(empresaKey);
+    }
+}
+
+/**
+ * Expandir todas las empresas
+ */
+function expandirTodas() {
+    document.querySelectorAll('.boton-expandir-empresa').forEach(boton => {
+        const empresaKey = boton.getAttribute('data-empresa');
+        document.querySelectorAll(`.fila-mes-detalle[data-empresa="${empresaKey}"]`).forEach(f => f.style.display = 'table-row');
+        const icono = boton.querySelector('.icono-alternar');
+        if (icono) icono.className = 'fas fa-minus icono-alternar';
+        boton.classList.add('expandido');
+        empresasExpandidas.add(empresaKey);
+    });
+}
+
+/**
+ * Contraer todas las empresas
+ */
+function contraerTodas() {
+    document.querySelectorAll('.boton-expandir-empresa').forEach(boton => {
+        const empresaKey = boton.getAttribute('data-empresa');
+        document.querySelectorAll(`.fila-mes-detalle[data-empresa="${empresaKey}"]`).forEach(f => f.style.display = 'none');
+        const icono = boton.querySelector('.icono-alternar');
+        if (icono) icono.className = 'fas fa-plus icono-alternar';
+        boton.classList.remove('expandido');
+        empresasExpandidas.delete(empresaKey);
+    });
+}
+
+// ==================== FUNCIONES DE FILTRADO ====================
+
+/**
+ * Filtrar empresas F29 - Filtrado específico para consulta integral
+ */
+function filtrarEmpresasF29() {
+    console.log('🔍 Iniciando filtrado específico para Consulta Integral F29...');
+
+    // PASO 1: Colapsar todas las empresas expandidas antes de filtrar
+    // Esto evita que filas de detalle de otras empresas queden visibles
+    empresasExpandidas.forEach(rut => {
+        // Ocultar todas las filas de detalle de esta empresa
+        const filasDetalle = document.querySelectorAll(`.fila-mes-detalle[data-empresa="${rut}"]`);
+        filasDetalle.forEach(fila => {
+            fila.style.display = 'none';
+        });
+
+        // Resetear el icono del botón a "collapsed"
+        const botonExpandir = document.querySelector(`button.btn-expand[data-empresa="${rut}"]`);
+        if (botonExpandir) {
+            const icono = botonExpandir.querySelector('i');
+            if (icono) {
+                icono.className = 'fas fa-plus icono-alternar';
+            }
+        }
+    });
+
+    // Limpiar el Set de empresas expandidas
+    empresasExpandidas.clear();
+    console.log('✅ Todas las empresas expandidas colapsadas antes de filtrar');
+
+    // PASO 2: Filtrado local optimizado
+    const empresaInput = document.getElementById('empresaInput');
+    const usuarioSelect = document.getElementById('usuarioSelect');
+    const grupoSelect = document.getElementById('grupoSelect');
+
+    const empresaTerm = empresaInput ? empresaInput.value.toLowerCase().trim() : '';
+    const usuarioTerm = usuarioSelect ? usuarioSelect.value.toLowerCase().trim() : '';
+    const grupoTerm = grupoSelect ? grupoSelect.value.toLowerCase().trim() : '';
+
+    // Debug: verificar valores de selectores
+    console.log('🔍 Valores actuales:');
+    console.log('   usuario:', usuarioSelect?.value || 'vacío');
+    console.log('   grupo:', grupoSelect?.value || 'vacío');
+
+    console.log('📊 Términos de filtrado:', {
+        empresa: empresaTerm,
+        usuario: usuarioTerm,
+        grupo: grupoTerm
+    });
+
+    const rows = document.querySelectorAll('.modern-table tbody tr.empresa-row');
+    let visibleCount = 0;
+
+    console.log(`📋 Encontradas ${rows.length} filas para filtrar`);
+
+    // Debug: Mostrar datos de las primeras 3 filas
+    if (usuarioTerm || grupoTerm) {
+        console.log('🔍 Debug - Datos de las primeras 3 filas:');
+        for (let i = 0; i < Math.min(3, rows.length); i++) {
+            const row = rows[i];
+            const empresaName = row.querySelector('.empresa-name')?.textContent || 'N/A';
+            const usuarioData = row.getAttribute('data-usuario') || '';
+            const grupoData = row.getAttribute('data-grupo') || '';
+            const debugInfo = row.querySelector('.debug-info')?.textContent || 'N/A';
+            console.log(`   Fila ${i + 1}: "${empresaName}" - Usuario: "${usuarioData}" - Grupo: "${grupoData}" - Debug: "${debugInfo}"`);
+        }
+    }
+
+    rows.forEach(row => {
+        let showRow = true;
+
+        // Filtrar por empresa
+        if (empresaTerm) {
+            const empresaCell = row.querySelector('.empresa-name');
+            if (empresaCell) {
+                const empresaText = empresaCell.textContent.toLowerCase().trim();
+                showRow = showRow && empresaText.includes(empresaTerm);
+            } else {
+                showRow = false;
+            }
+        }
+
+        // Filtrar por usuario
+        if (usuarioTerm && showRow) {
+            const usuarioData = (row.getAttribute('data-usuario') || '').toLowerCase();
+            const empresaName = row.querySelector('.empresa-name')?.textContent || 'N/A';
+
+            const matchUsuario = usuarioData.includes(usuarioTerm);
+
+            showRow = showRow && matchUsuario;
+        }
+
+        // Filtrar por grupo
+        if (grupoTerm && showRow) {
+            const grupoData = (row.getAttribute('data-grupo') || '').toLowerCase();
+            showRow = showRow && grupoData.includes(grupoTerm);
+        }
+
+        // Mostrar/ocultar fila
+        if (showRow) {
+            row.style.display = '';
+            visibleCount++;
+        } else {
+            row.style.display = 'none';
+        }
+    });
+
+    // Actualizar contador
+    const resultsCount = document.querySelector('.results-count');
+    if (resultsCount) {
+        resultsCount.textContent = `${visibleCount} empresas encontradas`;
+    }
+
+    console.log(`✅ Filtrado completado: ${visibleCount} empresas visibles de ${rows.length} totales`);
+
+    return visibleCount;
+}
+
+/**
+ * Alternar panel de filtros
+ */
+function alternarFiltros() {
+    const contenidoFiltros = document.querySelector('.contenido-filtros');
+    const iconoFiltro = document.querySelector('.icono-filtro');
+    if (!contenidoFiltros) return;
+
+    if (contenidoFiltros.style.display === 'none') {
+        contenidoFiltros.style.display = 'block';
+        iconoFiltro.textContent = '▼';
+    } else {
+        contenidoFiltros.style.display = 'none';
+        iconoFiltro.textContent = '▶';
+    }
+}
+
+/**
+ * Limpiar todos los filtros
+ */
+function limpiarFiltros() {
+    const form = document.getElementById('formularioFiltros');
+    if (form) form.reset();
+    filtrarEmpresasF29();
+}
+
+/**
+ * Limpiar todos los filtros (función específica para el botón)
+ */
+function clearAllFilters() {
+    // Limpiar todos los filtros disponibles
+    const empresaInput = document.getElementById('empresaInput');
+    const usuarioSelect = document.getElementById('usuarioSelect');
+    const grupoSelect = document.getElementById('grupoSelect');
+
+    if (empresaInput) empresaInput.value = '';
+    if (usuarioSelect) usuarioSelect.value = '';
+    if (grupoSelect) grupoSelect.value = '';
+
+    // Aplicar filtros
+    filtrarEmpresasF29();
+}
+
+// ==================== FUNCIONES DE EXPORTACIÓN ====================
+
+/**
+ * Exportar tabla a Excel
+ */
+function exportarTabla() {
+    fetch('/consulta-integral-f29/api/exportar', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            empresa_filtro: getVal('empresaInput'),
+            rut_filtro: getVal('rut_filtro'),
+            estado_filtro: getVal('estado_filtro')
+        })
+    })
+        .then(r => r.json())
+        .then(data => {
+            if (data.exito) {
+                alert('Datos exportados exitosamente (' + (data.bytes || 0) + ' bytes)');
+            } else {
+                alert('Error al exportar: ' + (data.error || 'desconocido'));
+            }
+        })
+        .catch(err => {
+            console.error('Error:', err);
+            alert('Error al exportar datos');
+        });
+}
+
+// ==================== FUNCIONES DEL MODAL DE OBSERVACIONES ====================
+
+/**
+ * Mostrar modal de observaciones para un período específico
+ * @param {string} rut - RUT de la empresa
+ * @param {string} periodo - Período a consultar
+ */
+function mostrarObservaciones(rut, periodo) {
+    const modal = document.getElementById('modalObservaciones');
+    const loading = document.getElementById('modalLoading');
+    const content = document.getElementById('modalObservacionesContent');
+    const error = document.getElementById('modalError');
+
+    // Mostrar modal y estado de carga
+    modal.style.display = 'flex';
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    error.style.display = 'none';
+
+    // Actualizar título
+    document.getElementById('modalTitle').textContent = `Observaciones - Período ${periodo}`;
+
+    // Realizar petición AJAX
+    fetch(`/consulta-integral-f29/api/observaciones/${rut}/${periodo}`)
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+
+            if (data.exito) {
+                // Actualizar información básica
+                document.getElementById('modalRut').textContent = data.rut;
+                document.getElementById('modalPeriodo').textContent = data.periodo;
+                document.getElementById('modalTotal').textContent = data.total;
+
+                // Llenar tabla de observaciones
+                const tbody = document.getElementById('observacionesBody');
+                tbody.innerHTML = '';
+
+                if (data.observaciones && data.observaciones.length > 0) {
+                    data.observaciones.forEach(obs => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td><span class="codigo-badge">${obs.codigo || '-'}</span></td>
+                            <td class="descripcion-celda">${obs.descripcion || '-'}</td>
+                            <td class="monto-celda">${obs.monto || '-'}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="3" class="sin-observaciones">
+                                <i class="fas fa-info-circle"></i>
+                                No hay observaciones para este período
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                content.style.display = 'block';
+            } else {
+                mostrarError(data.error || 'Error desconocido al cargar observaciones');
+            }
+        })
+        .catch(err => {
+            console.error('Error al cargar observaciones:', err);
+            loading.style.display = 'none';
+            mostrarError('Error de conexión al cargar observaciones');
+        });
+}
+
+/**
+ * Cerrar modal de observaciones
+ */
+function cerrarModalObservaciones() {
+    const modal = document.getElementById('modalObservaciones');
+    modal.style.display = 'none';
+}
+
+/**
+ * Mostrar mensaje de error en el modal
+ * @param {string} mensaje - Mensaje de error a mostrar
+ */
+function mostrarError(mensaje) {
+    const error = document.getElementById('modalError');
+    const errorText = document.getElementById('errorText');
+
+    errorText.textContent = mensaje;
+    error.style.display = 'block';
+}
+
+/**
+ * Formatear fecha para mostrar en el modal
+ * @param {string} fecha - Fecha a formatear
+ * @returns {string} Fecha formateada
+ */
+function formatearFecha(fecha) {
+    if (!fecha) return '-';
+
+    try {
+        const date = new Date(fecha);
+        return date.toLocaleDateString('es-CL', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    } catch (e) {
+        return fecha;
+    }
+}
+
+// ==================== FUNCIONES GLOBALES PARA EL TEMPLATE ====================
+
+// Hacer funciones disponibles globalmente INMEDIATAMENTE para onclick en el template
+window.alternarEmpresa = alternarEmpresa;
+window.expandirTodas = expandirTodas;
+window.contraerTodas = contraerTodas;
+window.filtrarEmpresasF29 = filtrarEmpresasF29;
+window.alternarFiltros = alternarFiltros;
+window.limpiarFiltros = limpiarFiltros;
+window.clearAllFilters = clearAllFilters;
+window.exportarTabla = exportarTabla;
+window.mostrarObservaciones = mostrarObservaciones;
+window.cerrarModalObservaciones = cerrarModalObservaciones;
+
+console.log('✅ Funciones globales asignadas:', {
+    alternarEmpresa: typeof window.alternarEmpresa,
+    expandirTodas: typeof window.expandirTodas,
+    contraerTodas: typeof window.contraerTodas,
+    mostrarObservaciones: typeof window.mostrarObservaciones
+});
+
+// ==================== INICIALIZACIÓN Y EVENTOS ====================
+
+/**
+ * Inicialización cuando el DOM está listo
+ */
+document.addEventListener('DOMContentLoaded', function () {
+    console.log('🚀 Inicializando Consulta Integral F29...');
+    console.log('🔍 Verificando elementos del DOM...');
+
+    // Obtener elementos del DOM
+    const empresaInput = document.getElementById('empresaInput');
+    const filtroRut = document.getElementById('rut_filtro');
+    const filtroEstado = document.getElementById('estado_filtro');
+    const usuarioSelect = document.getElementById('usuarioSelect');
+    const grupoSelect = document.getElementById('grupoSelect');
+
+    console.log('📋 Elementos encontrados:');
+    console.log('   empresaInput:', !!empresaInput);
+    console.log('   usuarioSelect:', !!usuarioSelect);
+    console.log('   grupoSelect:', !!grupoSelect);
+
+    // Crear versión "debounced" de la función de filtrado
+    const debouncedFilter = debounce(filtrarEmpresasF29, 200);
+
+    // Agregar event listeners para filtros dinámicos
+    if (empresaInput) {
+        empresaInput.addEventListener('input', debouncedFilter);
+        console.log('✅ Event listener agregado para filtro de empresa');
+    }
+
+    if (filtroRut) {
+        filtroRut.addEventListener('input', debouncedFilter);
+        console.log('✅ Event listener agregado para filtro de RUT');
+    }
+
+    if (filtroEstado) {
+        filtroEstado.addEventListener('change', debouncedFilter);
+        console.log('✅ Event listener agregado para filtro de estado');
+    }
+
+    if (usuarioSelect) {
+        // Test manual del elemento
+        console.log('🔍 Test del elemento usuarioSelect:');
+        console.log('   ID:', usuarioSelect.id);
+        console.log('   Opciones:', usuarioSelect.options.length);
+        console.log('   Valor actual:', usuarioSelect.value);
+
+        usuarioSelect.addEventListener('change', function () {
+            console.log('🔥 Event listener de usuario disparado!');
+            console.log('   Nuevo valor:', usuarioSelect.value);
+            filtrarEmpresasF29();
+        });
+
+        // Test adicional: agregar también event listener para 'input'
+        usuarioSelect.addEventListener('input', function () {
+            console.log('🔥 Event listener INPUT de usuario disparado!');
+            filtrarEmpresasF29();
+        });
+
+        console.log('✅ Event listener agregado para filtro de usuario');
+    } else {
+        console.log('❌ Element usuarioSelect no encontrado!');
+    }
+
+    if (grupoSelect) {
+        grupoSelect.addEventListener('change', function () {
+            console.log('🔥 Event listener de grupo disparado!');
+            filtrarEmpresasF29();
+        });
+        console.log('✅ Event listener agregado para filtro de grupo');
+    }
+
+    // Ejecutar filtros una vez al cargar
+    setTimeout(() => {
+        try {
+            filtrarEmpresasF29();
+            console.log('✅ Filtros iniciales aplicados');
+        } catch (e) {
+            console.warn('⚠️ Error aplicando filtros iniciales:', e);
+        }
+    }, 150);
+
+    // Test manual después de 3 segundos
+    setTimeout(() => {
+        console.log('🧪 Test manual de selectores...');
+        const usuarioTest = document.getElementById('usuarioSelect');
+        const grupoTest = document.getElementById('grupoSelect');
+
+        // Debug de prueba removido tras validación
+    }, 3000);
+});
+
+// ==================== EVENT LISTENERS GLOBALES ====================
+
+// Cerrar modal al hacer click fuera
+document.addEventListener('click', function (e) {
+    const modal = document.getElementById('modalObservaciones');
+    if (e.target === modal) {
+        cerrarModalObservaciones();
+    }
+});
+
+// Cerrar modal con tecla Escape
+document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+        cerrarModalObservaciones();
+    }
+});
+

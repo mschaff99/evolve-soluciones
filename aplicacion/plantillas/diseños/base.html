@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
+    <!-- Meta descripción -->
+    <meta name="description" content="{% block descripcion %}Sistema integral de gestión empresarial para consultoría y asesoría tributaria{% endblock %}">
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='imagenes/favicon.ico') }}">
+
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Estilos base -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/estilos-base.css') }}">
+
+    <!-- Estilos específicos por página -->
+    {% block estilos %}{% endblock %}
+
+    <!-- Variables CSS para temas -->
+    <style>
+        :root {
+            /* Paleta principal */
+            --color-primario: #7A007B;          /* Morado - acción/brand principal */
+            --color-acento-1: #E13278;          /* Rosa - CTA secundario/badges */
+            --color-acento-2: #EA7A35;          /* Naranja - advertencias/llamados */
+            --color-secundario: #2268AD;        /* Azul - acciones secundarias/links */
+            --color-exito: #16A39A;             /* Teal - éxito/estados OK */
+            --color-info: #53BED3;              /* Cian - info/gráficos suaves */
+
+            /* Neutros */
+            --color-fondo: #000000;             /* Negro - fondo principal */
+            --color-superficie: #3E3B3C;        /* Gris oscuro - superficies/cards */
+            --color-texto: #ffffff;             /* Blanco - texto principal */
+            --color-texto-secundario: rgba(255, 255, 255, 0.7);  /* Texto secundario */
+            --color-borde: rgba(255, 255, 255, 0.1);  /* Bordes sutiles */
+
+            /* Alias para compatibilidad */
+            --color-advertencia: #EA7A35;
+            --color-peligro: #E13278;
+
+            /* Sombras y efectos */
+            --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.3);
+            --sombra-hover: 0 8px 24px rgba(122, 0, 123, 0.3);
+            --radio-borde: 16px;
+            --radio-borde-lg: 20px;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--color-fondo);
+            color: var(--color-texto);
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* Estilos para botones de cerrar con ícono X */
+        .btn-close {
+            background: none !important;
+            border: none;
+            font-size: 1.2rem;
+            opacity: 0.6;
+            transition: opacity 0.2s ease;
+            filter: brightness(0) invert(1);
+        }
+
+        .btn-close:hover {
+            opacity: 1;
+        }
+
+        .btn-close i {
+            color: currentColor;
+        }
+    </style>
+</head>
+<body>
+    <!-- Barra de navegación -->
+    {# {% if current_user.is_authenticated %} - Comentado temporalmente #}
+    {# {% include 'componentes/navbar.html' %} - Sin navbar temporalmente #}
+    {# {% endif %} #}
+
+    <!-- Barra superior con logo -->
+    <div class="header-top">
+        <div class="container-fluid px-4">
+            <div class="d-flex align-items-center justify-content-between">
+                <!-- Logo y título -->
+                <div class="d-flex align-items-center">
+                    <!-- Logo con diseño mejorado -->
+                    {% if current_user.is_authenticated and current_user.base_datos_mysql %}
+                    <a href="{{ url_for('rutas_dinamicas.dashboard_base_datos', base_datos=current_user.base_datos_mysql) }}" class="logo-link" title="Ir al inicio">
+                    {% else %}
+                    <a href="/" class="logo-link" title="Ir al inicio">
+                    {% endif %}
+                        <div class="logo-container-header">
+                            <img src="{{ url_for('static', filename='imagenes/logo-evolve.ico') }}"
+                                 alt="Evolve Soluciones"
+                                 class="header-logo"
+                                 onerror="this.onerror=null; this.src='{{ url_for('static', filename='imagenes/logo-evolve.ico') }}'; this.onerror=function(){this.style.display='none'; this.nextElementSibling.style.display='flex';};">
+                            <div class="logo-placeholder" style="display: none;">
+                                <i class="fas fa-chart-line"></i>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- Título con diseño mejorado -->
+                </div>
+
+                <!-- Usuario actual (si está autenticado) -->
+                {% if current_user.is_authenticated %}
+                <div class="header-user-section">
+                    <div class="user-info-badge">
+                        <div class="user-avatar">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="user-details">
+                            <span class="user-name">{{ current_user.nombre_usuario }}</span>
+                            <small class="user-role">Usuario activo</small>
+                        </div>
+                    </div>
+                    <a href="{{ url_for('autenticacion.cerrar_sesion') }}" class="btn-logout" title="Cerrar sesión">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span>Salir</span>
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Contenido principal -->
+    <main class="main-content">
+        <!-- Mensajes flash -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container mt-3">
+                    {% for categoria, mensaje in messages %}
+                        <div class="alert alert-{{ 'danger' if categoria == 'error' else categoria }} alert-dismissible fade show" role="alert">
+                            <i class="fas fa-{{ 'exclamation-triangle' if categoria == 'error' else 'info-circle' if categoria == 'info' else 'check-circle' if categoria == 'success' else 'exclamation-circle' }}"></i>
+                            {{ mensaje }}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar">
+                                <i class="fas fa-times" aria-hidden="true"></i>
+                            </button>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Contenido específico de cada página -->
+        {% block contenido %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    {# {% if current_user.is_authenticated %} - Comentado temporalmente #}
+    {# {% include 'componentes/footer.html' %} - Sin footer temporalmente #}
+    {# {% endif %} #}
+
+    <!-- Scripts base -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- Scripts globales -->
+    <script src="{{ url_for('static', filename='js/scripts-globales.js') }}"></script>
+
+    <!-- Scripts específicos por página -->
+    {% block scripts %}{% endblock %}
+
+    <!-- Token CSRF para peticiones AJAX -->
+    <script>
+        window.csrfToken = '{{ csrf_token() }}';
+
+        // Configurar CSRF token para todas las peticiones AJAX
+        $.ajaxSetup({
+            beforeSend: function(xhr, settings) {
+                if (!/^(GET|HEAD|OPTIONS|TRACE)$/i.test(settings.type) && !this.crossDomain) {
+                    xhr.setRequestHeader("X-CSRFToken", window.csrfToken);
+                }
+            }
+        });
+    </script>
+</body>
+</html>

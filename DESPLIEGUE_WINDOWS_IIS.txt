@@ -1,0 +1,211 @@
+Evolve Soluciones - Guía de Despliegue en Windows + IIS + NSSM + Let's Encrypt
+================================================================================
+
+Este documento describe de forma detallada cómo desplegar y operar la aplicación Flask en Windows Server usando Waitress como servidor WSGI, IIS como reverse proxy, NSSM como servicio de Windows y win-acme (Let's Encrypt) para TLS/HTTPS.
+
+Índice rápido
+-------------
+1) Requisitos previos
+2) Preparación del proyecto (Python 3.13)
+3) Servidor WSGI: Waitress (prueba local)
+4) Servicio de Windows con NSSM (auto-inicio)
+5) IIS como reverse proxy (80/443)
+6) Certificado TLS con win-acme (Let's Encrypt)
+7) DNS y Firewall/Red
+8) Validaciones end-to-end
+9) Operación diaria y utilidades
+10) Procedimiento de actualización a producción (deploy)
+11) Solución de problemas comunes
+12) Anexos (web.config, comandos útiles)
+
+1) Requisitos previos
+---------------------
+- Windows Server con permisos de administrador
+- Python 3.13 instalado (con "Add Python to PATH")
+- Roles/características IIS: Web Server (IIS), URL Rewrite, ARR
+- Acceso al DNS del dominio (cPanel Zone Editor)
+- Puertos 80 y 443 abiertos en el firewall del proveedor y en Windows
+- IP pública asignada a la VM (ej: 190.114.254.151)
+
+2) Preparación del proyecto (Python 3.13)
+----------------------------------------
+Ruta del proyecto: C:\Users\Administrator\Desktop\evolve-soluciones
+
+- Crear/usar entorno virtual y dependencias (compatibles con Python 3.13):
+  - requirements.txt ajustado para 3.13: Pillow 11.0.0, numpy 2.1.2, pandas 2.2.3, waitress 3.0.2.
+- Entrypoint WSGI dedicado: wsgi_waitress.py (exporta `app` sin conflicto con el paquete `aplicacion/`).
+- Limpieza de logs: se removieron emojis en prints para evitar UnicodeEncodeError (cp1252) en Windows.
+
+Comandos base:
+  cd C:\Users\Administrator\Desktop\evolve-soluciones
+  .\.venv\Scripts\pip.exe install --upgrade pip
+  .\.venv\Scripts\pip.exe install -r requirements.txt
+
+3) Servidor WSGI: Waitress (prueba local)
+----------------------------------------
+Probar la app localmente antes de exponerla:
+  .\.venv\Scripts\python.exe -m waitress --host=127.0.0.1 --port=8000 wsgi_waitress:app
+Probar salud:
+  http://127.0.0.1:8000/salud
+
+4) Servicio de Windows con NSSM (auto-inicio)
+--------------------------------------------
+NSSM convierte el proceso Python en un servicio que inicia con Windows y no requiere una ventana abierta.
+
+Instalación (si no está instalado):
+  New-Item -ItemType Directory -Force -Path C:\tools\nssm | Out-Null
+  Invoke-WebRequest https://nssm.cc/release/nssm-2.24.zip -OutFile C:\tools\nssm\nssm.zip
+  Expand-Archive C:\tools\nssm\nssm.zip -DestinationPath C:\tools\nssm -Force
+  Copy-Item C:\tools\nssm\nssm-2.24\win64\nssm.exe C:\tools\nssm\nssm.exe -Force
+
+Registrar el servicio:
+  $root="C:\Users\Administrator\Desktop\evolve-soluciones"
+  $py="$root\.venv\Scripts\python.exe"
+  C:\tools\nssm\nssm.exe install evolve-soluciones $py "-m waitress --host=127.0.0.1 --port=8000 wsgi_waitress:app"
+  C:\tools\nssm\nssm.exe set evolve-soluciones AppDirectory $root
+  New-Item -ItemType Directory -Force -Path "$root\logs" | Out-Null
+  C:\tools\nssm\nssm.exe set evolve-soluciones AppStdout "$root\logs\waitress-out.log"
+  C:\tools\nssm\nssm.exe set evolve-soluciones AppStderr "$root\logs\waitress-err.log"
+  C:\tools\nssm\nssm.exe set evolve-soluciones Start SERVICE_AUTO_START
+  C:\tools\nssm\nssm.exe start evolve-soluciones
+
+Operación:
+  C:\tools\nssm\nssm.exe status evolve-soluciones
+  C:\tools\nssm\nssm.exe restart evolve-soluciones
+  C:\tools\nssm\nssm.exe stop evolve-soluciones
+
+5) IIS como reverse proxy (80/443)
+----------------------------------
+- Habilitar proxy en ARR (nivel servidor): Application Request Routing Cache → Server Proxy Settings → Enable proxy.
+- Crear sitio `portal-evolve`:
+  - Physical path: C:\inetpub\portal-evolve
+  - Binding HTTP: puerto 80, Host name: portal.evolveasesores.cl
+- web.config del sitio (ver Anexo A):
+  - Regla RedirectToHTTPS (80 → 443)
+  - Regla ReverseProxyToWaitress (proxy a http://127.0.0.1:8000)
+
+6) Certificado TLS con win-acme (Let's Encrypt)
+-----------------------------------------------
+- Ejecutar wacs.exe (modo Advanced):
+  - Source: Read bindings from IIS → sitio portal.evolveasesores.cl
+  - Split: Single certificate
+  - Validation: http-01 (Serve from memory)
+  - Store: Windows Certificate Store (Local Computer) → WebHosting
+  - Installation: Create or update HTTPS bindings in IIS
+  - Auto-renovación: aceptar tarea programada
+- Resultado: binding HTTPS con SNI `*:443:portal.evolveasesores.cl`.
+- Verificación:
+  Import-Module WebAdministration
+  Get-WebBinding -Name "portal-evolve"
+
+7) DNS y Firewall/Red
+---------------------
+- DNS (cPanel): A portal.evolveasesores.cl → 190.114.254.151
+- Firewall del proveedor: abrir TCP 80 y 443 hacia la VM
+- Firewall de Windows: reglas de entrada para 80 y 443 (no abrir 8000)
+
+8) Validaciones end-to-end
+--------------------------
+- Interno (VM):
+  Invoke-WebRequest http://127.0.0.1/salud -Headers @{Host='portal.evolveasesores.cl'} -UseBasicParsing
+  Invoke-WebRequest https://127.0.0.1/salud -Headers @{Host='portal.evolveasesores.cl'} -UseBasicParsing
+- Externo:
+  http://portal.evolveasesores.cl/salud → redirige a HTTPS
+  https://portal.evolveasesores.cl/salud → 200 OK
+
+9) Operación diaria y utilidades
+--------------------------------
+- Servicio (NSSM): start/stop/restart/status como arriba
+- Logs de app: C:\Users\Administrator\Desktop\evolve-soluciones\logs\waitress-*.log
+- Renovación SSL manual:
+  cd C:\tools\win-acme
+  .\wacs.exe --renew --baseuri "https://acme-v02.api.letsencrypt.org/"
+
+10) Procedimiento de actualización a producción (deploy)
+-------------------------------------------------------
+Objetivo: aplicar cambios con mínimo downtime y posibilidad de rollback.
+
+A) Preparación
+- Respaldo del código actual (zip o control de versiones)
+- Confirmar acceso admin a la VM
+
+B) Deploy estándar (código/plantillas/estáticos)
+1. Subir cambios al servidor (reemplazar archivos en el proyecto)
+2. Instalar dependencias nuevas si existen:
+   cd C:\Users\Administrator\Desktop\evolve-soluciones
+   .\.venv\Scripts\pip.exe install -r requirements.txt
+3. Reiniciar la app (sin tocar IIS):
+   C:\tools\nssm\nssm.exe restart evolve-soluciones
+4. Validar:
+   - Interno: http://127.0.0.1:8000/salud
+   - Externo: https://portal.evolveasesores.cl/salud y páginas principales
+
+C) Deploy con cambios críticos en dependencias
+1. Parar servicio:
+   C:\tools\nssm\nssm.exe stop evolve-soluciones
+2. (Opcional) Probar en carpeta de staging
+3. Instalar dependencias:
+   .\.venv\Scripts\pip.exe install -r requirements.txt
+4. Iniciar servicio:
+   C:\tools\nssm\nssm.exe start evolve-soluciones
+5. Validar salud y rutas principales
+
+D) Rollback
+1. Parar servicio
+2. Restaurar carpeta del proyecto desde respaldo anterior
+3. (Si aplica) reinstalar dependencias del requirements.txt previo
+4. Iniciar servicio y validar
+
+E) Cambios en web.config (proxy/redirect)
+- Editar C:\inetpub\portal-evolve\web.config
+- Reiniciar IIS: iisreset
+
+F) Consideraciones de seguridad/entorno
+- En producción, `SECRET_KEY` debe definirse (variable de entorno o .env)
+- Credenciales DB (`DB_HOST`, `DB_USER`, `DB_PASSWORD`, `DB_NAME`) deben apuntar al servidor correcto
+
+11) Solución de problemas comunes
+---------------------------------
+- Connection refused externo: revisar apertura 80/443 en proveedor y Windows; confirmar bindings IIS
+- Certificado incorrecto (SNI): evitar bindings https sin Host; marcar SNI en todos los https
+- 500 por UnicodeEncodeError: evitar emojis en prints (corregido)
+- Python 3.13 y paquetes: usar Pillow 11.0.0, numpy 2.1.2, pandas 2.2.3
+- Reverse proxy: ARR "Enable proxy" activo, reglas en web.config
+
+12) Anexos
+----------
+Anexo A - web.config (redirect + proxy)
+--------------------------------------
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+  <system.webServer>
+    <rewrite>
+      <rules>
+        <rule name="RedirectToHTTPS" stopProcessing="true">
+          <match url="(.*)" />
+          <conditions>
+            <add input="{HTTPS}" pattern="^OFF$" />
+          </conditions>
+          <action type="Redirect" url="https://{HTTP_HOST}{REQUEST_URI}" redirectType="Permanent" />
+        </rule>
+        <rule name="ReverseProxyToWaitress" stopProcessing="true">
+          <match url="(.*)" />
+          <action type="Rewrite" url="http://127.0.0.1:8000/{R:1}" />
+        </rule>
+      </rules>
+    </rewrite>
+  </system.webServer>
+</configuration>
+
+Comandos útiles
+---------------
+- Estado servicio:      C:\tools\nssm\nssm.exe status evolve-soluciones
+- Reiniciar servicio:   C:\tools\nssm\nssm.exe restart evolve-soluciones
+- Parar servicio:       C:\tools\nssm\nssm.exe stop evolve-soluciones
+- IIS reinicio:         iisreset
+- Bindings IIS:         Import-Module WebAdministration; Get-WebBinding -Name "portal-evolve"
+- Puertos en escucha:   netstat -ano | findstr ":80" / ":443" / ":8000"
+- Salud local via host: Invoke-WebRequest http://127.0.0.1/salud -Headers @{Host='portal.evolveasesores.cl'} -UseBasicParsing
+- Renovar SSL manual:   C:\tools\win-acme\wacs.exe --renew --baseuri "https://acme-v02.api.letsencrypt.org/"
+
+Fin del documento

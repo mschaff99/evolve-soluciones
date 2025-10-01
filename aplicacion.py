@@ -1,0 +1,229 @@
+import os
+import socket
+from flask import Flask, redirect, url_for, request, session, make_response, jsonify
+from flask_login import LoginManager, current_user
+from flask_bcrypt import Bcrypt
+from flask_wtf.csrf import CSRFProtect, CSRFError
+from datetime import datetime
+
+# Importaciones locales
+from configuracion.configuracion import obtener_configuracion
+from aplicacion.utilidades.inicializadores import inicializar_extensiones
+from aplicacion.utilidades.manejadores_errores import registrar_manejadores_errores
+
+
+def crear_aplicacion(nombre_entorno=None):
+    """
+    Factory function para crear la aplicación Flask
+
+    Args:
+        nombre_entorno (str): Entorno de configuración a usar
+
+    Returns:
+        Flask: Instancia configurada de la aplicación
+    """
+    # Crear instancia de Flask
+    aplicacion = Flask(__name__,
+                      template_folder='aplicacion/plantillas',
+                      static_folder='aplicacion/estaticos',
+                      static_url_path='/static')
+
+    # Cargar configuración
+    config_class = obtener_configuracion(nombre_entorno)
+    aplicacion.config.from_object(config_class)
+
+    # Configurar timeouts para requests largos
+    aplicacion.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
+    aplicacion.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 horas
+
+    # Inicializar extensiones
+    inicializar_extensiones(aplicacion)
+
+    # Registrar manejadores de errores
+    registrar_manejadores_errores(aplicacion)
+
+    # Registrar blueprints
+    registrar_blueprints(aplicacion)
+
+    # Registrar context processors
+    registrar_context_processors(aplicacion)
+
+    # Registrar middleware
+    registrar_middleware(aplicacion)
+
+    return aplicacion
+
+
+def registrar_blueprints(aplicacion):
+    """Registra todos los blueprints de la aplicación"""
+
+    # Importar blueprints existentes
+    from aplicacion.controladores.autenticacion import autenticacion_bp
+    from aplicacion.controladores.consulta_integral_f29 import consulta_integral_f29_bp
+    from aplicacion.controladores.rutas_dinamicas import rutas_dinamicas_bp
+
+    # Importaciones comentadas - controladores pendientes de crear
+    # from aplicacion.controladores.consolidado import consolidado_bp
+    # from aplicacion.controladores.sesiones import sesiones_bp
+    # from aplicacion.controladores.tareas import tareas_bp
+    # from aplicacion.controladores.email_rutas import email_bp
+    # from aplicacion.controladores.rutas_ia import ia_bp
+    # from aplicacion.controladores.proveedores_rutas import proveedores_bp
+
+    # Registrar blueprints existentes
+    aplicacion.register_blueprint(autenticacion_bp)
+    aplicacion.register_blueprint(consulta_integral_f29_bp)
+    aplicacion.register_blueprint(rutas_dinamicas_bp)
+
+    # Registros comentados - blueprints pendientes de crear
+    # aplicacion.register_blueprint(consolidado_bp)
+    # aplicacion.register_blueprint(sesiones_bp)
+    # aplicacion.register_blueprint(tareas_bp)
+    # aplicacion.register_blueprint(email_bp)
+    # aplicacion.register_blueprint(ia_bp)
+    # aplicacion.register_blueprint(proveedores_bp)
+
+
+def registrar_context_processors(aplicacion):
+    """Registra context processors globales para templates"""
+
+    @aplicacion.context_processor
+    def inyectar_csrf_token():
+        """Hace el token CSRF disponible en todos los templates"""
+        from flask_wtf.csrf import generate_csrf
+        return dict(csrf_token=generate_csrf)
+
+    @aplicacion.context_processor
+    def inyectar_usuario():
+        """Inyecta información del usuario actual y año en templates"""
+        return dict(
+            current_user=current_user,
+            current_year=datetime.now().year
+        )
+
+
+def registrar_middleware(aplicacion):
+    """Registra middleware para la aplicación"""
+
+    @aplicacion.before_request
+    def actualizar_timestamp_sesion():
+        """Actualiza el timestamp de última actividad en cada petición"""
+        # Manejar preflight requests de navegadores modernos
+        if request.method == 'OPTIONS':
+            return '', 200
+
+        # Solo actualizar si el usuario está autenticado y tenemos un token de sesión
+        if current_user.is_authenticated and session.get('session_token'):
+            # Evitar actualizar en solicitudes de recursos estáticos
+            if not request.path.startswith('/static/'):
+                try:
+                    from aplicacion.modelos.sesion import SesionUsuario
+                    SesionUsuario.actualizar_sesion(session.get('session_token'))
+                except Exception as e:
+                    print(f"Error al actualizar timestamp de sesión: {e}")
+
+    @aplicacion.after_request
+    def despues_de_request(response):
+        """Headers para mejorar compatibilidad con diferentes navegadores/OS"""
+        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        response.headers['Pragma'] = 'no-cache'
+        response.headers['Expires'] = '0'
+        response.headers['X-Content-Type-Options'] = 'nosniff'
+        response.headers['X-Frame-Options'] = 'DENY'
+        return response
+
+
+# Crear instancia de la aplicación
+app = crear_aplicacion()
+
+
+# Rutas principales
+@app.route('/')
+def inicio():
+    """Ruta principal - redirige según estado de autenticación"""
+    if current_user.is_authenticated:
+        # Si está autenticado, redirigir a su base de datos
+        base_datos = current_user.base_datos_mysql or 'default'
+        return redirect(f'/{base_datos}')
+    else:
+        # Si no está autenticado, redirigir a login
+        return redirect(url_for('autenticacion.iniciar_sesion'))
+
+
+@app.route('/salud')
+def verificacion_salud():
+    """Endpoint para verificar que la aplicación está funcionando"""
+    return {
+        "estado": "OK",
+        "mensaje": "Evolve Soluciones - Sistema de Gestión Empresarial",
+        "version": "1.0.0"
+    }
+
+
+@app.route('/diagnostico')
+def diagnostico():
+    """Endpoint para diagnosticar conectividad y estado del sistema"""
+    import platform
+    from datetime import datetime
+
+    def obtener_ip_cliente():
+        """Obtiene la IP real del cliente"""
+        try:
+            from aplicacion.utilidades.herramientas_ip import obtener_ip_real_cliente
+            return obtener_ip_real_cliente()
+        except Exception as e:
+            print(f"Error al obtener IP real: {e}")
+            return request.remote_addr
+
+    cliente_ip = obtener_ip_cliente()
+    info_servidor = {
+        "estado": "OK",
+        "timestamp": datetime.now().isoformat(),
+        "plataforma_servidor": platform.system(),
+        "hostname_servidor": socket.gethostname(),
+        "ip_cliente": cliente_ip or "Desconocida",
+        "user_agent": request.headers.get('User-Agent', 'Desconocido'),
+        "metodo_conexion": (
+            "Directa" if cliente_ip and cliente_ip.startswith('192.168')
+            else "ZeroTier" if cliente_ip and cliente_ip.startswith('172.25')
+            else "Desconocida"
+        )
+    }
+
+    return info_servidor
+
+
+@app.route('/api/usuario_actual')
+def obtener_usuario_actual():
+    """Endpoint para obtener información del usuario actual"""
+    if current_user.is_authenticated:
+        return {
+            "id": current_user.id,
+            "nombre_usuario": current_user.nombre_usuario,
+            "rol": current_user.rol,
+            "activo": current_user.activo
+        }
+    return {"error": "No autenticado"}, 401
+
+
+if __name__ == '__main__':
+    import socket
+    hostname = socket.gethostname()
+
+    print("=" * 60)
+    print("Evolve Soluciones - Sistema de Gestión Empresarial")
+    print("=" * 60)
+    print("Iniciando servidor Flask...")
+    print("URLs de acceso:")
+    print(f"  - Local: http://127.0.0.1:5000")
+    print(f"  - Hostname: http://{hostname}:5000")
+    print("=" * 60)
+
+    # Configuración robusta para conexiones de red
+    app.run(
+        host='0.0.0.0',
+        port=5000,
+        debug=True,
+        threaded=True,
+        use_reloader=False,
+    )

@@ -1,0 +1,428 @@
+# =====================================================
+# COMANDOS ÚTILES DE POSTGRESQL - EVOLVE SOLUCIONES
+# =====================================================
+
+# CONEXIÓN
+# --------
+# Conectar a PostgreSQL
+psql -U postgres
+
+# Conectar a base de datos específica
+psql -U postgres -d evolve_auth
+
+# Conectar desde Python (ejecutar script)
+python scripts/inicializar_base_datos.py
+
+
+# ADMINISTRACIÓN DE BASE DE DATOS
+# --------------------------------
+# Crear base de datos
+CREATE DATABASE evolve_auth;
+
+# Listar bases de datos
+\l
+
+# Conectar a base de datos
+\c evolve_auth
+
+# Ver base de datos actual
+SELECT current_database();
+
+# Eliminar base de datos (¡CUIDADO!)
+DROP DATABASE evolve_auth;
+
+
+# ADMINISTRACIÓN DE TABLAS
+# -------------------------
+# Ver todas las tablas del esquema auth
+\dt auth.*
+
+# Ver estructura de una tabla
+\d auth.usuarios
+\d auth.sesiones_usuario
+\d auth.intentos_login
+
+# Ver todos los esquemas
+\dn
+
+# Eliminar todas las tablas (¡CUIDADO!)
+DROP SCHEMA auth CASCADE;
+
+
+# CONSULTAS USUARIOS
+# -------------------
+# Ver todos los usuarios
+SELECT id, nombre_usuario, email, rol, activo, fecha_creacion 
+FROM auth.usuarios 
+ORDER BY id;
+
+# Ver solo usuarios activos
+SELECT id, nombre_usuario, email, rol 
+FROM auth.usuarios 
+WHERE activo = TRUE;
+
+# Ver solo administradores
+SELECT id, nombre_usuario, email 
+FROM auth.usuarios 
+WHERE rol = 'administrador' AND activo = TRUE;
+
+# Buscar usuario por nombre
+SELECT * FROM auth.usuarios 
+WHERE nombre_usuario = 'admin';
+
+# Buscar usuario por email
+SELECT * FROM auth.usuarios 
+WHERE email LIKE '%@evolve.cl';
+
+# Contar usuarios por rol
+SELECT rol, COUNT(*) as total 
+FROM auth.usuarios 
+WHERE activo = TRUE 
+GROUP BY rol;
+
+
+# CONSULTAS SESIONES
+# -------------------
+# Ver sesiones activas con información de usuario
+SELECT 
+    s.id,
+    u.nombre_usuario,
+    u.email,
+    s.direccion_ip,
+    s.user_agent,
+    s.fecha_creacion,
+    s.fecha_ultima_actividad,
+    EXTRACT(EPOCH FROM (NOW() - s.fecha_ultima_actividad))/60 as minutos_inactivo
+FROM auth.sesiones_usuario s
+JOIN auth.usuarios u ON s.id_usuario = u.id
+WHERE s.activa = TRUE
+ORDER BY s.fecha_ultima_actividad DESC;
+
+# Ver todas las sesiones de un usuario específico
+SELECT 
+    id,
+    token_sesion,
+    direccion_ip,
+    fecha_creacion,
+    fecha_ultima_actividad,
+    activa
+FROM auth.sesiones_usuario
+WHERE id_usuario = 1
+ORDER BY fecha_ultima_actividad DESC;
+
+# Contar sesiones activas
+SELECT COUNT(*) as sesiones_activas 
+FROM auth.sesiones_usuario 
+WHERE activa = TRUE;
+
+# Ver sesiones expiradas (más de 24 horas de inactividad)
+SELECT 
+    u.nombre_usuario,
+    s.direccion_ip,
+    s.fecha_ultima_actividad
+FROM auth.sesiones_usuario s
+JOIN auth.usuarios u ON s.id_usuario = u.id
+WHERE s.activa = TRUE 
+AND s.fecha_ultima_actividad < NOW() - INTERVAL '24 hours'
+ORDER BY s.fecha_ultima_actividad;
+
+
+# CONSULTAS INTENTOS DE LOGIN
+# ----------------------------
+# Ver últimos intentos de login
+SELECT 
+    nombre_usuario,
+    direccion_ip,
+    exitoso,
+    fecha_intento,
+    mensaje
+FROM auth.intentos_login
+ORDER BY fecha_intento DESC
+LIMIT 50;
+
+# Ver intentos fallidos
+SELECT 
+    nombre_usuario,
+    direccion_ip,
+    COUNT(*) as intentos_fallidos,
+    MAX(fecha_intento) as ultimo_intento
+FROM auth.intentos_login
+WHERE exitoso = FALSE
+GROUP BY nombre_usuario, direccion_ip
+HAVING COUNT(*) >= 3
+ORDER BY intentos_fallidos DESC;
+
+# Ver intentos desde una IP específica
+SELECT *
+FROM auth.intentos_login
+WHERE direccion_ip = '192.168.1.100'
+ORDER BY fecha_intento DESC;
+
+# Estadísticas de login del día
+SELECT 
+    exitoso,
+    COUNT(*) as total,
+    COUNT(DISTINCT nombre_usuario) as usuarios_unicos,
+    COUNT(DISTINCT direccion_ip) as ips_unicas
+FROM auth.intentos_login
+WHERE fecha_intento >= CURRENT_DATE
+GROUP BY exitoso;
+
+
+# OPERACIONES DE USUARIOS
+# ------------------------
+# Crear usuario administrador (con hash de contraseña desde Python)
+INSERT INTO auth.usuarios 
+(nombre_usuario, email, hash_contraseña, rol, activo, fecha_creacion) 
+VALUES 
+('admin', 'admin@evolve.cl', 'hash-aqui', 'administrador', TRUE, NOW());
+
+# Activar/Desactivar usuario
+UPDATE auth.usuarios 
+SET activo = FALSE 
+WHERE id = 1;
+
+UPDATE auth.usuarios 
+SET activo = TRUE 
+WHERE id = 1;
+
+# Cambiar rol de usuario
+UPDATE auth.usuarios 
+SET rol = 'administrador' 
+WHERE id = 2;
+
+# Actualizar email
+UPDATE auth.usuarios 
+SET email = 'nuevo@email.com' 
+WHERE id = 1;
+
+# Actualizar contraseña (hash generado desde Python)
+UPDATE auth.usuarios 
+SET hash_contraseña = 'nuevo-hash-aqui' 
+WHERE nombre_usuario = 'admin';
+
+# Eliminar usuario (soft delete)
+UPDATE auth.usuarios 
+SET activo = FALSE 
+WHERE id = 1;
+
+
+# OPERACIONES DE SESIONES
+# ------------------------
+# Cerrar sesión específica
+UPDATE auth.sesiones_usuario 
+SET activa = FALSE 
+WHERE token_sesion = 'token-aqui';
+
+# Cerrar todas las sesiones de un usuario
+UPDATE auth.sesiones_usuario 
+SET activa = FALSE 
+WHERE id_usuario = 1;
+
+# Cerrar sesiones expiradas (usando función)
+SELECT auth.limpiar_sesiones_expiradas(1440); -- 24 horas
+
+# Cerrar sesiones expiradas (manual)
+UPDATE auth.sesiones_usuario 
+SET activa = FALSE 
+WHERE fecha_ultima_actividad < NOW() - INTERVAL '24 hours' 
+AND activa = TRUE;
+
+# Eliminar sesiones antiguas permanentemente
+DELETE FROM auth.sesiones_usuario 
+WHERE fecha_ultima_actividad < NOW() - INTERVAL '30 days';
+
+
+# BACKUP Y RESTAURACIÓN
+# ----------------------
+# Hacer backup de la base de datos (desde terminal)
+pg_dump -U postgres -d evolve_auth -F c -f backup_auth_$(date +%Y%m%d_%H%M%S).dump
+
+# Backup en formato SQL
+pg_dump -U postgres -d evolve_auth -f backup_auth_$(date +%Y%m%d_%H%M%S).sql
+
+# Backup solo del esquema auth
+pg_dump -U postgres -d evolve_auth -n auth -f backup_auth_schema.sql
+
+# Restaurar desde backup
+pg_restore -U postgres -d evolve_auth -c backup_auth_20240101.dump
+
+# Restaurar desde SQL
+psql -U postgres -d evolve_auth -f backup_auth_20240101.sql
+
+
+# MANTENIMIENTO
+# -------------
+# Ver tamaño de la base de datos
+SELECT pg_size_pretty(pg_database_size('evolve_auth'));
+
+# Ver tamaño de cada tabla
+SELECT 
+    schemaname || '.' || tablename AS tabla,
+    pg_size_pretty(pg_total_relation_size(schemaname||'.'||tablename)) AS tamaño
+FROM pg_tables
+WHERE schemaname = 'auth'
+ORDER BY pg_total_relation_size(schemaname||'.'||tablename) DESC;
+
+# Ver conexiones activas
+SELECT 
+    pid,
+    usename,
+    application_name,
+    client_addr,
+    state,
+    query_start
+FROM pg_stat_activity
+WHERE datname = 'evolve_auth';
+
+# Contar conexiones
+SELECT count(*) FROM pg_stat_activity 
+WHERE datname = 'evolve_auth';
+
+# Terminar conexión específica
+SELECT pg_terminate_backend(pid) 
+FROM pg_stat_activity 
+WHERE datname = 'evolve_auth' 
+AND pid <> pg_backend_pid();
+
+# Vacuum (limpiar espacio)
+VACUUM FULL auth.usuarios;
+VACUUM FULL auth.sesiones_usuario;
+VACUUM FULL auth.intentos_login;
+
+# Analizar tablas (actualizar estadísticas)
+ANALYZE auth.usuarios;
+ANALYZE auth.sesiones_usuario;
+ANALYZE auth.intentos_login;
+
+# Reindexar
+REINDEX TABLE auth.usuarios;
+REINDEX SCHEMA auth;
+
+
+# SEGURIDAD
+# ---------
+# Ver usuarios de PostgreSQL
+\du
+
+# Crear usuario de aplicación
+CREATE USER evolve_app WITH PASSWORD 'password-seguro';
+
+# Dar permisos al usuario de aplicación
+GRANT USAGE ON SCHEMA auth TO evolve_app;
+GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA auth TO evolve_app;
+GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA auth TO evolve_app;
+
+# Revocar permisos
+REVOKE ALL ON SCHEMA auth FROM evolve_app;
+
+# Cambiar contraseña de usuario PostgreSQL
+ALTER USER postgres PASSWORD 'nueva-contraseña';
+
+
+# INFORMACIÓN Y DIAGNÓSTICO
+# --------------------------
+# Ver versión de PostgreSQL
+SELECT version();
+
+# Ver configuración actual
+SHOW all;
+
+# Ver parámetros específicos
+SHOW max_connections;
+SHOW shared_buffers;
+SHOW work_mem;
+
+# Ver índices de una tabla
+\di auth.usuarios
+
+# Ver funciones del esquema
+\df auth.*
+
+# Ver triggers
+SELECT 
+    trigger_name,
+    event_manipulation,
+    event_object_table,
+    action_statement
+FROM information_schema.triggers
+WHERE trigger_schema = 'auth';
+
+# Ver constraints
+SELECT
+    tc.constraint_name,
+    tc.table_name,
+    kcu.column_name,
+    tc.constraint_type
+FROM information_schema.table_constraints tc
+JOIN information_schema.key_column_usage kcu 
+    ON tc.constraint_name = kcu.constraint_name
+WHERE tc.table_schema = 'auth'
+ORDER BY tc.table_name, tc.constraint_type;
+
+
+# UTILIDADES PSQL
+# ---------------
+# Ayuda
+\?
+
+# Ayuda SQL
+\h
+
+# Listar comandos disponibles
+\h SELECT
+
+# Ejecutar archivo SQL
+\i /ruta/al/archivo.sql
+
+# Ejecutar comando del sistema
+\! ls -la
+
+# Ver tiempo de ejecución de queries
+\timing
+
+# Salir
+\q
+
+
+# EXPORTAR DATOS
+# --------------
+# Exportar a CSV
+\copy (SELECT * FROM auth.usuarios) TO 'usuarios.csv' WITH CSV HEADER;
+
+# Exportar con delimitador personalizado
+\copy (SELECT * FROM auth.usuarios) TO 'usuarios.txt' WITH DELIMITER '|' CSV HEADER;
+
+# Desde SQL
+COPY (SELECT * FROM auth.usuarios WHERE activo = TRUE) 
+TO '/tmp/usuarios_activos.csv' 
+WITH CSV HEADER;
+
+
+# IMPORTAR DATOS
+# --------------
+# Importar desde CSV
+\copy auth.usuarios(nombre_usuario, email, hash_contraseña, rol) 
+FROM 'usuarios.csv' 
+WITH CSV HEADER;
+
+
+# LOGS Y AUDITORÍA
+# ----------------
+# Ver últimas actividades por usuario
+SELECT 
+    u.nombre_usuario,
+    MAX(s.fecha_ultima_actividad) as ultima_actividad,
+    COUNT(DISTINCT s.id) as sesiones_totales,
+    COUNT(DISTINCT s.direccion_ip) as ips_diferentes
+FROM auth.usuarios u
+LEFT JOIN auth.sesiones_usuario s ON u.id = s.id_usuario
+WHERE u.activo = TRUE
+GROUP BY u.nombre_usuario
+ORDER BY ultima_actividad DESC NULLS LAST;
+
+# Ver usuarios nunca conectados
+SELECT nombre_usuario, email, fecha_creacion
+FROM auth.usuarios
+WHERE fecha_ultimo_acceso IS NULL
+AND activo = TRUE;

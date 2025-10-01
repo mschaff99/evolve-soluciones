@@ -1,0 +1,258 @@
+{
+    // ============================================
+    // PYTHON - FLASK
+    // ============================================
+    "Flask Blueprint": {
+        "prefix": "flask-bp",
+        "body": [
+            "from flask import Blueprint, render_template, request, jsonify, redirect, url_for",
+            "from flask_login import login_required, current_user",
+            "from aplicacion.utilidades.decoradores import ${1:decorador}",
+            "",
+            "${2:nombre}_bp = Blueprint('${2:nombre}', __name__, url_prefix='/${3:ruta}')",
+            "",
+            "@${2:nombre}_bp.route('/', methods=['GET'])",
+            "@login_required",
+            "def ${4:vista}():",
+            "    \"\"\"${5:Descripción de la vista}\"\"\"",
+            "    try:",
+            "        $0",
+            "        return render_template('paginas/${6:template}.html')",
+            "    except Exception as e:",
+            "        print(f'Error en ${4:vista}: {e}')",
+            "        return redirect(url_for('${7:vista_error}'))"
+        ],
+        "description": "Crea un Blueprint de Flask con estructura básica"
+    },
+    "Flask Route GET": {
+        "prefix": "flask-route-get",
+        "body": [
+            "@${1:blueprint}_bp.route('/${2:ruta}', methods=['GET'])",
+            "@login_required",
+            "def ${3:nombre_funcion}():",
+            "    \"\"\"${4:Descripción de la ruta}\"\"\"",
+            "    try:",
+            "        $0",
+            "        return render_template('paginas/${5:template}.html')",
+            "    except Exception as e:",
+            "        print(f'Error en ${3:nombre_funcion}: {e}')",
+            "        return jsonify({'error': str(e)}), 500"
+        ],
+        "description": "Ruta Flask GET"
+    },
+    "Flask Route POST": {
+        "prefix": "flask-route-post",
+        "body": [
+            "@${1:blueprint}_bp.route('/${2:ruta}', methods=['POST'])",
+            "@login_required",
+            "def ${3:nombre_funcion}():",
+            "    \"\"\"${4:Descripción de la ruta}\"\"\"",
+            "    try:",
+            "        datos = request.get_json()",
+            "        $0",
+            "        return jsonify({'exito': True, 'mensaje': '${5:Operación exitosa}'}), 200",
+            "    except Exception as e:",
+            "        print(f'Error en ${3:nombre_funcion}: {e}')",
+            "        return jsonify({'error': str(e)}), 500"
+        ],
+        "description": "Ruta Flask POST con JSON"
+    },
+    // ============================================
+    // PYTHON - SERVICIOS
+    // ============================================
+    "Clase Servicio": {
+        "prefix": "servicio-clase",
+        "body": [
+            "from typing import Optional, Dict, List",
+            "from aplicacion.modelos.base_datos import ejecutar_consulta",
+            "",
+            "class ${1:NombreServicio}:",
+            "    \"\"\"${2:Descripción del servicio}\"\"\"",
+            "    ",
+            "    @staticmethod",
+            "    def obtener_por_id(id_${3:entidad}: int) -> Optional[Dict]:",
+            "        \"\"\"",
+            "        Obtiene ${3:entidad} por ID",
+            "        ",
+            "        Args:",
+            "            id_${3:entidad}: ID de la ${3:entidad}",
+            "            ",
+            "        Returns:",
+            "            Dict con datos o None",
+            "        \"\"\"",
+            "        try:",
+            "            consulta = \"SELECT * FROM ${4:tabla} WHERE id = %s\"",
+            "            return ejecutar_consulta(consulta, (id_${3:entidad},), obtener_uno=True)",
+            "        except Exception as e:",
+            "            print(f'Error al obtener ${3:entidad}: {e}')",
+            "            return None",
+            "    ",
+            "    @staticmethod",
+            "    def listar_todos() -> List[Dict]:",
+            "        \"\"\"Obtiene todas las ${3:entidad}s\"\"\"",
+            "        try:",
+            "            consulta = \"SELECT * FROM ${4:tabla}\"",
+            "            return ejecutar_consulta(consulta)",
+            "        except Exception as e:",
+            "            print(f'Error al listar ${3:entidad}s: {e}')",
+            "            return []",
+            "    ",
+            "    $0"
+        ],
+        "description": "Clase de servicio con métodos básicos"
+    },
+    // ============================================
+    // PYTHON - BASE DE DATOS
+    // ============================================
+    "Consulta SQL Parametrizada": {
+        "prefix": "sql-query",
+        "body": [
+            "consulta = \"\"\"",
+            "    SELECT $1",
+            "    FROM ${2:tabla}",
+            "    WHERE ${3:condicion} = %s",
+            "\"\"\"",
+            "resultado = ejecutar_consulta(consulta, (${4:parametro},)$5)"
+        ],
+        "description": "Consulta SQL parametrizada segura"
+    },
+    "Transacción SQL": {
+        "prefix": "sql-transaction",
+        "body": [
+            "try:",
+            "    conexion = obtener_conexion()",
+            "    cursor = conexion.cursor()",
+            "    ",
+            "    # Primera operación",
+            "    consulta1 = \"${1:INSERT/UPDATE/DELETE...}\"",
+            "    cursor.execute(consulta1, (${2:params},))",
+            "    ",
+            "    # Segunda operación",
+            "    consulta2 = \"${3:INSERT/UPDATE/DELETE...}\"",
+            "    cursor.execute(consulta2, (${4:params},))",
+            "    ",
+            "    conexion.commit()",
+            "    return True",
+            "except Exception as e:",
+            "    conexion.rollback()",
+            "    print(f'Error en transacción: {e}')",
+            "    return False",
+            "finally:",
+            "    cursor.close()",
+            "    conexion.close()"
+        ],
+        "description": "Transacción SQL con rollback"
+    },
+    // ============================================
+    // HTML - JINJA2
+    // ============================================
+    "Jinja2 Base Template": {
+        "prefix": "jinja-base",
+        "body": [
+            "{% extends 'diseños/base.html' %}",
+            "",
+            "{% block titulo %}${1:Título de la página}{% endblock %}",
+            "",
+            "{% block contenido %}",
+            "<div class=\"container mt-4\">",
+            "    <h1>${1:Título de la página}</h1>",
+            "    $0",
+            "</div>",
+            "{% endblock %}",
+            "",
+            "{% block scripts_adicionales %}",
+            "<script src=\"{{ url_for('static', filename='js/${2:script}.js') }}\"></script>",
+            "{% endblock %}"
+        ],
+        "description": "Template Jinja2 con herencia"
+    },
+    "Jinja2 Loop": {
+        "prefix": "jinja-for",
+        "body": [
+            "{% for ${1:item} in ${2:items} %}",
+            "    $0",
+            "{% endfor %}"
+        ],
+        "description": "Loop for en Jinja2"
+    },
+    // ============================================
+    // JAVASCRIPT
+    // ============================================
+    "Fetch GET": {
+        "prefix": "fetch-get",
+        "body": [
+            "async function ${1:obtenerDatos}() {",
+            "    try {",
+            "        const respuesta = await fetch('${2:/api/endpoint}');",
+            "        if (!respuesta.ok) {",
+            "            throw new Error('Error en la petición');",
+            "        }",
+            "        const datos = await respuesta.json();",
+            "        $0",
+            "    } catch (error) {",
+            "        console.error('Error:', error);",
+            "    }",
+            "}"
+        ],
+        "description": "Fetch API GET"
+    },
+    "Fetch POST": {
+        "prefix": "fetch-post",
+        "body": [
+            "async function ${1:enviarDatos}(datos) {",
+            "    try {",
+            "        const respuesta = await fetch('${2:/api/endpoint}', {",
+            "            method: 'POST',",
+            "            headers: {",
+            "                'Content-Type': 'application/json',",
+            "                'X-CSRFToken': obtenerCsrfToken()",
+            "            },",
+            "            body: JSON.stringify(datos)",
+            "        });",
+            "        ",
+            "        if (!respuesta.ok) {",
+            "            throw new Error('Error en la petición');",
+            "        }",
+            "        ",
+            "        const resultado = await respuesta.json();",
+            "        $0",
+            "    } catch (error) {",
+            "        console.error('Error:', error);",
+            "    }",
+            "}"
+        ],
+        "description": "Fetch API POST con CSRF"
+    },
+    // ============================================
+    // PYTHON - UTILIDADES
+    // ============================================
+    "Try-Except con Logging": {
+        "prefix": "try-log",
+        "body": [
+            "try:",
+            "    $0",
+            "except Exception as e:",
+            "    print(f'Error en ${1:operacion}: {e}')",
+            "    ${2:return None}"
+        ],
+        "description": "Try-except con logging"
+    },
+    "Docstring Función": {
+        "prefix": "docstring",
+        "body": [
+            "\"\"\"",
+            "${1:Descripción breve de la función}",
+            "",
+            "Args:",
+            "    ${2:parametro}: ${3:Descripción del parámetro}",
+            "",
+            "Returns:",
+            "    ${4:Descripción del retorno}",
+            "    ",
+            "Raises:",
+            "    ${5:Excepción}: ${6:Cuando ocurre...}",
+            "\"\"\""
+        ],
+        "description": "Docstring completo"
+    }
+}

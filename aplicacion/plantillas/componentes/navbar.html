@@ -1,0 +1,258 @@
+<!-- Barra de navegación principal -->
+<nav class="navbar navbar-expand-lg navbar-dark bg-primary sticky-top">
+    <div class="container-fluid">
+        <!-- Logo y nombre de la aplicación -->
+        <a class="navbar-brand d-flex align-items-center" href="{{ url_for('consolidado.dashboard') }}">
+            <i class="fas fa-chart-line me-2"></i>
+            <span class="fw-bold">Evolve Soluciones</span>
+        </a>
+        
+        <!-- Botón para móvil -->
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        
+        <!-- Contenido de navegación -->
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <!-- Menú principal -->
+            <ul class="navbar-nav me-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('consolidado.dashboard') }}">
+                        <i class="fas fa-home me-1"></i>
+                        Inicio
+                    </a>
+                </li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="menuConsolidado" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-chart-bar me-1"></i>
+                        Consolidado
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('consolidado.vista_mensual') }}">
+                            <i class="fas fa-calendar-alt me-2"></i>Vista Mensual
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('consolidado.vista_anual') }}">
+                            <i class="fas fa-calendar me-2"></i>Vista Anual
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('consolidado.estadisticas') }}">
+                            <i class="fas fa-chart-pie me-2"></i>Estadísticas
+                        </a></li>
+                    </ul>
+                </li>
+                
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ url_for('consulta_integral_f29.vista_principal') }}">
+                        <i class="fas fa-file-invoice me-1"></i>
+                        Consulta F29
+                    </a>
+                </li>
+                
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="menuTareas" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-tasks me-1"></i>
+                        Tareas
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('tareas.listar_tareas') }}">
+                            <i class="fas fa-list me-2"></i>Mis Tareas
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('tareas.crear_tarea') }}">
+                            <i class="fas fa-plus me-2"></i>Nueva Tarea
+                        </a></li>
+                    </ul>
+                </li>
+                
+                {% if current_user.es_administrador() %}
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="menuAdmin" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-cog me-1"></i>
+                        Administración
+                    </a>
+                    <ul class="dropdown-menu">
+                        <li><a class="dropdown-item" href="{{ url_for('autenticacion.listar_usuarios') }}">
+                            <i class="fas fa-users me-2"></i>Usuarios
+                        </a></li>
+                        <li><a class="dropdown-item" href="{{ url_for('autenticacion.registrar') }}">
+                            <i class="fas fa-user-plus me-2"></i>Registrar Usuario
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('consolidado.configuracion') }}">
+                            <i class="fas fa-sliders-h me-2"></i>Configuración
+                        </a></li>
+                    </ul>
+                </li>
+                {% endif %}
+            </ul>
+            
+            <!-- Menú de usuario -->
+            <ul class="navbar-nav">
+                <!-- Notificaciones -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link position-relative" href="#" id="menuNotificaciones" role="button" data-bs-toggle="dropdown">
+                        <i class="fas fa-bell"></i>
+                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="contadorNotificaciones" style="display: none;">
+                            0
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" style="width: 300px;">
+                        <li><h6 class="dropdown-header">Notificaciones</h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li id="listaNotificaciones">
+                            <div class="dropdown-item-text text-muted text-center py-3">
+                                <i class="fas fa-inbox me-2"></i>
+                                No hay notificaciones
+                            </div>
+                        </li>
+                    </ul>
+                </li>
+                
+                <!-- Perfil de usuario -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle d-flex align-items-center" href="#" id="menuUsuario" role="button" data-bs-toggle="dropdown">
+                        <div class="avatar-circle me-2">
+                            {{ current_user.nombre_usuario[0].upper() }}
+                        </div>
+                        <span class="d-none d-md-inline">{{ current_user.nombre_usuario }}</span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end">
+                        <li><h6 class="dropdown-header">
+                            <i class="fas fa-user me-2"></i>{{ current_user.nombre_usuario }}
+                            <small class="text-muted d-block">{{ current_user.rol.title() }}</small>
+                        </h6></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item" href="{{ url_for('autenticacion.cambiar_contraseña') }}">
+                            <i class="fas fa-key me-2"></i>Cambiar Contraseña
+                        </a></li>
+                        <li><a class="dropdown-item" href="#" onclick="verMisSesiones()">
+                            <i class="fas fa-desktop me-2"></i>Mis Sesiones
+                        </a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li><a class="dropdown-item text-danger" href="{{ url_for('autenticacion.cerrar_sesion') }}">
+                            <i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión
+                        </a></li>
+                    </ul>
+                </li>
+            </ul>
+        </div>
+    </div>
+</nav>
+
+<!-- Estilos adicionales para la navbar -->
+<style>
+.navbar-brand {
+    font-size: 1.3rem;
+}
+
+.avatar-circle {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #fff 0%, #f8f9fa 100%);
+    color: var(--color-primario);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 0.9rem;
+    border: 2px solid rgba(255,255,255,0.3);
+}
+
+.dropdown-menu {
+    border: none;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+    border-radius: 8px;
+}
+
+.dropdown-item {
+    padding: 0.5rem 1rem;
+    transition: all 0.2s ease;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(185, 28, 28, 0.1);
+    color: var(--color-primario);
+}
+
+.dropdown-header {
+    font-weight: 600;
+    color: var(--color-texto);
+}
+
+.nav-link {
+    transition: all 0.2s ease;
+}
+
+.nav-link:hover {
+    background-color: rgba(255,255,255,0.1);
+    border-radius: 4px;
+}
+
+@media (max-width: 768px) {
+    .navbar-nav .dropdown-menu {
+        position: static !important;
+        transform: none !important;
+        border: none;
+        box-shadow: none;
+        background-color: rgba(255,255,255,0.1);
+        margin-top: 0.5rem;
+    }
+}
+</style>
+
+<!-- Script para funcionalidades de la navbar -->
+<script>
+// Cargar notificaciones
+function cargarNotificaciones() {
+    // Aquí se implementaría la carga de notificaciones desde el servidor
+    // Por ahora, simulamos con datos de ejemplo
+    setTimeout(() => {
+        const contador = document.getElementById('contadorNotificaciones');
+        const lista = document.getElementById('listaNotificaciones');
+        
+        // Ejemplo de notificaciones
+        const notificaciones = [
+            { titulo: 'Nueva tarea asignada', tiempo: 'hace 5 minutos', icono: 'fas fa-tasks' },
+            { titulo: 'Consulta F29 completada', tiempo: 'hace 1 hora', icono: 'fas fa-check-circle' }
+        ];
+        
+        if (notificaciones.length > 0) {
+            contador.textContent = notificaciones.length;
+            contador.style.display = 'block';
+            
+            lista.innerHTML = notificaciones.map(notif => `
+                <li><a class="dropdown-item" href="#">
+                    <i class="${notif.icono} me-2 text-primary"></i>
+                    <div>
+                        <div class="fw-semibold">${notif.titulo}</div>
+                        <small class="text-muted">${notif.tiempo}</small>
+                    </div>
+                </a></li>
+            `).join('') + '<li><hr class="dropdown-divider"></li><li><a class="dropdown-item text-center" href="#"><small>Ver todas las notificaciones</small></a></li>';
+        }
+    }, 1000);
+}
+
+// Ver sesiones del usuario
+function verMisSesiones() {
+    fetch('/auth/api/mis-sesiones')
+        .then(response => response.json())
+        .then(data => {
+            if (data.exito) {
+                // Mostrar modal con sesiones
+                console.log('Sesiones del usuario:', data.sesiones);
+                // Aquí se implementaría un modal para mostrar las sesiones
+            }
+        })
+        .catch(error => console.error('Error cargando sesiones:', error));
+}
+
+// Inicializar cuando el DOM esté listo
+document.addEventListener('DOMContentLoaded', function() {
+    cargarNotificaciones();
+    
+    // Actualizar notificaciones cada 5 minutos
+    setInterval(cargarNotificaciones, 300000);
+});
+</script>

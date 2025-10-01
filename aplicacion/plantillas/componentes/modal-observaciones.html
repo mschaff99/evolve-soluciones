@@ -1,0 +1,71 @@
+<!-- Modal para mostrar observaciones de períodos F29 -->
+<div id="modalObservaciones" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+        <!-- Encabezado del modal -->
+        <div class="modal-header">
+            <h3 id="modalTitle">Observaciones del Período</h3>
+            <button class="modal-close" onclick="cerrarModalObservaciones()" title="Cerrar modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        
+        <!-- Contenido del modal -->
+        <div class="modal-content">
+            <!-- Estado de carga -->
+            <div id="modalLoading" class="loading-container">
+                <div class="spinner"></div>
+                <p>Cargando observaciones...</p>
+            </div>
+            
+            <!-- Contenido principal con observaciones -->
+            <div id="modalObservacionesContent" style="display: none;">
+                <!-- Información básica del período -->
+                <div class="observaciones-info">
+                    <div class="info-item">
+                        <strong>RUT:</strong> 
+                        <span id="modalRut">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Período:</strong> 
+                        <span id="modalPeriodo">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Total Observaciones:</strong> 
+                        <span id="modalTotal">0</span>
+                    </div>
+                </div>
+                
+                <!-- Tabla de observaciones -->
+                <div class="observaciones-tabla-container">
+                    <table id="tablaObservaciones" class="tabla-observaciones">
+                        <thead>
+                            <tr>
+                                <th>Código</th>
+                                <th>Descripción</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody id="observacionesBody">
+                            <!-- Las filas se llenan dinámicamente con JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <!-- Estado de error -->
+            <div id="modalError" style="display: none;">
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p id="errorText">Error al cargar las observaciones</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Pie del modal -->
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="cerrarModalObservaciones()">
+                Cerrar
+            </button>
+        </div>
+    </div>
+</div>

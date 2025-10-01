@@ -1,0 +1,46 @@
+# Evolve Soluciones - Dependencias del Proyecto
+# ================================================
+
+# Framework Web Principal
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Autenticación y Seguridad
+Flask-Login==0.6.3
+Flask-Bcrypt==1.0.1
+Flask-WTF==1.2.1
+WTForms==3.1.0
+
+# Base de Datos
+PyMySQL==1.1.0
+pymongo==4.6.0
+psycopg2-binary==2.9.10
+
+# Variables de Entorno
+python-dotenv==1.0.0
+
+# Utilidades y Herramientas
+requests==2.31.0
+Pillow==11.0.0
+
+# Exportación de Datos
+openpyxl==3.1.2
+numpy==2.1.2
+pandas==2.2.3
+
+# API de Google (Sheets y Gemini)
+google-api-python-client==2.108.0
+google-auth-httplib2==0.1.1
+google-auth-oauthlib==1.1.0
+
+# Desarrollo y Testing
+pytest==7.4.3
+pytest-flask==1.3.0
+coverage==7.3.2
+
+# Producción
+gunicorn==21.2.0
+waitress==3.0.2
+
+# seguridad
+cryptography==43.0.0

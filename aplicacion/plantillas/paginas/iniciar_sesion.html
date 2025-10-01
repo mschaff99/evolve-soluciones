@@ -1,0 +1,733 @@
+{% extends "diseños/base.html" %}
+
+{% block titulo %}Iniciar Sesión - Evolve Soluciones{% endblock %}
+
+{% block contenido %}
+<div class="login-container">
+    <div class="login-wrapper">
+        <!-- Sección Izquierda - Formulario de Login -->
+        <div class="login-form-section">
+            <div class="login-form-content">
+                <!-- Logo y marca -->
+                <div class="logo-brand-container mb-5">
+                    <div class="logo-badge">
+                        <img src="{{ url_for('static', filename='imagenes/logo-evolve.ico') }}"
+                             alt="Evolve Soluciones Logo"
+                             class="logo-img"
+                             onerror="this.onerror=null; this.style.display='none'; this.nextElementSibling.style.display='flex';};">
+                        <div class="logo-placeholder" style="display: none;">
+                            <span class="logo-initials">EV</span>
+                        </div>
+                    </div>
+
+                </div>
+
+                <!-- Badge de bienvenida -->
+                <div class="welcome-badge mb-4">
+                    <span class="badge-dot"></span>
+                    <span>Inicio de sesión seguro</span>
+                </div>
+
+                <!-- Mostrar mensajes flash -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        {% for category, message in messages %}
+                            <div class="alert alert-{{ 'danger' if category == 'error' else 'success' if category == 'success' else 'info' }} alert-dismissible fade show" role="alert">
+                                <i class="fas fa-{{ 'exclamation-circle' if category == 'error' else 'check-circle' if category == 'success' else 'info-circle' }}"></i>
+                                <span>{{ message }}</span>
+                                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <!-- Formulario de login -->
+                <form method="POST" action="{{ url_for('autenticacion.iniciar_sesion') }}" class="login-form">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+
+                    <div class="form-group">
+                        <label for="nombre_usuario" class="form-label">Usuario</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-user input-icon"></i>
+                            <input type="text"
+                                   class="form-control"
+                                   id="nombre_usuario"
+                                   name="nombre_usuario"
+                                   placeholder="Ingresa tu usuario"
+                                   required
+                                   autocomplete="username">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="contraseña" class="form-label">Contraseña</label>
+                        <div class="input-icon-wrapper">
+                            <i class="fas fa-lock input-icon"></i>
+                            <input type="password"
+                                   class="form-control"
+                                   id="contraseña"
+                                   name="contraseña"
+                                   placeholder="Ingresa tu contraseña"
+                                   required
+                                   autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <div class="form-check-wrapper">
+                        <input type="checkbox"
+                               class="form-check-input"
+                               id="recordarme"
+                               name="recordarme">
+                        <label class="form-check-label" for="recordarme">
+                            Mantener sesión iniciada
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <span>Iniciar Sesión</span>
+                        <i class="fas fa-arrow-right"></i>
+                    </button>
+                </form>
+
+                <!-- Footer con indicadores -->
+                <div class="login-footer">
+                    <div class="footer-indicators">
+                        <div class="indicator">
+                            <i class="fas fa-shield-alt"></i>
+                            <span>Seguro</span>
+                        </div>
+                        <div class="indicator">
+                            <i class="fas fa-bolt"></i>
+                            <span>Rápido</span>
+                        </div>
+                        <div class="indicator">
+                            <i class="fas fa-cloud"></i>
+                            <span>Cloud</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección Derecha - Información y Features -->
+        <div class="login-info-section">
+            <div class="info-content">
+                <!-- Decorative gradient orbs -->
+                <div class="gradient-orb gradient-orb-1"></div>
+                <div class="gradient-orb gradient-orb-2"></div>
+
+                <div class="info-header">
+                    <div class="info-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h2 class="info-title">Gestión Integral</h2>
+                    <p class="info-subtitle">Automatiza, analiza y crece con una plataforma profesional</p>
+                </div>
+
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: #16A39A;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <div class="feature-text">
+                            <div class="feature-title">Consultas F29</div>
+                            <div class="feature-desc">Automatizadas y en tiempo real</div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: #2268AD;">
+                            <i class="fas fa-chart-bar"></i>
+                        </div>
+                        <div class="feature-text">
+                            <div class="feature-title">Reportes Avanzados</div>
+                            <div class="feature-desc">Análisis y visualización de datos</div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: #E13278;">
+                            <i class="fas fa-building"></i>
+                        </div>
+                        <div class="feature-text">
+                            <div class="feature-title">Multi-empresa</div>
+                            <div class="feature-desc">Gestiona múltiples empresas</div>
+                        </div>
+                    </div>
+
+                    <div class="feature-card">
+                        <div class="feature-icon" style="background: #53BED3;">
+                            <i class="fas fa-lock"></i>
+                        </div>
+                        <div class="feature-text">
+                            <div class="feature-title">Seguridad Total</div>
+                            <div class="feature-desc">Respaldo y encriptación</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="info-footer">
+                    <div class="color-indicators">
+                        <span class="color-dot" style="background: #7A007B;"></span>
+                        <span class="color-dot" style="background: #E13278;"></span>
+                        <span class="color-dot" style="background: #53BED3;"></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* ============================================
+   OCULTAR HEADER EN LOGIN
+   ============================================ */
+.header-top {
+    display: none !important;
+}
+
+.main-content {
+    margin-top: 0 !important;
+    padding-top: 0 !important;
+}
+
+/* ============================================
+   RESET Y CONFIGURACIÓN BASE
+   ============================================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #000000;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+/* ============================================
+   CONTENEDOR PRINCIPAL
+   ============================================ */
+.login-container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.login-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    max-width: 1200px;
+    width: 100%;
+    background: #1a1a1a;
+    border-radius: 24px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    overflow: hidden;
+    min-height: 700px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* ============================================
+   SECCIÓN FORMULARIO (IZQUIERDA)
+   ============================================ */
+.login-form-section {
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.login-form-content {
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Logo y marca */
+.logo-brand-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.logo-badge {
+    width: 350px;
+    height: 120px;
+    background: transparent;
+    border-radius: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    padding: 0;
+    overflow: visible;
+}
+
+.logo-img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+}
+
+.logo-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    border-radius: 20px;
+}
+
+.logo-initials {
+    font-size: 40px;
+    font-weight: 700;
+    color: white;
+    letter-spacing: -0.5px;
+}
+
+.brand-text {
+    flex: 1;
+}
+
+.login-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: #ffffff;
+    margin: 0;
+    letter-spacing: 0.3px;
+}
+
+.login-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.6);
+    margin: 0;
+}
+
+/* Welcome badge */
+.welcome-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 999px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.badge-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #E13278;
+}
+
+/* ============================================
+   FORMULARIO
+   ============================================ */
+.login-form {
+    margin-top: 32px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-label {
+    display: block;
+    font-weight: 600;
+    color: #ffffff;
+    font-size: 13px;
+    margin-bottom: 8px;
+    letter-spacing: 0.2px;
+}
+
+.input-icon-wrapper {
+    position: relative;
+}
+
+.input-icon {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: rgba(255, 255, 255, 0.4);
+    font-size: 14px;
+    pointer-events: none;
+}
+
+.form-control {
+    width: 100%;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 12px;
+    padding: 12px 14px 12px 40px;
+    font-size: 15px;
+    transition: all 0.3s ease;
+    background-color: rgba(0, 0, 0, 0.25);
+    color: #ffffff;
+}
+
+.form-control:focus {
+    border-color: #7A007B;
+    box-shadow: 0 0 0 3px rgba(122, 0, 123, 0.15);
+    background-color: rgba(0, 0, 0, 0.35);
+    outline: none;
+}
+
+.form-control::placeholder {
+    color: rgba(255, 255, 255, 0.35);
+}
+
+/* Checkbox */
+.form-check-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.form-check-input {
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.25);
+    margin: 0;
+}
+
+.form-check-input:checked {
+    background-color: #7A007B;
+    border-color: #7A007B;
+}
+
+.form-check-label {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 13px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Botón principal */
+.btn-primary {
+    width: 100%;
+    background: #7A007B;
+    border: none;
+    border-radius: 12px;
+    padding: 14px 24px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(122, 0, 123, 0.3);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.btn-primary:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(122, 0, 123, 0.4);
+    filter: brightness(110%);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+/* ============================================
+   ALERTAS
+   ============================================ */
+.alert {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border: none;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+}
+
+.alert-danger {
+    background-color: rgba(225, 50, 120, 0.12);
+    color: #E13278;
+    border: 1px solid rgba(225, 50, 120, 0.2);
+}
+
+.alert-success {
+    background-color: rgba(22, 163, 154, 0.12);
+    color: #16A39A;
+    border: 1px solid rgba(22, 163, 154, 0.2);
+}
+
+.alert-info {
+    background-color: rgba(83, 190, 211, 0.12);
+    color: #53BED3;
+    border: 1px solid rgba(83, 190, 211, 0.2);
+}
+
+.alert i {
+    font-size: 14px;
+}
+
+.btn-close {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: currentColor;
+    opacity: 0.6;
+    cursor: pointer;
+    padding: 4px;
+}
+
+.btn-close:hover {
+    opacity: 1;
+}
+
+/* Footer del formulario */
+.login-footer {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.footer-indicators {
+    display: flex;
+    gap: 24px;
+    justify-content: center;
+}
+
+.indicator {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+.indicator i {
+    font-size: 13px;
+}
+
+/* ============================================
+   SECCIÓN INFORMACIÓN (DERECHA)
+   ============================================ */
+.login-info-section {
+    background: #000000;
+    padding: 48px 40px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Gradient orbs decoration */
+.gradient-orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    opacity: 0.15;
+    pointer-events: none;
+}
+
+.gradient-orb-1 {
+    width: 400px;
+    height: 400px;
+    background: #7A007B;
+    top: -100px;
+    left: -100px;
+}
+
+.gradient-orb-2 {
+    width: 300px;
+    height: 300px;
+    background: #16A39A;
+    bottom: -80px;
+    right: -80px;
+}
+
+.info-content {
+    position: relative;
+    z-index: 1;
+    max-width: 460px;
+    margin: 0 auto;
+}
+
+/* Info header */
+.info-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.info-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    box-shadow: 0 8px 24px rgba(122, 0, 123, 0.3);
+}
+
+.info-icon i {
+    font-size: 36px;
+    color: white;
+}
+
+.info-title {
+    font-size: 28px;
+    font-weight: 700;
+    color: white;
+    margin-bottom: 8px;
+    letter-spacing: 0.3px;
+}
+
+.info-subtitle {
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.65);
+    line-height: 1.5;
+}
+
+/* Features grid */
+.features-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 12px;
+}
+
+.feature-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 16px;
+    background: rgba(0, 0, 0, 0.25);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    border-radius: 14px;
+    transition: all 0.3s ease;
+}
+
+.feature-card:hover {
+    background: rgba(0, 0, 0, 0.35);
+    border-color: rgba(255, 255, 255, 0.1);
+    transform: translateY(-2px);
+}
+
+.feature-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.feature-icon i {
+    font-size: 18px;
+    color: white;
+}
+
+.feature-text {
+    flex: 1;
+}
+
+.feature-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    margin-bottom: 2px;
+}
+
+.feature-desc {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.5);
+}
+
+/* Info footer */
+.info-footer {
+    margin-top: 32px;
+    padding-top: 24px;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.color-indicators {
+    display: flex;
+    gap: 8px;
+    justify-content: center;
+}
+
+.color-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+/* ============================================
+   RESPONSIVE
+   ============================================ */
+@media (max-width: 992px) {
+    .login-wrapper {
+        grid-template-columns: 1fr;
+        max-width: 500px;
+    }
+
+    .login-info-section {
+        display: none;
+    }
+
+    .login-form-section {
+        padding: 40px 32px;
+    }
+}
+
+@media (max-width: 576px) {
+    .login-form-section {
+        padding: 32px 24px;
+    }
+
+    .logo-brand-container {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .footer-indicators {
+        gap: 16px;
+    }
+}
+
+/* ============================================
+   ANIMACIONES
+   ============================================ */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.login-form-content,
+.info-content {
+    animation: fadeInUp 0.5s ease-out;
+}
+</style>
+{% endblock %}

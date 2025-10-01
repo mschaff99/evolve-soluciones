@@ -1,0 +1,1088 @@
+/* Estilos específicos para la consulta integral F29 */
+:root {
+    --color-primario: #5C9F99;
+    /* Verde/teal principal */
+    --color-primario-claro: #79B8CF;
+    /* Celeste para variantes claras */
+    --color-primario-oscuro: #4972B0;
+    /* Azul medio para variantes oscuras */
+    --color-superficie: #ffffff;
+    --color-texto: #1f2937;
+    --color-borde: #e5e7eb;
+    --color-exito: #5C9F99;
+    /* Usar el mismo verde/teal para éxito */
+    --color-exito-oscuro: #4972B0;
+    /* Azul medio para hover de éxito */
+    --color-peligro: #CB6362;
+    /* Rojo suave de la paleta */
+    --color-advertencia: #D38043;
+    /* Naranjo de la paleta */
+    --color-advertencia-oscuro: #BE2175;
+    /* Magenta para hover de advertencia */
+    --color-secundario: #6b7280;
+    --color-info: #79B8CF;
+    /* Celeste para información */
+    --color-acento: #7B087E;
+    /* Morado principal para acentos */
+}
+
+.contenedor-principal {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 20px;
+    background: #000000;
+    min-height: 100vh;
+}
+
+.envoltorio-contenido {
+    background: #1a1a1a;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Encabezado */
+.seccion-encabezado {
+    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+}
+
+.titulo-pagina {
+    margin: 0 0 20px 0;
+    font-size: 2.5rem;
+    font-weight: 700;
+}
+
+.botones-navegacion {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.boton-nav {
+    padding: 12px 24px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    font-weight: 500;
+}
+
+.boton-nav:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    transform: translateY(-2px);
+}
+
+.boton-nav.activo {
+    background: var(--color-superficie);
+    color: var(--color-primario);
+    border-color: var(--color-superficie);
+    font-weight: 600;
+}
+
+/* Filtros */
+.contenedor-filtros {
+    padding: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: #1a1a1a;
+}
+
+.seccion-filtros .card {
+    background: rgba(0, 0, 0, 0.3);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.seccion-filtros .card-header {
+    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%);
+    border-bottom: none;
+}
+
+.seccion-filtros .card-body {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.encabezado-filtros {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    padding: 15px;
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 8px;
+    margin-bottom: 20px;
+    transition: background 0.3s ease;
+}
+
+.encabezado-filtros:hover {
+    background: rgba(0, 0, 0, 0.4);
+}
+
+.encabezado-filtros h3 {
+    margin: 0;
+    color: #7A007B;
+    font-size: 1.2rem;
+    font-weight: 600;
+}
+
+.icono-filtro {
+    font-size: 1.2rem;
+    margin-right: 10px;
+    color: var(--color-primario);
+    transition: transform 0.3s ease;
+}
+
+.boton-limpiar-filtros {
+    background: var(--color-advertencia);
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.boton-limpiar-filtros:hover {
+    background: var(--color-advertencia-oscuro);
+    transform: translateY(-1px);
+}
+
+.contenido-filtros {
+    display: block;
+}
+
+.entradas-filtro {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.contenedor-entrada {
+    display: flex;
+    flex-direction: column;
+}
+
+.contenedor-entrada label {
+    font-weight: 600;
+    color: var(--color-texto);
+    margin-bottom: 8px;
+    font-size: 0.95rem;
+}
+
+.control-formulario,
+.selector-formulario {
+    padding: 12px 15px;
+    border: 2px solid var(--color-borde);
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: var(--color-superficie);
+}
+
+.control-formulario:focus,
+.selector-formulario:focus {
+    outline: none;
+    border-color: var(--color-primario);
+    box-shadow: 0 0 0 3px rgba(185, 28, 28, 0.1);
+}
+
+.botones-accion {
+    display: flex;
+    gap: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.boton-enviar,
+.boton-exportar {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.boton-enviar {
+    background: #7A007B;
+    color: white;
+    box-shadow: 0 2px 8px rgba(122, 0, 123, 0.3);
+}
+
+.boton-enviar:hover {
+    background: #5a005b;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(122, 0, 123, 0.4);
+}
+
+.boton-exportar {
+    background: var(--color-exito);
+    color: white;
+}
+
+.boton-exportar:hover {
+    background: var(--color-exito-oscuro);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 15px rgba(5, 150, 105, 0.3);
+}
+
+/* Controles globales */
+.controles-globales {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 30px;
+    background: rgba(0, 0, 0, 0.3);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.contador-resultados {
+    background: #7A007B;
+    color: white;
+    padding: 8px 16px;
+    border-radius: 12px;
+    font-weight: 700;
+    font-size: 1rem;
+    box-shadow: 0 2px 6px rgba(122, 0, 123, 0.3);
+}
+
+.controles-derecha {
+    display: flex;
+    gap: 10px;
+}
+
+.boton-expandir,
+.boton-contraer {
+    /* Estilo outline rojo consistente con botones secundarios */
+    padding: 6px 12px;
+    min-width: 130px;
+    background: transparent;
+    color: var(--primary-red);
+    border: 2px solid var(--primary-red);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    transform: translateY(0px);
+}
+
+.boton-expandir:hover,
+.boton-contraer:hover {
+    background: var(--primary-red);
+    color: #fff;
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+}
+
+.boton-expandir i,
+.boton-contraer i {
+    font-size: 0.95rem;
+}
+
+/* Tabla principal */
+.contenedor-resultados {
+    padding: 30px;
+    background: #000000;
+}
+
+/* Sobrescribir estilos de Bootstrap para la tabla */
+.table-responsive {
+    background: transparent !important;
+}
+
+.tabla-moderna,
+.tabla-moderna.table,
+table.table.modern-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1a1a1a !important;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.tabla-moderna th,
+.tabla-moderna.table thead th,
+table.table.modern-table thead th,
+.tabla-moderna thead.table-dark th,
+table.table.modern-table thead.table-dark th {
+    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%) !important;
+    color: white !important;
+    padding: 18px 12px;
+    text-align: center;
+    font-weight: 700;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: none !important;
+    border-top: none !important;
+}
+
+.tabla-moderna td,
+.tabla-moderna.table tbody td,
+table.table.modern-table tbody td {
+    padding: 15px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    vertical-align: middle;
+    background: #1a1a1a !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.tabla-moderna tbody tr,
+.tabla-moderna.table tbody tr,
+table.table.modern-table tbody tr {
+    background: #1a1a1a !important;
+    transition: all 0.2s ease;
+}
+
+.tabla-moderna tbody tr:hover,
+.tabla-moderna.table tbody tr:hover,
+table.table.modern-table tbody tr:hover {
+    background: rgba(122, 0, 123, 0.08) !important;
+}
+
+.tabla-moderna tbody td.resumen-año,
+.tabla-moderna tbody td.resumen-estadisticas {
+    text-align: center;
+}
+
+.conteo-declarados,
+.total-x {
+    display: inline-block;
+    min-width: 22px;
+    text-align: center;
+    font-weight: 600;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.columna-expandir {
+    width: 80px;
+}
+
+.columna-empresa {
+    width: 30%;
+    min-width: 200px;
+}
+
+.columna-rut {
+    width: 140px;
+}
+
+.columna-año {
+    width: 100px;
+}
+
+.columna-estadisticas {
+    width: 140px;
+}
+
+/* Estilos para texto dentro de las celdas */
+.tabla-moderna .nombre-empresa,
+.tabla-moderna .empresa-name {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.tabla-moderna .nombre-empresa .fw-semibold,
+.tabla-moderna .nombre-empresa span {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.tabla-moderna .text-muted,
+.tabla-moderna small.text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+.boton-expandir-empresa {
+    width: 32px;
+    height: 32px;
+    border: none;
+    background: #7A007B;
+    color: white;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: bold;
+    font-size: 18px;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 6px rgba(122, 0, 123, 0.3);
+}
+
+.boton-expandir-empresa:hover {
+    background: #5a005b;
+    transform: scale(1.1);
+    box-shadow: 0 4px 10px rgba(122, 0, 123, 0.4);
+}
+
+.boton-expandir-empresa.expandido {
+    background: var(--color-advertencia);
+}
+
+.boton-expandir-empresa.expandido .icono-alternar {
+    transform: rotate(45deg);
+}
+
+/* Estados y estadísticas */
+.resumen-año {
+    text-align: center;
+}
+
+.estadisticas-año {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.total-periodos {
+    font-weight: 700;
+    font-size: 16px;
+    color: var(--color-primario);
+}
+
+.mini-indicadores {
+    display: flex;
+    gap: 4px;
+}
+
+.mini-indicadores span {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border-radius: 4px;
+    color: white;
+    font-size: 11px;
+    font-weight: 700;
+    text-align: center;
+    line-height: 20px;
+}
+
+.indicador-exito {
+    background: var(--color-exito);
+}
+
+.indicador-error {
+    background: var(--color-peligro);
+}
+
+.indicador-pendiente {
+    background: var(--color-secundario);
+}
+
+.sin-datos {
+    color: var(--color-secundario);
+    font-style: italic;
+    font-size: 1.2rem;
+}
+
+.resumen-estadisticas {
+    text-align: center;
+}
+
+.estadisticas-empresa {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.total-registros {
+    font-weight: 700;
+    color: var(--color-info);
+    font-size: 16px;
+}
+
+.promedio-observaciones {
+    font-size: 13px;
+    color: var(--color-secundario);
+}
+
+/* Detalle expandido */
+.detalle-empresa {
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.contenedor-meses {
+    padding: 30px;
+    background: rgba(0, 0, 0, 0.3);
+}
+
+.contenedor-meses h4 {
+    margin: 0 0 20px 0;
+    color: #7A007B;
+    border-bottom: 3px solid #7A007B;
+    padding-bottom: 10px;
+    font-size: 1.3rem;
+    font-weight: 600;
+}
+
+.envoltorio-tabla-meses {
+    overflow-x: auto;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.tabla-periodos {
+    width: 100%;
+    border-collapse: collapse;
+    background: #1a1a1a;
+    border-radius: 8px;
+    overflow: hidden;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Tabla integrada que se alinea con columnas principales */
+.tabla-periodos-integrada {
+    width: 100%;
+    border-collapse: collapse;
+    background: transparent;
+    margin: 0;
+    padding: 0;
+    table-layout: fixed;
+    /* Forzar ancho fijo para alineación */
+}
+
+.tabla-periodos-integrada td {
+    padding: 8px 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    text-align: center;
+    vertical-align: middle;
+    position: relative;
+    background: #1a1a1a;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.nombre-mes-integrado {
+    font-weight: 700;
+    color: #7A007B;
+    text-align: left !important;
+    background: rgba(0, 0, 0, 0.25);
+    width: 350px;
+    border-right: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Columnas de años - coinciden con las de la tabla principal */
+.tabla-periodos-integrada .celda-año {
+    width: calc((100% - 350px) / 7);
+    /* Distribuir entre 7 años */
+    min-width: 80px;
+}
+
+.fila-periodo-integrada:hover {
+    background: rgba(122, 0, 123, 0.08);
+}
+
+.empresa-repetida,
+.rut-repetido {
+    background: rgba(0, 0, 0, 0.25);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.celda-periodo-integrada {
+    text-align: center;
+    padding: 8px 12px;
+}
+
+.estadisticas-mes-integrada {
+    background: rgba(0, 0, 0, 0.25);
+    border-right: none;
+}
+
+.info-periodo-integrada {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.tabla-periodos th {
+    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%);
+    color: white;
+    padding: 15px 12px;
+    text-align: center;
+    font-weight: 700;
+    border-right: 1px solid rgba(255, 255, 255, 0.2);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tabla-periodos td {
+    padding: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    text-align: center;
+    background: #1a1a1a;
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.encabezado-mes {
+    width: 140px;
+    background: #5a005b !important;
+}
+
+.encabezado-año {
+    width: 110px;
+}
+
+.nombre-mes {
+    font-weight: 700;
+    color: #7A007B;
+    text-align: left !important;
+    background: rgba(0, 0, 0, 0.25);
+}
+
+.fila-periodo:hover {
+    background: rgba(122, 0, 123, 0.08);
+}
+
+/* Información de períodos */
+.info-periodo {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+}
+
+.estado-periodo {
+    font-size: 18px;
+}
+
+.observaciones-periodo {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--color-secundario);
+}
+
+.fecha-periodo {
+    font-size: 10px;
+    color: var(--color-secundario);
+}
+
+.sin-periodo {
+    color: var(--color-secundario);
+    font-style: italic;
+    font-size: 1.1rem;
+}
+
+/* Estados de tabla_resultados */
+.estado-✓ {
+    color: var(--color-exito);
+}
+
+.estado-x {
+    color: var(--color-peligro);
+}
+
+.estado-- {
+    color: var(--color-secundario);
+}
+
+/* Sin resultados */
+.sin-resultados {
+    text-align: center;
+    padding: 80px 40px;
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.contenido-sin-resultados h3 {
+    font-size: 2rem;
+    margin-bottom: 15px;
+    color: #7A007B;
+}
+
+.contenido-sin-resultados p {
+    font-size: 1.1rem;
+    margin-bottom: 10px;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+/* Centrado de celdas de detalle por mes */
+.tabla-moderna tbody td.celda-año-detalle {
+    text-align: center;
+    vertical-align: middle;
+    padding-left: 4px;
+    padding-right: 4px;
+    padding-top: 6px;
+    padding-bottom: 6px;
+}
+
+.celda-año-detalle .info-periodo-inline {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    min-height: 34px;
+}
+
+.celda-año-detalle .status-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 2px;
+    width: 26px;
+    height: 26px;
+    border-radius: 6px;
+}
+
+.celda-año-detalle .sin-periodo {
+    display: inline-block;
+    width: 100%;
+    text-align: center;
+    color: #9ca3af;
+    /* gris suave */
+}
+
+/* Estilos para botones de observaciones - Estilo Badge */
+.btn-observaciones {
+    border: none;
+    background: #E13278 !important;
+    color: white !important;
+    padding: 6px 12px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 4px rgba(225, 50, 120, 0.3);
+    font-weight: 600;
+    font-size: 0.85rem;
+    min-width: auto;
+    height: auto;
+}
+
+.btn-observaciones:hover {
+    background: #c12866 !important;
+    transform: translateY(-1px);
+    box-shadow: 0 3px 8px rgba(225, 50, 120, 0.4);
+}
+
+.btn-observaciones i {
+    color: white !important;
+    font-size: 0.85rem;
+    margin: 0;
+}
+
+/* Sobrescribir Bootstrap para que se vea como badge */
+.btn-danger.btn-observaciones,
+.btn-sm.btn-danger.btn-observaciones {
+    padding: 6px 12px;
+    background-color: #E13278 !important;
+    border-color: #E13278 !important;
+    color: white !important;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(225, 50, 120, 0.3);
+    font-weight: 600;
+    min-width: auto;
+    height: auto;
+}
+
+.btn-danger.btn-observaciones:hover,
+.btn-sm.btn-danger.btn-observaciones:hover {
+    background-color: #c12866 !important;
+    border-color: #c12866 !important;
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+/* Asegurar que la X sea del mismo tamaño que otros íconos en badges */
+.btn-danger.btn-observaciones i.fa-times {
+    color: white !important;
+    font-size: 0.85rem;
+    font-weight: 900 !important;
+}
+
+/* Estilos para las tablas detalladas alineadas */
+.contenido-detalle-alineado {
+    padding: 0;
+    background: #f8f9fa;
+    border-top: 2px solid #e9ecef;
+}
+
+.tabla-detalle-alineada {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    table-layout: fixed;
+}
+
+.fila-mes-alineada {
+    border-bottom: 1px solid #e9ecef;
+}
+
+.fila-mes-alineada:hover {
+    background: rgba(92, 159, 153, 0.02);
+}
+
+/* Columnas que coinciden exactamente con la tabla principal */
+.col-detalle-vacia {
+    width: 60px;
+    /* Ancho igual a la columna "Detalle" */
+    padding: 8px 12px;
+    border-right: 1px solid #e9ecef;
+    background: transparent;
+}
+
+.col-mes-nombre {
+    width: 300px;
+    /* Ancho igual a la columna "Empresa" */
+    padding: 8px 12px;
+    font-weight: 600;
+    color: var(--color-primario);
+    font-size: 0.875rem;
+    border-right: 1px solid #e9ecef;
+    text-align: left;
+}
+
+.col-rut-vacia {
+    width: 120px;
+    /* Ancho igual a la columna "RUT" */
+    padding: 8px 12px;
+    border-right: 1px solid #e9ecef;
+    background: transparent;
+}
+
+.col-año-datos {
+    width: 80px;
+    /* Ancho igual a las columnas de años */
+    padding: 8px;
+    text-align: center;
+    border-right: 1px solid #e9ecef;
+    vertical-align: middle;
+}
+
+.col-estadisticas-vacia {
+    width: 100px;
+    /* Ancho igual a la columna "Estadísticas" */
+    padding: 8px 12px;
+    background: transparent;
+}
+
+.info-periodo-alineada {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+}
+
+.observaciones-compactas {
+    font-size: 0.75rem;
+    color: #6b7280;
+    font-weight: 500;
+}
+
+/* Animaciones */
+.detalle-empresa {
+    transition: all 0.3s ease;
+}
+
+.icono-alternar {
+    transition: transform 0.3s ease;
+}
+
+.boton-expandir-empresa:hover {
+    transform: scale(1.1);
+}
+
+.fila-empresa:hover {
+    background: rgba(185, 28, 28, 0.02);
+}
+
+/* Responsividad */
+@media (max-width: 1200px) {
+    .columna-año {
+        width: 90px;
+    }
+
+    .mini-indicadores span {
+        width: 18px;
+        height: 18px;
+        line-height: 18px;
+        font-size: 10px;
+    }
+}
+
+@media (max-width: 768px) {
+    .contenedor-principal {
+        padding: 10px;
+    }
+
+    .botones-navegacion {
+        flex-direction: column;
+        gap: 10px;
+    }
+
+    .controles-globales {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+    }
+
+    .controles-derecha {
+        justify-content: center;
+    }
+
+    .envoltorio-tabla-meses {
+        margin: 0 -30px;
+        padding: 0 30px;
+    }
+
+    .entradas-filtro {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* ============================================
+   BADGES - ESTILO MODAL VIBRANTE
+   ============================================ */
+
+.badge {
+    padding: 6px 12px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.85rem;
+    display: inline-block;
+    text-align: center;
+}
+
+/* Badge Info (Naranja) - Meses declarados */
+.badge.bg-info {
+    background: #ff9800 !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+}
+
+/* Badge Warning (Rojo) - Observaciones */
+.badge.bg-warning {
+    background: #E13278 !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(225, 50, 120, 0.3);
+}
+
+/* Badge Danger (Rosa) */
+.badge.bg-danger {
+    background: #E13278 !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(225, 50, 120, 0.3);
+}
+
+/* Badge Success (Verde) */
+.badge.bg-success {
+    background: #16A39A !important;
+    color: white !important;
+    box-shadow: 0 2px 4px rgba(22, 163, 154, 0.3);
+}
+
+/* Badge Secondary (Sin color - Solo texto para RUT) */
+.badge.bg-secondary {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: none;
+    border: none;
+    font-family: 'Courier New', monospace;
+    font-weight: 600;
+    padding: 0;
+}
+
+/* Badge Light - Transparente/Invisible */
+.badge.bg-light {
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.3) !important;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Eliminar text-dark de light badges */
+.badge.bg-light.text-dark {
+    color: rgba(255, 255, 255, 0.3) !important;
+}
+
+/* Eliminar text-dark de warnings */
+.badge.bg-warning.text-dark {
+    color: white !important;
+}
+
+/* ============================================
+   FORZAR TEMA OSCURO - MÁXIMA PRIORIDAD
+   ============================================ */
+
+/* Sobrescribir todos los estilos de Bootstrap para la tabla */
+#tablaResultados,
+#tablaResultados.table,
+.contenedor-resultados .table {
+    background-color: #1a1a1a !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+#tablaResultados thead,
+#tablaResultados thead.table-dark {
+    background: transparent !important;
+}
+
+#tablaResultados thead th,
+#tablaResultados.table thead th,
+#tablaResultados thead.table-dark th {
+    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%) !important;
+    color: white !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+}
+
+#tablaResultados tbody tr {
+    background-color: #1a1a1a !important;
+}
+
+#tablaResultados tbody tr:hover {
+    background-color: rgba(122, 0, 123, 0.08) !important;
+}
+
+#tablaResultados tbody td {
+    background-color: #1a1a1a !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    border-color: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* Forzar color de texto en todos los elementos */
+#tablaResultados * {
+    color: inherit;
+}
+
+#tablaResultados .fw-semibold,
+#tablaResultados span,
+#tablaResultados div {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+#tablaResultados .text-muted,
+#tablaResultados small.text-muted {
+    color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* Continuación de media queries */
+@media (max-width: 768px) {
+    .botones-accion {
+        flex-direction: column;
+    }
+}

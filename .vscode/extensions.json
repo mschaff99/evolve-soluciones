@@ -1,0 +1,58 @@
+{
+    "recommendations": [
+        // ============================================
+        // ESENCIALES
+        // ============================================
+        "github.copilot",
+        "github.copilot-chat",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        // ============================================
+        // DESARROLLO WEB
+        // ============================================
+        "wholroyd.jinja",
+        "samuelcolvin.jinjahtml",
+        "ecmel.vscode-html-css",
+        "formulahendry.auto-rename-tag",
+        "pranaygp.vscode-css-peek",
+        // ============================================
+        // BASE DE DATOS
+        // ============================================
+        "mtxr.sqltools",
+        "mtxr.sqltools-driver-mysql",
+        "mongodb.mongodb-vscode",
+        // ============================================
+        // GIT Y CONTROL DE VERSIONES
+        // ============================================
+        "eamodio.gitlens",
+        "donjayamanne.githistory",
+        // ============================================
+        // PRODUCTIVIDAD
+        // ============================================
+        "streetsidesoftware.code-spell-checker",
+        "streetsidesoftware.code-spell-checker-spanish",
+        "wayou.vscode-todo-highlight",
+        "gruntfuggly.todo-tree",
+        "aaron-bond.better-comments",
+        // ============================================
+        // UTILIDADES
+        // ============================================
+        "shardulm94.trailing-spaces",
+        "editorconfig.editorconfig",
+        "dotenv.dotenv-vscode",
+        "visualstudioexptteam.vscodeintellicode",
+        // ============================================
+        // TESTING Y DEBUGGING
+        // ============================================
+        "ms-python.debugpy",
+        "littlefoxteam.vscode-python-test-adapter",
+        // ============================================
+        // OPCIONALES PERO ÚTILES
+        // ============================================
+        "christian-kohler.path-intellisense",
+        "ms-vscode.powershell",
+        "redhat.vscode-yaml",
+        "yzhang.markdown-all-in-one"
+    ]
+}
