@@ -1,6 +1,6 @@
 import os
 import socket
-from flask import Flask, redirect, url_for, request, session, make_response, jsonify
+from flask import Flask, redirect, url_for, request, session, make_response, jsonify, flash
 from flask_login import LoginManager, current_user
 from flask_bcrypt import Bcrypt
 from flask_wtf.csrf import CSRFProtect, CSRFError
@@ -122,22 +122,65 @@ def registrar_context_processors(aplicacion):
 def registrar_middleware(aplicacion):
     """Registra middleware para la aplicación"""
 
+    # Middleware para manejar headers de proxy (IIS, Nginx, etc.)
+    # Esto permite obtener la IP real del cliente detrás de un reverse proxy
+    from werkzeug.middleware.proxy_fix import ProxyFix
+    aplicacion.wsgi_app = ProxyFix(
+        aplicacion.wsgi_app,
+        x_for=1,      # Número de proxies que agregan X-Forwarded-For
+        x_proto=1,    # Confía en X-Forwarded-Proto (HTTP/HTTPS)
+        x_host=1,     # Confía en X-Forwarded-Host
+        x_prefix=1    # Confía en X-Forwarded-Prefix
+    )
+
     @aplicacion.before_request
-    def actualizar_timestamp_sesion():
-        """Actualiza el timestamp de última actividad en cada petición"""
+    def validar_sesion_unica():
+        """
+        Valida que la sesión del usuario siga siendo la única activa
+
+        Si otro dispositivo/navegador inició sesión con el mismo usuario,
+        esta sesión será invalidada automáticamente.
+        """
         # Manejar preflight requests de navegadores modernos
         if request.method == 'OPTIONS':
             return '', 200
 
-        # Solo actualizar si el usuario está autenticado y tenemos un token de sesión
+        # Solo validar si el usuario está autenticado y tenemos un token de sesión
         if current_user.is_authenticated and session.get('session_token'):
-            # Evitar actualizar en solicitudes de recursos estáticos
+            # Evitar validar en solicitudes de recursos estáticos
             if not request.path.startswith('/static/'):
                 try:
                     from aplicacion.modelos.sesion import SesionUsuario
-                    SesionUsuario.actualizar_sesion(session.get('session_token'))
+                    from flask_login import logout_user
+
+                    token_sesion = session.get('session_token')
+
+                    # Validar que existe el token
+                    if not token_sesion:
+                        logout_user()
+                        session.clear()
+                        return redirect(url_for('autenticacion.iniciar_sesion'))
+
+                    # Validar que la sesión siga siendo única y válida
+                    if not SesionUsuario.validar_sesion_unica(token_sesion):
+                        # La sesión ha sido invalidada por otro login
+                        token_preview = token_sesion[:10] if token_sesion else "unknown"
+                        print(f"🔒 Sesión invalidada automáticamente: {token_preview}...")
+
+                        # Cerrar sesión del usuario actual
+                        logout_user()
+                        session.clear()
+
+                        # Redirigir al login con mensaje
+                        flash('Tu sesión ha sido cerrada porque iniciaste sesión desde otro dispositivo.', 'warning')
+                        return redirect(url_for('autenticacion.iniciar_sesion'))
+
+                    # Si la sesión es válida, actualizar timestamp
+                    SesionUsuario.actualizar_sesion(token_sesion)
+
                 except Exception as e:
-                    print(f"Error al actualizar timestamp de sesión: {e}")
+                    print(f"Error al validar sesión única: {e}")
+                    # En caso de error, mantener la sesión pero loggear el problema
 
     @aplicacion.after_request
     def despues_de_request(response):

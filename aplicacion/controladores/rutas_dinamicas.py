@@ -105,6 +105,9 @@ def consulta_integral_f29_base_datos(base_datos):
             if empresa.get('usuario')
         )))
 
+        # Obtener códigos únicos de observaciones para el filtro
+        codigos_observaciones = servicio.obtener_codigos_observaciones_unicos()
+
         # Obtener años disponibles (de los períodos existentes)
         años_disponibles = set()
         for empresa in resultados:
@@ -127,6 +130,7 @@ def consulta_integral_f29_base_datos(base_datos):
                              base_datos=base_datos,
                              resultados=resultados,
                              usuarios=usuarios,
+                             codigos_observaciones=codigos_observaciones,
                              años_disponibles=años_disponibles,
                              meses_del_año=meses_del_año,
                              periodo_actual=int(f"{datetime.now().year}{datetime.now().month:02d}"))

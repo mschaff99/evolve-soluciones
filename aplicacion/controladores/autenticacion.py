@@ -70,11 +70,13 @@ def iniciar_sesion():
             return render_template('paginas/iniciar_sesion.html')
 
         try:
-            # Crear sesión en la base de datos
+            # Crear sesión única en la base de datos (cierra sesiones previas)
             ip_cliente = obtener_ip_real_cliente()
             user_agent = request.headers.get('User-Agent', 'Desconocido')
 
-            sesion_usuario = SesionUsuario.crear_sesion(
+            # CAMBIO IMPORTANTE: Usar crear_sesion_unica en lugar de crear_sesion
+            # Esto garantiza que solo haya una sesión activa por usuario
+            sesion_usuario = SesionUsuario.crear_sesion_unica(
                 id_usuario=usuario.id,
                 direccion_ip=ip_cliente,
                 user_agent=user_agent

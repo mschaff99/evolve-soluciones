@@ -221,3 +221,63 @@ def obtener_estadisticas_generales():
             'exito': False,
             'error': str(error)
         }), 500
+
+
+@consulta_integral_f29_bp.route('/api/exportar-observaciones-excel')
+# @login_required  # Comentado temporalmente
+def exportar_observaciones_excel():
+    """
+    Exporta las observaciones del usuario actual a Excel
+
+    Returns:
+        Archivo Excel con las observaciones
+    """
+    from flask_login import current_user
+    from flask import send_file
+    from datetime import datetime
+
+    try:
+        # Verificar autenticación
+        if not current_user.is_authenticated:
+            return jsonify({
+                'exito': False,
+                'error': 'Usuario no autenticado'
+            }), 401
+
+        # Obtener nombre de usuario
+        nombre_usuario = current_user.nombre_usuario
+
+        print(f"📊 Exportando observaciones para usuario: {nombre_usuario}")
+
+        # Generar Excel
+        servicio_consulta = ServicioConsultaIntegral()
+        buffer_excel = servicio_consulta.exportar_observaciones_usuario_excel(nombre_usuario)
+
+        if not buffer_excel:
+            return jsonify({
+                'exito': False,
+                'error': 'No se encontraron observaciones para exportar'
+            }), 404
+
+        # Generar nombre del archivo
+        fecha_actual = datetime.now().strftime('%Y%m%d_%H%M%S')
+        nombre_archivo = f'Observaciones_{nombre_usuario}_{fecha_actual}.xlsx'
+
+        print(f"✅ Excel generado exitosamente: {nombre_archivo}")
+
+        # Enviar archivo
+        return send_file(
+            buffer_excel,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=nombre_archivo
+        )
+
+    except Exception as error:
+        print(f"❌ Error exportando observaciones: {error}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'exito': False,
+            'error': str(error)
+        }), 500

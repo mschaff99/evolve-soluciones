@@ -22,53 +22,53 @@ config = obtener_configuracion()
 
 class ServicioConsultaIntegral:
     """Servicio para manejar consultas integrales F29"""
-    
+
     def __init__(self):
         self.config = config
-    
+
     def obtener_conexion_evolve(self):
         """
         Obtiene conexión a la base de datos evolve (local)
-        
+
         Returns:
             pymysql.Connection: Conexión a la base de datos
         """
         return obtener_conexion_local()
-    
+
     def limpiar_rut(self, rut):
         """
         Limpia el RUT removiendo puntos y guiones
-        
+
         Args:
             rut (str): RUT con formato
-            
+
         Returns:
             str: RUT limpio sin puntos ni guiones
         """
         if not rut:
             return ""
         return re.sub(r'[.\-]', '', str(rut))
-    
+
     def obtener_datos_empresas_con_periodos(self, filtros=None):
         """
         Obtiene datos de empresas con sus períodos tributarios
-        
+
         Args:
             filtros (dict): Filtros a aplicar en la consulta
-            
+
         Returns:
             list: Lista de empresas con sus períodos
         """
         if filtros is None:
             filtros = {}
-        
+
         conexion = None
         try:
             conexion = self.obtener_conexion_evolve()
-            
+
             # Construir consulta base
             consulta_base = """
-                SELECT DISTINCT 
+                SELECT DISTINCT
                     e.run_rut as rut,
                     e.empresa as nombre,
                     e.auditor as usuario,
@@ -76,7 +76,8 @@ class ServicioConsultaIntegral:
                     ci.periodo,
                     ci.tabla_resultados,
                     ci.estado,
-                    COALESCE(obs_count.total_observaciones, 0) as total_observaciones
+                    COALESCE(obs_count.total_observaciones, 0) as total_observaciones,
+                    GROUP_CONCAT(DISTINCT obs_codigos.codigo ORDER BY obs_codigos.codigo SEPARATOR ',') as codigos_observaciones
                 FROM empresas e
                 LEFT JOIN stratex.consulta_integral ci ON e.run_rut = ci.rut
                 LEFT JOIN (
@@ -84,50 +85,52 @@ class ServicioConsultaIntegral:
                     FROM stratex.observaciones
                     GROUP BY consulta_id
                 ) obs_count ON ci.id = obs_count.consulta_id
+                LEFT JOIN stratex.observaciones obs_codigos ON ci.id = obs_codigos.consulta_id
                 WHERE 1=1
             """
-            
+
             parametros = []
-            
+
             # Aplicar filtros
             if filtros.get('empresa_filtro'):
                 consulta_base += " AND e.empresa LIKE %s"
                 parametros.append(f"%{filtros['empresa_filtro']}%")
-            
+
             if filtros.get('rut_filtro'):
                 rut_limpio = self.limpiar_rut(filtros['rut_filtro'])
                 consulta_base += " AND (e.run_rut LIKE %s OR e.run_rut LIKE %s)"
                 parametros.extend([f"%{filtros['rut_filtro']}%", f"%{rut_limpio}%"])
-            
+
             if filtros.get('usuario_filtro'):
                 consulta_base += " AND e.auditor = %s"
                 parametros.append(filtros['usuario_filtro'])
-            
+
             if filtros.get('estado_filtro'):
                 consulta_base += " AND ci.estado = %s"
                 parametros.append(filtros['estado_filtro'])
-            
+
             # Filtros de año
             if filtros.get('año_desde'):
                 consulta_base += " AND YEAR(STR_TO_DATE(CONCAT(ci.periodo, '01'), '%Y%m%d')) >= %s"
                 parametros.append(filtros['año_desde'])
-            
+
             if filtros.get('año_hasta'):
                 consulta_base += " AND YEAR(STR_TO_DATE(CONCAT(ci.periodo, '01'), '%Y%m%d')) <= %s"
                 parametros.append(filtros['año_hasta'])
-            
+
+            consulta_base += " GROUP BY e.run_rut, e.empresa, e.auditor, e.grupo, ci.periodo, ci.tabla_resultados, ci.estado, obs_count.total_observaciones"
             consulta_base += " ORDER BY e.empresa, ci.periodo"
-            
+
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(consulta_base, parametros)
                 resultados = cursor.fetchall()
-            
+
             # Agrupar resultados por empresa
             empresas_agrupadas = {}
-            
+
             for fila in resultados:
                 rut = fila['rut']
-                
+
                 if rut not in empresas_agrupadas:
                     empresas_agrupadas[rut] = {
                         'rut': rut,
@@ -136,60 +139,61 @@ class ServicioConsultaIntegral:
                         'grupo': fila['grupo'],
                         'periodos': {}
                     }
-                
+
                 # Agregar período si existe
                 if fila['periodo']:
                     periodo_str = str(fila['periodo'])
                     if len(periodo_str) == 6:  # YYYYMM
                         año = int(periodo_str[:4])
                         mes = int(periodo_str[4:])
-                        
+
                         empresas_agrupadas[rut]['periodos'][(año, mes)] = {
                             'periodo': fila['periodo'],
                             'tabla_resultados': fila['tabla_resultados'] or '',
                             'estado': fila['estado'] or '',
-                            'total_observaciones': fila['total_observaciones'] or 0
+                            'total_observaciones': fila['total_observaciones'] or 0,
+                            'codigos_observaciones': fila.get('codigos_observaciones', '').split(',') if fila.get('codigos_observaciones') else []
                         }
-            
+
             return list(empresas_agrupadas.values())
-            
+
         except Exception as e:
             print(f"Error obteniendo datos de empresas: {e}")
             raise
         finally:
             if conexion:
                 conexion.close()
-    
+
     def obtener_detalles_empresa_por_rut(self, rut):
         """
         Obtiene detalles específicos de una empresa por su RUT
-        
+
         Args:
             rut (str): RUT de la empresa
-            
+
         Returns:
             dict: Detalles de la empresa
         """
         conexion = None
         try:
             conexion = self.obtener_conexion_evolve()
-            
+
             consulta = """
-                SELECT 
+                SELECT
                     run_rut as rut,
                     empresa as nombre,
                     quien_registra as usuario,
                     grupo,
                     fecha_registro,
                     activo
-                FROM empresas 
+                FROM empresas
                 WHERE run_rut = %s
             """
-            
+
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
                 cursor.execute(consulta, (rut,))
                 resultado = cursor.fetchone()
-            
+
             if resultado:
                 return {
                     'rut': resultado['rut'],
@@ -201,56 +205,56 @@ class ServicioConsultaIntegral:
                 }
             else:
                 return None
-                
+
         except Exception as e:
             print(f"Error obteniendo detalles de empresa {rut}: {e}")
             raise
         finally:
             if conexion:
                 conexion.close()
-    
+
     def obtener_estadisticas_generales(self):
         """
         Obtiene estadísticas generales del sistema
-        
+
         Returns:
             dict: Estadísticas generales
         """
         conexion = None
         try:
             conexion = self.obtener_conexion_evolve()
-            
+
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Total de empresas
                 cursor.execute("SELECT COUNT(*) as total FROM empresas WHERE activo = 1")
-                total_empresas = cursor.fetchone()['total']
-                
+                total_empresas = cursor.fetchone()['total']  # type: ignore
+
                 # Total de períodos
                 cursor.execute("SELECT COUNT(*) as total FROM stratex.consulta_integral")
-                total_periodos = cursor.fetchone()['total']
-                
+                total_periodos = cursor.fetchone()['total']  # type: ignore
+
                 # Total de observaciones
                 cursor.execute("SELECT COUNT(*) as total FROM stratex.observaciones")
-                total_observaciones = cursor.fetchone()['total']
-                
+                total_observaciones = cursor.fetchone()['total']  # type: ignore
+
                 # Períodos por estado
                 cursor.execute("""
                     SELECT estado, COUNT(*) as cantidad
-                    FROM stratex.consulta_integral 
+                    FROM stratex.consulta_integral
                     GROUP BY estado
                 """)
                 periodos_por_estado = cursor.fetchall()
-                
+
                 # Empresas por usuario
                 cursor.execute("""
                     SELECT quien_registra as usuario, COUNT(*) as cantidad
-                    FROM empresas 
+                    FROM empresas
                     WHERE activo = 1 AND quien_registra IS NOT NULL
                     GROUP BY quien_registra
                     ORDER BY cantidad DESC
                 """)
                 empresas_por_usuario = cursor.fetchall()
-            
+
             return {
                 'total_empresas': total_empresas,
                 'total_periodos': total_periodos,
@@ -259,21 +263,164 @@ class ServicioConsultaIntegral:
                 'empresas_por_usuario': empresas_por_usuario,
                 'fecha_generacion': datetime.now().isoformat()
             }
-            
+
         except Exception as e:
             print(f"Error obteniendo estadísticas: {e}")
             raise
         finally:
             if conexion:
                 conexion.close()
-    
+
+    def obtener_codigos_observaciones_unicos(self):
+        """
+        Obtiene los códigos únicos de observaciones de la base de datos
+
+        Returns:
+            list: Lista de códigos únicos ordenados
+        """
+        conexion = None
+        try:
+            conexion = self.obtener_conexion_evolve()
+
+            consulta = """
+                SELECT DISTINCT codigo
+                FROM observaciones
+                WHERE codigo IS NOT NULL AND codigo != ''
+                ORDER BY codigo
+            """
+
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                cursor.execute(consulta)
+                resultados = cursor.fetchall()
+
+            # Extraer solo los códigos
+            codigos = [fila['codigo'] for fila in resultados]
+
+            return codigos
+
+        except Exception as e:
+            print(f"Error obteniendo códigos de observaciones: {e}")
+            return []
+        finally:
+            if conexion:
+                conexion.close()
+
+    def exportar_observaciones_usuario_excel(self, nombre_usuario):
+        """
+        Exporta las observaciones de un usuario específico a Excel
+
+        Args:
+            nombre_usuario (str): Nombre del usuario (auditor)
+
+        Returns:
+            BytesIO: Buffer con el archivo Excel
+        """
+        conexion = None
+        try:
+            conexion = self.obtener_conexion_evolve()
+
+            # Consulta para obtener observaciones del usuario
+            # Usa el campo año directamente de consulta_integral
+            consulta = """
+                SELECT
+                    c.empresa as nombre_empresa,
+                    c.run_rut as rut,
+                    b.periodo,
+                    b.año,
+                    b.mes,
+                    a.codigo,
+                    a.descripcion,
+                    a.monto
+                FROM observaciones a
+                LEFT JOIN consulta_integral b ON a.consulta_id = b.id
+                LEFT JOIN empresas c ON b.rut = c.run_rut
+                WHERE c.auditor = %s
+                ORDER BY c.empresa, b.periodo, a.codigo
+            """
+
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                cursor.execute(consulta, (nombre_usuario,))
+                resultados = cursor.fetchall()
+
+            if not resultados:
+                return None
+
+            # Crear workbook
+            wb = openpyxl.Workbook()
+            ws = wb.active  # type: ignore
+            ws.title = f"Observaciones {nombre_usuario}"  # type: ignore
+
+            # Estilos
+            header_font = Font(bold=True, color="FFFFFF")
+            header_fill = PatternFill(start_color="1F4788", end_color="1F4788", fill_type="solid")
+            border = Border(
+                left=Side(style='thin'),
+                right=Side(style='thin'),
+                top=Side(style='thin'),
+                bottom=Side(style='thin')
+            )
+
+            # Headers
+            headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Descripción', 'Monto']
+
+            for col, header in enumerate(headers, 1):
+                cell = ws.cell(row=1, column=col, value=header)  # type: ignore
+                cell.font = header_font
+                cell.fill = header_fill
+                cell.border = border
+
+            # Datos
+            for row_idx, fila in enumerate(resultados, start=2):
+                ws.cell(row=row_idx, column=1, value=fila['nombre_empresa']).border = border  # type: ignore
+                ws.cell(row=row_idx, column=2, value=fila['rut']).border = border  # type: ignore
+                ws.cell(row=row_idx, column=3, value=fila['periodo']).border = border  # type: ignore
+                ws.cell(row=row_idx, column=4, value=fila['año']).border = border  # type: ignore
+
+                # Mes ya viene como nombre desde la BD (Enero, Febrero, etc.)
+                ws.cell(row=row_idx, column=5, value=fila.get('mes', '')).border = border  # type: ignore
+
+                ws.cell(row=row_idx, column=6, value=fila['codigo']).border = border  # type: ignore
+                ws.cell(row=row_idx, column=7, value=fila['descripcion']).border = border  # type: ignore
+                ws.cell(row=row_idx, column=8, value=fila['monto']).border = border  # type: ignore
+
+            # Ajustar ancho de columnas
+            column_widths = {
+                1: 30,  # Empresa
+                2: 15,  # RUT
+                3: 12,  # Período
+                4: 10,  # Año
+                5: 12,  # Mes
+                6: 12,  # Código
+                7: 50,  # Descripción
+                8: 15   # Monto
+            }
+
+            for col, width in column_widths.items():
+                ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = width  # type: ignore
+
+            # Guardar en buffer
+            buffer = BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+
+            return buffer
+
+        except Exception as e:
+            print(f"Error exportando observaciones a Excel: {e}")
+            import traceback
+            traceback.print_exc()
+            return None
+        finally:
+            if conexion:
+                conexion.close()
+
     def exportar_a_excel(self, datos_empresas):
         """
         Exporta los datos de empresas a un archivo Excel
-        
+
         Args:
             datos_empresas (list): Lista de empresas con sus datos
-            
+
         Returns:
             BytesIO: Buffer con el archivo Excel generado
         """
@@ -281,8 +428,9 @@ class ServicioConsultaIntegral:
             # Crear workbook
             wb = openpyxl.Workbook()
             ws = wb.active
-            ws.title = "Consulta Integral F29"
-            
+            if ws:  # type: ignore
+                ws.title = "Consulta Integral F29"  # type: ignore
+
             # Estilos
             header_font = Font(bold=True, color="FFFFFF")
             header_fill = PatternFill(start_color="B91C1C", end_color="B91C1C", fill_type="solid")
@@ -292,51 +440,51 @@ class ServicioConsultaIntegral:
                 top=Side(style='thin'),
                 bottom=Side(style='thin')
             )
-            
+
             # Headers
             headers = [
-                'RUT', 'Empresa', 'Usuario', 'Grupo', 'Año', 'Mes', 
+                'RUT', 'Empresa', 'Usuario', 'Grupo', 'Año', 'Mes',
                 'Período', 'Resultado', 'Estado', 'Observaciones'
             ]
-            
+
             for col, header in enumerate(headers, 1):
-                cell = ws.cell(row=1, column=col, value=header)
+                cell = ws.cell(row=1, column=col, value=header)  # type: ignore
                 cell.font = header_font
                 cell.fill = header_fill
                 cell.border = border
-            
+
             # Datos
             row = 2
             meses_nombres = [
                 'Enero', 'Febrero', 'Marzo', 'Abril', 'Mayo', 'Junio',
                 'Julio', 'Agosto', 'Septiembre', 'Octubre', 'Noviembre', 'Diciembre'
             ]
-            
+
             for empresa in datos_empresas:
                 for (año, mes), periodo_data in empresa['periodos'].items():
-                    ws.cell(row=row, column=1, value=empresa['rut']).border = border
-                    ws.cell(row=row, column=2, value=empresa['nombre']).border = border
-                    ws.cell(row=row, column=3, value=empresa['usuario']).border = border
-                    ws.cell(row=row, column=4, value=empresa['grupo']).border = border
-                    ws.cell(row=row, column=5, value=año).border = border
-                    ws.cell(row=row, column=6, value=meses_nombres[mes-1]).border = border
-                    ws.cell(row=row, column=7, value=periodo_data['periodo']).border = border
-                    ws.cell(row=row, column=8, value=periodo_data['tabla_resultados']).border = border
-                    ws.cell(row=row, column=9, value=periodo_data['estado']).border = border
-                    ws.cell(row=row, column=10, value=periodo_data['total_observaciones']).border = border
+                    ws.cell(row=row, column=1, value=empresa['rut']).border = border  # type: ignore
+                    ws.cell(row=row, column=2, value=empresa['nombre']).border = border  # type: ignore
+                    ws.cell(row=row, column=3, value=empresa['usuario']).border = border  # type: ignore
+                    ws.cell(row=row, column=4, value=empresa['grupo']).border = border  # type: ignore
+                    ws.cell(row=row, column=5, value=año).border = border  # type: ignore
+                    ws.cell(row=row, column=6, value=meses_nombres[mes-1]).border = border  # type: ignore
+                    ws.cell(row=row, column=7, value=periodo_data['periodo']).border = border  # type: ignore
+                    ws.cell(row=row, column=8, value=periodo_data['tabla_resultados']).border = border  # type: ignore
+                    ws.cell(row=row, column=9, value=periodo_data['estado']).border = border  # type: ignore
+                    ws.cell(row=row, column=10, value=periodo_data['total_observaciones']).border = border  # type: ignore
                     row += 1
-            
+
             # Ajustar ancho de columnas
             for col in range(1, len(headers) + 1):
-                ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = 15
-            
+                ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = 15  # type: ignore
+
             # Guardar en buffer
             buffer = BytesIO()
             wb.save(buffer)
             buffer.seek(0)
-            
+
             return buffer
-            
+
         except Exception as e:
             print(f"Error exportando a Excel: {e}")
             return None

@@ -23,7 +23,7 @@
                 </p>
             </div>
         </div>
-        
+
         <!-- Controles globales de expansión -->
         {% if resultados %}
         <div class="controles-globales">
@@ -44,7 +44,7 @@
                 </button>
             </div>
         </div>
-        
+
         <!-- Sección de Filtros -->
         <div class="seccion-filtros">
             <div class="card">
@@ -71,7 +71,7 @@
                             </select>
                         </div>
                         {# {% endif %} - Comentado temporalmente #}
-                        
+
                         <!-- Filtro por Grupo -->
                         <div class="col-md-3">
                             <label class="form-label">
@@ -91,23 +91,50 @@
                                 {% endfor %}
                             </select>
                         </div>
-                        
+
                         <!-- Filtro por Empresa -->
-                        <div class="col-md-4">
+                        <div class="col-md-3">
                             <label class="form-label">
                                 <i class="fas fa-building me-1"></i>
                                 Empresa
                             </label>
-                            <input type="text" class="form-control" id="empresaInput" 
+                            <input type="text" class="form-control" id="empresaInput"
                                    placeholder="Buscar empresa...">
                         </div>
-                        
+
+                        <!-- Filtro: Solo con Observaciones -->
+                        <div class="col-md-3">
+                            <label class="form-label">
+                                <i class="fas fa-sticky-note me-1"></i>
+                                Observaciones
+                            </label>
+                            <select class="form-select" id="observacionesSelect">
+                                <option value="">Todas las empresas</option>
+                                <option value="con_observaciones">Solo con observaciones</option>
+                                <option value="sin_observaciones">Sin observaciones</option>
+                                <optgroup label="Por código específico">
+                                    {% for codigo in codigos_observaciones %}
+                                    <option value="codigo_{{ codigo }}">{{ codigo }}</option>
+                                    {% endfor %}
+                                </optgroup>
+                            </select>
+                        </div>
+
                         <!-- Botón limpiar filtros -->
                         <div class="col-md-2">
                             <label class="form-label">&nbsp;</label>
                             <button type="button" class="btn btn-outline-warning w-100" onclick="clearAllFilters()">
                                 <i class="fas fa-times me-1"></i>
                                 Limpiar
+                            </button>
+                        </div>
+
+                        <!-- Botón exportar a Excel -->
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" class="btn btn-success w-100" onclick="exportarObservacionesExcel()">
+                                <i class="fas fa-file-excel me-1"></i>
+                                Exportar Excel
                             </button>
                         </div>
                     </div>
@@ -154,16 +181,29 @@
                             {% if periodo.estado == 'P' %}{% set hasP = true %}{% endif %}
                             {% if periodo.estado == 'E' %}{% set hasE = true %}{% endif %}
                         {% endfor %}
+                        {# Construir lista de todos los códigos de observaciones de la empresa #}
+                        {% set codigos_empresa = [] %}
+                        {% for (anio, mes), periodo_data in datos_empresa.periodos.items() %}
+                            {% if periodo_data.codigos_observaciones %}
+                                {% for codigo in periodo_data.codigos_observaciones %}
+                                    {% if codigo and codigo not in codigos_empresa %}
+                                        {% set _ = codigos_empresa.append(codigo) %}
+                                    {% endif %}
+                                {% endfor %}
+                            {% endif %}
+                        {% endfor %}
+
                         {% set estados_str = ((hasV and 'V,' or '') + (hasP and 'P,' or '') + (hasE and 'E,' or ''))[:-1] %}
-                        
+
                         <tr class="fila-empresa empresa-row"
                             data-estados="{{ estados_str }}"
                             data-rut="{{ datos_empresa.rut }}"
                             data-usuario="{{ datos_empresa.usuario | default('') }}"
-                            data-grupo="{{ datos_empresa.grupo | default('') }}">
+                            data-grupo="{{ datos_empresa.grupo | default('') }}"
+                            data-codigos-obs="{{ codigos_empresa | join(',') }}">
                             <td class="celda-expandir">
-                                <button class="btn btn-sm btn-primary boton-expandir-empresa" 
-                                        onclick="alternarEmpresa(this)" 
+                                <button class="btn btn-sm btn-primary boton-expandir-empresa"
+                                        onclick="alternarEmpresa(this)"
                                         data-empresa="{{ datos_empresa.rut }}"
                                         title="Expandir/Contraer detalles">
                                     <i class="fas fa-plus icono-alternar"></i>
@@ -218,11 +258,11 @@
                                 {% endif %}
                             </td>
                         </tr>
-                        
+
                         <!-- Filas de detalle de meses (inicialmente ocultas) -->
                         {% for mes in meses_del_año %}
                         {% set mes_num = loop.index %}
-                        <tr class="fila-mes-detalle empresa-detail table-secondary" 
+                        <tr class="fila-mes-detalle empresa-detail table-secondary"
                             data-empresa="{{ datos_empresa.rut }}" style="display: none;">
                             <td></td>
                             <td class="ps-4">
@@ -234,7 +274,7 @@
                             <td class="text-center">
                                 {% set datos_periodo = datos_empresa.periodos.get((año, mes_num), None) %}
                                 {% if datos_periodo %}
-                                <div class="info-periodo-inline" 
+                                <div class="info-periodo-inline"
                                      title="Período: {{ datos_periodo.periodo }} | Observaciones: {{ datos_periodo.total_observaciones }} | Estado: {{ datos_periodo.estado }}">
                                     {% if datos_periodo.tabla_resultados == '✓' %}
                                         <span class="badge bg-success">
@@ -245,7 +285,7 @@
                                             <i class="fas fa-minus"></i>
                                         </span>
                                     {% elif datos_periodo.tabla_resultados == 'X' %}
-                                        <button class="btn btn-sm btn-danger btn-observaciones" 
+                                        <button class="btn btn-sm btn-danger btn-observaciones"
                                                 onclick="mostrarObservaciones('{{ datos_empresa.rut }}', '{{ datos_periodo.periodo }}')"
                                                 title="Ver observaciones del período {{ datos_periodo.periodo }}">
                                             <i class="fas fa-times"></i>
