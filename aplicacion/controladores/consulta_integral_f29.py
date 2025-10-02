@@ -123,7 +123,7 @@ def obtener_observaciones(rut, periodo):
             sql_observaciones = """
             SELECT a.*, b.rut as consulta_rut, b.periodo as consulta_periodo
             FROM stratex.observaciones a
-            INNER JOIN stratex.consulta_integral b ON a.consulta_id = b.id
+            INNER JOIN consulta_integral b ON a.consulta_id = b.id
             WHERE a.consulta_id = %s
             ORDER BY a.fecha_creacion DESC
             """

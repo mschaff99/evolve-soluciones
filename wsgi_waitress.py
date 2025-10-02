@@ -30,5 +30,26 @@ app.wsgi_app = ProxyFix(
     x_prefix=1
 )
 
+if __name__ == '__main__':
+    from waitress import serve
+
+    print("=" * 60)
+    print("🚀 Evolve Soluciones - Servidor Waitress (Producción)")
+    print("=" * 60)
+    print("Servidor iniciando en puerto 8080...")
+    print("URLs de acceso:")
+    print("  - Local: http://127.0.0.1:8080")
+    print("  - Red: http://0.0.0.0:8080")
+    print("=" * 60)
+
+    serve(
+        app,
+        host='0.0.0.0',
+        port=8080,
+        threads=4,
+        channel_timeout=120,
+        cleanup_interval=30,
+        url_scheme='http'
+    )
 
 
