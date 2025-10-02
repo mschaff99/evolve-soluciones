@@ -26,7 +26,7 @@ def obtener_ip_real_cliente():
     print("=" * 60)
     print("  DEBUG - Headers de IP recibidos:")
     print(f"   request.remote_addr: {request.remote_addr}")
-    
+
     # Mostrar TODOS los headers HTTP_ para debug completo
     print("\n  TODOS los headers HTTP recibidos:")
     for key, value in request.environ.items():

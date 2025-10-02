@@ -135,7 +135,7 @@ Deberías ver:
 Consultar la tabla `auth.sesiones_usuario`:
 
 ```sql
-SELECT 
+SELECT
     id_usuario,
     ip_cliente,
     fecha_creacion,
