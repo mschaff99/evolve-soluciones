@@ -4,6 +4,7 @@ from flask import Flask, redirect, url_for, request, session, make_response, jso
 from flask_login import LoginManager, current_user
 from flask_bcrypt import Bcrypt
 from flask_wtf.csrf import CSRFProtect, CSRFError
+from flask_compress import Compress
 from datetime import datetime
 
 # Importaciones locales
@@ -35,6 +36,22 @@ def crear_aplicacion(nombre_entorno=None):
     # Configurar timeouts para requests largos
     aplicacion.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
     aplicacion.config['PERMANENT_SESSION_LIFETIME'] = 86400  # 24 horas
+
+    # Configurar compresión Gzip
+    aplicacion.config['COMPRESS_ALGORITHM'] = 'gzip'
+    aplicacion.config['COMPRESS_LEVEL'] = 6  # Balance entre compresión y velocidad (1-9)
+    aplicacion.config['COMPRESS_MIN_SIZE'] = 500  # Solo comprimir archivos > 500 bytes
+    aplicacion.config['COMPRESS_MIMETYPES'] = [
+        'text/html',
+        'text/css',
+        'text/xml',
+        'application/json',
+        'application/javascript',
+        'text/javascript'
+    ]
+
+    # Inicializar compresión
+    Compress(aplicacion)
 
     # Inicializar extensiones
     inicializar_extensiones(aplicacion)
@@ -124,12 +141,27 @@ def registrar_middleware(aplicacion):
 
     @aplicacion.after_request
     def despues_de_request(response):
-        """Headers para mejorar compatibilidad con diferentes navegadores/OS"""
-        response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
-        response.headers['Pragma'] = 'no-cache'
-        response.headers['Expires'] = '0'
+        """Headers para optimizar performance y seguridad"""
+
+        # Cache estratégico según tipo de recurso
+        if request.path.startswith('/static/'):
+            # Cache largo para recursos estáticos (1 año)
+            # immutable indica que el recurso no cambiará
+            response.headers['Cache-Control'] = 'public, max-age=31536000, immutable'
+        elif request.path.startswith('/api/'):
+            # No cache para APIs
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+        else:
+            # No cache para páginas HTML dinámicas
+            response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+            response.headers['Pragma'] = 'no-cache'
+            response.headers['Expires'] = '0'
+
+        # Headers de seguridad
         response.headers['X-Content-Type-Options'] = 'nosniff'
         response.headers['X-Frame-Options'] = 'DENY'
+        response.headers['X-XSS-Protection'] = '1; mode=block'
+
         return response
 
 

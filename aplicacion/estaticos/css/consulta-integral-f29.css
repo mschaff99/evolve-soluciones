@@ -44,7 +44,7 @@
 
 /* Encabezado */
 .seccion-encabezado {
-    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%);
+    background: #2268AD;
     color: white;
     padding: 30px;
     text-align: center;
@@ -54,6 +54,16 @@
     margin: 0 0 20px 0;
     font-size: 2.5rem;
     font-weight: 700;
+    color: #ffffff;
+}
+
+.titulo-pagina i {
+    color: #ffffff;
+}
+
+.subtitulo-pagina {
+    color: rgba(255, 255, 255, 0.9);
+    margin: 0;
 }
 
 .botones-navegacion {
@@ -101,8 +111,22 @@
 }
 
 .seccion-filtros .card-header {
-    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%);
+    background: #2268AD;
     border-bottom: none;
+    padding: 20px 24px;
+}
+
+.seccion-filtros .card-header .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #ffffff;
+    margin: 0;
+    display: flex;
+    align-items: center;
+}
+
+.seccion-filtros .card-header i {
+    color: #ffffff;
 }
 
 .seccion-filtros .card-body {
@@ -249,7 +273,7 @@
 }
 
 .contador-resultados {
-    background: #7A007B;
+    background: #2268AD;
     color: white;
     padding: 8px 16px;
     border-radius: 12px;
@@ -324,17 +348,26 @@ table.table.modern-table {
 table.table.modern-table thead th,
 .tabla-moderna thead.table-dark th,
 table.table.modern-table thead.table-dark th {
-    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%) !important;
-    color: white !important;
-    padding: 18px 12px;
+    background: rgba(0, 0, 0, 0.3) !important;
+    color: #ffffff !important;
+    padding: 20px 24px;
     text-align: center;
-    font-weight: 700;
-    border-right: 1px solid rgba(255, 255, 255, 0.2);
-    font-size: 0.95rem;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    border-bottom: none !important;
+    font-weight: 600;
+    border-right: none;
+    border-left: none;
+    font-size: 16px;
+    text-transform: none;
+    letter-spacing: normal;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
     border-top: none !important;
+}
+
+.tabla-moderna th i,
+.tabla-moderna.table thead th i,
+table.table.modern-table thead th i,
+.tabla-moderna thead.table-dark th i,
+table.table.modern-table thead.table-dark th i {
+    color: #ffffff;
 }
 
 .tabla-moderna td,
@@ -971,9 +1004,13 @@ table.table.modern-table tbody tr:hover {
 
 /* Badge Info (Naranja) - Meses declarados */
 .badge.bg-info {
-    background: #ff9800 !important;
-    color: white !important;
-    box-shadow: 0 2px 4px rgba(255, 152, 0, 0.3);
+    background: transparent !important;
+    color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    font-weight: 600;
+    font-size: 1.1rem;
 }
 
 /* Badge Warning (Rojo) - Observaciones */
@@ -1045,9 +1082,19 @@ table.table.modern-table tbody tr:hover {
 #tablaResultados thead th,
 #tablaResultados.table thead th,
 #tablaResultados thead.table-dark th {
-    background: linear-gradient(135deg, #7A007B 0%, #5a005b 100%) !important;
-    color: white !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
+    background: rgba(0, 0, 0, 0.3);
+    color: #ffffff;
+    padding: 20px 24px;
+    font-weight: 600;
+    font-size: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-right: none !important;
+    border-left: none !important;
+    border-top: none !important;
+}
+
+#tablaResultados thead th i {
+    color: #ffffff;
 }
 
 #tablaResultados tbody tr {
@@ -1078,6 +1125,35 @@ table.table.modern-table tbody tr:hover {
 #tablaResultados .text-muted,
 #tablaResultados small.text-muted {
     color: rgba(255, 255, 255, 0.6) !important;
+}
+
+/* ============================================
+   BOTONES PERSONALIZADOS
+   ============================================ */
+
+/* Botones outline primary con color azul */
+.btn-outline-primary {
+    color: #2268AD !important;
+    border-color: #2268AD !important;
+    background: transparent !important;
+}
+
+.btn-outline-primary:hover {
+    background-color: #2268AD !important;
+    border-color: #2268AD !important;
+    color: white !important;
+}
+
+.btn-outline-secondary {
+    color: rgba(255, 255, 255, 0.7) !important;
+    border-color: rgba(255, 255, 255, 0.3) !important;
+    background: transparent !important;
+}
+
+.btn-outline-secondary:hover {
+    background-color: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.5) !important;
+    color: white !important;
 }
 
 /* Continuación de media queries */
