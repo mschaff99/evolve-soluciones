@@ -23,8 +23,16 @@ def obtener_ip_real_cliente():
         str: Dirección IP del cliente
     """
     # DEBUG: Imprimir todos los headers recibidos
+    print("=" * 60)
     print("  DEBUG - Headers de IP recibidos:")
     print(f"   request.remote_addr: {request.remote_addr}")
+    
+    # Mostrar TODOS los headers HTTP_ para debug completo
+    print("\n  TODOS los headers HTTP recibidos:")
+    for key, value in request.environ.items():
+        if key.startswith('HTTP_'):
+            print(f"   {key}: {value}")
+    print("=" * 60)
 
     # Lista de headers que pueden contener la IP real del cliente
     # Orden de prioridad
@@ -38,17 +46,11 @@ def obtener_ip_real_cliente():
         'HTTP_CLIENT_IP'
     ]
 
-    # Imprimir todos los headers encontrados
-    for header in headers_ip:
-        valor = request.environ.get(header)
-        if valor:
-            print(f"   {header}: {valor}")
-
     # Intentar obtener IP desde headers de proxy
     for header in headers_ip:
         ip = request.environ.get(header)
         if ip:
-            print(f"[OK] Header encontrado: {header} = {ip}")
+            print(f"\n[OK] Header encontrado: {header} = {ip}")
 
             # X-Forwarded-For puede contener múltiples IPs separadas por coma
             # Formato: client, proxy1, proxy2
