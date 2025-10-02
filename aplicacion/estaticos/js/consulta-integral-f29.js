@@ -356,8 +356,16 @@ function exportarObservacionesExcel() {
     boton.disabled = true;
     boton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exportando...';
 
-    // Realizar petición al backend
-    fetch('/consulta-integral-f29/api/exportar-observaciones-excel')
+    // Obtener la base de datos actual desde la URL
+    // Formato: /<base_datos>/consulta-integral-f29
+    const pathParts = window.location.pathname.split('/');
+    const baseDatos = pathParts[1]; // Primera parte después del /
+
+    // Realizar petición al backend con la ruta correcta
+    const url = `/${baseDatos}/api/exportar-observaciones-excel`;
+    console.log('🔗 URL de exportación:', url);
+
+    fetch(url)
         .then(response => {
             if (!response.ok) {
                 return response.json().then(data => {
@@ -384,14 +392,14 @@ function exportarObservacionesExcel() {
             window.URL.revokeObjectURL(url);
             document.body.removeChild(a);
 
-            console.log('✅ Excel descargado exitosamente');
+            console.log('Excel descargado exitosamente');
 
             // Mostrar mensaje de éxito
-            alert('✅ Excel exportado exitosamente');
+            alert('Excel exportado exitosamente');
         })
         .catch(error => {
-            console.error('❌ Error exportando Excel:', error);
-            alert('❌ Error al exportar: ' + error.message);
+            console.error('Error exportando Excel:', error);
+            alert('Error al exportar: ' + error.message);
         })
         .finally(() => {
             // Restaurar botón
@@ -553,6 +561,7 @@ window.alternarFiltros = alternarFiltros;
 window.limpiarFiltros = limpiarFiltros;
 window.clearAllFilters = clearAllFilters;
 window.exportarTabla = exportarTabla;
+window.exportarObservacionesExcel = exportarObservacionesExcel;
 window.mostrarObservaciones = mostrarObservaciones;
 window.cerrarModalObservaciones = cerrarModalObservaciones;
 
@@ -560,6 +569,7 @@ console.log('✅ Funciones globales asignadas:', {
     alternarEmpresa: typeof window.alternarEmpresa,
     expandirTodas: typeof window.expandirTodas,
     contraerTodas: typeof window.contraerTodas,
+    exportarObservacionesExcel: typeof window.exportarObservacionesExcel,
     mostrarObservaciones: typeof window.mostrarObservaciones
 });
 

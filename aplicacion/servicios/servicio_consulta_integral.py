@@ -296,10 +296,16 @@ class ServicioConsultaIntegral:
             # Extraer solo los códigos
             codigos = [fila['codigo'] for fila in resultados]
 
+            print(f"📊 Códigos de observaciones encontrados: {len(codigos)}")
+            if codigos:
+                print(f"   Códigos: {', '.join(map(str, codigos[:10]))}{'...' if len(codigos) > 10 else ''}")
+
             return codigos
 
         except Exception as e:
-            print(f"Error obteniendo códigos de observaciones: {e}")
+            print(f"❌ Error obteniendo códigos de observaciones: {e}")
+            import traceback
+            traceback.print_exc()
             return []
         finally:
             if conexion:

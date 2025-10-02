@@ -3,7 +3,7 @@ Controlador para rutas dinámicas basadas en la base de datos del usuario
 Permite URLs como /stratex, /otra-base, etc.
 """
 
-from flask import Blueprint, render_template, request, redirect, url_for, current_app, session
+from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime
 from aplicacion.utilidades.filtros_empresas import obtener_empresas_usuario
@@ -142,6 +142,63 @@ def consulta_integral_f29_base_datos(base_datos):
         from flask import flash
         flash('Error cargando la consulta integral', 'error')
         return redirect(url_for('rutas_dinamicas.dashboard_base_datos', base_datos=base_datos))
+
+
+@rutas_dinamicas_bp.route('/<base_datos>/api/exportar-observaciones-excel')
+@login_required
+def exportar_observaciones_excel_base_datos(base_datos):
+    """
+    Exporta las observaciones del usuario actual a Excel
+    URL: /<base_datos>/api/exportar-observaciones-excel
+    """
+    from flask import send_file
+    from datetime import datetime
+
+    # Validar acceso a la base de datos
+    if not validar_base_datos_usuario(base_datos):
+        return jsonify({
+            'exito': False,
+            'error': 'No tienes acceso a esta base de datos'
+        }), 403
+
+    try:
+        # Obtener nombre de usuario
+        nombre_usuario = current_user.nombre_usuario
+
+        print(f"📊 Exportando observaciones para usuario: {nombre_usuario} en BD: {base_datos}")
+
+        # Generar Excel
+        servicio = ServicioConsultaIntegral()
+        buffer_excel = servicio.exportar_observaciones_usuario_excel(nombre_usuario)
+
+        if not buffer_excel:
+            return jsonify({
+                'exito': False,
+                'error': 'No se encontraron observaciones para exportar'
+            }), 404
+
+        # Generar nombre del archivo
+        fecha_actual = datetime.now().strftime('%Y%m%d_%H%M%S')
+        nombre_archivo = f'Observaciones_{nombre_usuario}_{fecha_actual}.xlsx'
+
+        print(f"✅ Excel generado exitosamente: {nombre_archivo}")
+
+        # Enviar archivo
+        return send_file(
+            buffer_excel,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=nombre_archivo
+        )
+
+    except Exception as error:
+        print(f"❌ Error exportando observaciones: {error}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'exito': False,
+            'error': str(error)
+        }), 500
 
 
 @rutas_dinamicas_bp.route('/<base_datos>/consolidado')
