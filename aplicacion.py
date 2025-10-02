@@ -115,7 +115,8 @@ def registrar_context_processors(aplicacion):
         """Inyecta información del usuario actual y año en templates"""
         return dict(
             current_user=current_user,
-            current_year=datetime.now().year
+            current_year=datetime.now().year,
+            static_version='20251002_1'  # Versión para cache busting: YYYYMMDD_N
         )
 
 

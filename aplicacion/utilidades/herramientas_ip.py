@@ -22,6 +22,10 @@ def obtener_ip_real_cliente():
     Returns:
         str: Dirección IP del cliente
     """
+    # DEBUG: Imprimir todos los headers recibidos
+    print("🔍 DEBUG - Headers de IP recibidos:")
+    print(f"   request.remote_addr: {request.remote_addr}")
+
     # Lista de headers que pueden contener la IP real del cliente
     # Orden de prioridad
     headers_ip = [
@@ -34,33 +38,48 @@ def obtener_ip_real_cliente():
         'HTTP_CLIENT_IP'
     ]
 
+    # Imprimir todos los headers encontrados
+    for header in headers_ip:
+        valor = request.environ.get(header)
+        if valor:
+            print(f"   {header}: {valor}")
+
     # Intentar obtener IP desde headers de proxy
     for header in headers_ip:
         ip = request.environ.get(header)
         if ip:
+            print(f"✓ Header encontrado: {header} = {ip}")
+
             # X-Forwarded-For puede contener múltiples IPs separadas por coma
             # Formato: client, proxy1, proxy2
             if ',' in ip:
                 # Buscar la primera IP pública válida
                 ips = [ip_part.strip() for ip_part in ip.split(',')]
+                print(f"   IPs en cadena: {ips}")
+
                 for ip_candidate in ips:
                     if es_ip_valida(ip_candidate):
                         # Si es pública, retornarla inmediatamente
                         if not es_ip_privada(ip_candidate) and not es_ip_local(ip_candidate):
+                            print(f"   ✅ IP pública encontrada: {ip_candidate}")
                             return ip_candidate
 
                 # Si no hay IPs públicas, tomar la primera válida (puede ser privada en red local)
                 for ip_candidate in ips:
                     if es_ip_valida(ip_candidate) and not es_ip_local(ip_candidate):
+                        print(f"   ✅ IP privada encontrada: {ip_candidate}")
                         return ip_candidate
             else:
                 # IP simple sin comas
                 ip = ip.strip()
                 if es_ip_valida(ip) and not es_ip_local(ip):
+                    print(f"   ✅ IP válida encontrada: {ip}")
                     return ip
 
     # Si no se encuentra en headers, usar remote_addr
     remote_ip = request.remote_addr
+    print(f"⚠️ No se encontraron headers de proxy, usando remote_addr: {remote_ip}")
+
     if remote_ip and remote_ip != '127.0.0.1' and remote_ip != '::1':
         return remote_ip
 
