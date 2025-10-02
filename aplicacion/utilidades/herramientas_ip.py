@@ -48,7 +48,7 @@ def obtener_ip_real_cliente():
     for header in headers_ip:
         ip = request.environ.get(header)
         if ip:
-            print(f"✓ Header encontrado: {header} = {ip}")
+            print(f"[OK] Header encontrado: {header} = {ip}")
 
             # X-Forwarded-For puede contener múltiples IPs separadas por coma
             # Formato: client, proxy1, proxy2
@@ -61,24 +61,24 @@ def obtener_ip_real_cliente():
                     if es_ip_valida(ip_candidate):
                         # Si es pública, retornarla inmediatamente
                         if not es_ip_privada(ip_candidate) and not es_ip_local(ip_candidate):
-                            print(f"   ✅ IP pública encontrada: {ip_candidate}")
+                            print(f"   [OK] IP publica encontrada: {ip_candidate}")
                             return ip_candidate
 
                 # Si no hay IPs públicas, tomar la primera válida (puede ser privada en red local)
                 for ip_candidate in ips:
                     if es_ip_valida(ip_candidate) and not es_ip_local(ip_candidate):
-                        print(f"   ✅ IP privada encontrada: {ip_candidate}")
+                        print(f"   [OK] IP privada encontrada: {ip_candidate}")
                         return ip_candidate
             else:
                 # IP simple sin comas
                 ip = ip.strip()
                 if es_ip_valida(ip) and not es_ip_local(ip):
-                    print(f"   ✅ IP válida encontrada: {ip}")
+                    print(f"   [OK] IP valida encontrada: {ip}")
                     return ip
 
     # Si no se encuentra en headers, usar remote_addr
     remote_ip = request.remote_addr
-    print(f"⚠️ No se encontraron headers de proxy, usando remote_addr: {remote_ip}")
+    print(f"[WARN] No se encontraron headers de proxy, usando remote_addr: {remote_ip}")
 
     if remote_ip and remote_ip != '127.0.0.1' and remote_ip != '::1':
         return remote_ip

@@ -289,12 +289,12 @@ class SesionUsuario:
             # Paso 2: Crear nueva sesión
             nueva_sesion = SesionUsuario.crear_sesion(id_usuario, direccion_ip, user_agent)
 
-            print(f"✅ Sesión única creada para usuario {id_usuario}. Token: {nueva_sesion.token_sesion[:10]}...")
+            print(f"[OK] Sesion unica creada para usuario {id_usuario}. Token: {nueva_sesion.token_sesion[:10]}...")
 
             return nueva_sesion
 
         except Exception as e:
-            print(f"❌ Error creando sesión única para usuario {id_usuario}: {e}")
+            print(f"[ERROR] Error creando sesion unica para usuario {id_usuario}: {e}")
             raise
 
     @staticmethod
@@ -330,7 +330,7 @@ class SesionUsuario:
 
             if otras_sesiones_activas > 0:
                 # Si hay otras sesiones activas, esta sesión debe ser invalidada
-                print(f"⚠️ Sesión {token_sesion[:10]}... invalidada por nueva sesión del usuario {sesion.id_usuario}")
+                print(f"[WARN] Sesion {token_sesion[:10]}... invalidada por nueva sesion del usuario {sesion.id_usuario}")
                 sesion.cerrar_sesion()
                 return False
 

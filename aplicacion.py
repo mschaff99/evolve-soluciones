@@ -174,7 +174,7 @@ def registrar_middleware(aplicacion):
                     if not SesionUsuario.validar_sesion_unica(token_sesion):
                         # La sesión ha sido invalidada por otro login
                         token_preview = token_sesion[:10] if token_sesion else "unknown"
-                        print(f"🔒 Sesión invalidada automáticamente: {token_preview}...")
+                        print(f"[SEGURIDAD] Sesion invalidada automaticamente: {token_preview}...")
 
                         # Cerrar sesión del usuario actual
                         logout_user()

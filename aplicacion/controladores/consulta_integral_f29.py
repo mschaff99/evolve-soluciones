@@ -247,7 +247,7 @@ def exportar_observaciones_excel():
         # Obtener nombre de usuario
         nombre_usuario = current_user.nombre_usuario
 
-        print(f"📊 Exportando observaciones para usuario: {nombre_usuario}")
+        print(f"[EXPORT] Exportando observaciones para usuario: {nombre_usuario}")
 
         # Generar Excel
         servicio_consulta = ServicioConsultaIntegral()
@@ -263,7 +263,7 @@ def exportar_observaciones_excel():
         fecha_actual = datetime.now().strftime('%Y%m%d_%H%M%S')
         nombre_archivo = f'Observaciones_{nombre_usuario}_{fecha_actual}.xlsx'
 
-        print(f"✅ Excel generado exitosamente: {nombre_archivo}")
+        print(f"[OK] Excel generado exitosamente: {nombre_archivo}")
 
         # Enviar archivo
         return send_file(
@@ -274,7 +274,7 @@ def exportar_observaciones_excel():
         )
 
     except Exception as error:
-        print(f"❌ Error exportando observaciones: {error}")
+        print(f"[ERROR] Error exportando observaciones: {error}")
         import traceback
         traceback.print_exc()
         return jsonify({
