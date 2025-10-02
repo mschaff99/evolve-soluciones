@@ -108,15 +108,23 @@ def registrar_context_processors(aplicacion):
     def inyectar_csrf_token():
         """Hace el token CSRF disponible en todos los templates"""
         from flask_wtf.csrf import generate_csrf
-        return dict(csrf_token=generate_csrf)
+        try:
+            token = generate_csrf()
+            if not token:
+                print("WARNING: CSRF token generado está vacío")
+            else:
+                print(f"CSRF token generado: {token[:10]}...")
+            return dict(csrf_token=lambda: token)
+        except Exception as e:
+            print(f"ERROR generando CSRF token: {e}")
+            return dict(csrf_token=lambda: '')
 
     @aplicacion.context_processor
     def inyectar_usuario():
         """Inyecta información del usuario actual y año en templates"""
         return dict(
             current_user=current_user,
-            current_year=datetime.now().year,
-            static_version='20251002_1'  # Versión para cache busting: YYYYMMDD_N
+            current_year=datetime.now().year
         )
 
 

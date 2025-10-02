@@ -27,12 +27,17 @@ class ConfiguracionBase:
     SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
+    SESSION_COOKIE_NAME = 'evolve_session'
+    PERMANENT_SESSION_LIFETIME = 86400  # 24 horas
 
     # Configuración CSRF
     WTF_CSRF_ENABLED = os.getenv('WTF_CSRF_ENABLED', 'True').lower() == 'true'
     WTF_CSRF_TIME_LIMIT = int(os.getenv('WTF_CSRF_TIME_LIMIT', 3600))  # 1 hora
     WTF_CSRF_SSL_STRICT = os.getenv('WTF_CSRF_SSL_STRICT', 'False').lower() == 'true'
     WTF_CSRF_CHECK_DEFAULT = True
+    WTF_CSRF_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE']
+    WTF_CSRF_FIELD_NAME = 'csrf_token'
+    WTF_CSRF_HEADERS = ['X-CSRFToken', 'X-CSRF-Token']
 
     # Configuración de PostgreSQL (Sistema de Autenticación)
     POSTGRES_HOST = os.getenv('POSTGRES_HOST')

@@ -23,7 +23,7 @@ def obtener_ip_real_cliente():
         str: Dirección IP del cliente
     """
     # DEBUG: Imprimir todos los headers recibidos
-    print("🔍 DEBUG - Headers de IP recibidos:")
+    print("  DEBUG - Headers de IP recibidos:")
     print(f"   request.remote_addr: {request.remote_addr}")
 
     # Lista de headers que pueden contener la IP real del cliente
