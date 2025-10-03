@@ -162,14 +162,21 @@ def exportar_observaciones_excel_base_datos(base_datos):
         }), 403
 
     try:
-        # Obtener nombre de usuario
+        # Determinar si es administrador para exportar todas las observaciones
+        es_admin = current_user.es_administrador()
         nombre_usuario = current_user.nombre_usuario
 
-        print(f"[EXPORT] Exportando observaciones para usuario: {nombre_usuario} en BD: {base_datos}")
+        if es_admin:
+            print(f"[EXPORT] Administrador exportando TODAS las observaciones en BD: {base_datos}")
+        else:
+            print(f"[EXPORT] Exportando observaciones para usuario: {nombre_usuario} en BD: {base_datos}")
 
         # Generar Excel
         servicio = ServicioConsultaIntegral()
-        buffer_excel = servicio.exportar_observaciones_usuario_excel(nombre_usuario)
+        buffer_excel = servicio.exportar_observaciones_usuario_excel(
+            nombre_usuario=nombre_usuario,
+            es_administrador=es_admin
+        )
 
         if not buffer_excel:
             return jsonify({
@@ -179,7 +186,10 @@ def exportar_observaciones_excel_base_datos(base_datos):
 
         # Generar nombre del archivo
         fecha_actual = datetime.now().strftime('%Y%m%d_%H%M%S')
-        nombre_archivo = f'Observaciones_{nombre_usuario}_{fecha_actual}.xlsx'
+        if es_admin:
+            nombre_archivo = f'Observaciones_TODAS_{fecha_actual}.xlsx'
+        else:
+            nombre_archivo = f'Observaciones_{nombre_usuario}_{fecha_actual}.xlsx'
 
         print(f"[OK] Excel generado exitosamente: {nombre_archivo}")
 

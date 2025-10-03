@@ -311,12 +311,14 @@ class ServicioConsultaIntegral:
             if conexion:
                 conexion.close()
 
-    def exportar_observaciones_usuario_excel(self, nombre_usuario):
+    def exportar_observaciones_usuario_excel(self, nombre_usuario, es_administrador=False):
         """
         Exporta las observaciones de un usuario específico a Excel
+        Si es administrador, exporta TODAS las observaciones
 
         Args:
             nombre_usuario (str): Nombre del usuario (auditor)
+            es_administrador (bool): Si es True, exporta todas las observaciones
 
         Returns:
             BytesIO: Buffer con el archivo Excel
@@ -325,27 +327,48 @@ class ServicioConsultaIntegral:
         try:
             conexion = self.obtener_conexion_evolve()
 
-            # Consulta para obtener observaciones del usuario
-            # Usa el campo año directamente de consulta_integral
-            consulta = """
-                SELECT
-                    c.empresa as nombre_empresa,
-                    c.run_rut as rut,
-                    b.periodo,
-                    b.año,
-                    b.mes,
-                    a.codigo,
-                    a.descripcion,
-                    a.monto
-                FROM observaciones a
-                LEFT JOIN consulta_integral b ON a.consulta_id = b.id
-                LEFT JOIN empresas c ON b.rut = c.run_rut
-                WHERE c.auditor = %s
-                ORDER BY c.empresa, b.periodo, a.codigo
-            """
+            # Consulta para obtener observaciones
+            # Si es administrador, no filtra por auditor
+            if es_administrador:
+                consulta = """
+                    SELECT
+                        c.empresa as nombre_empresa,
+                        c.run_rut as rut,
+                        b.periodo,
+                        b.año,
+                        b.mes,
+                        a.codigo,
+                        a.descripcion,
+                        a.monto,
+                        c.auditor
+                    FROM observaciones a
+                    LEFT JOIN consulta_integral b ON a.consulta_id = b.id
+                    LEFT JOIN empresas c ON b.rut = c.run_rut
+                    ORDER BY c.empresa, b.periodo, a.codigo
+                """
+                parametros = ()
+            else:
+                # Usuario normal: solo sus observaciones
+                consulta = """
+                    SELECT
+                        c.empresa as nombre_empresa,
+                        c.run_rut as rut,
+                        b.periodo,
+                        b.año,
+                        b.mes,
+                        a.codigo,
+                        a.descripcion,
+                        a.monto
+                    FROM observaciones a
+                    LEFT JOIN consulta_integral b ON a.consulta_id = b.id
+                    LEFT JOIN empresas c ON b.rut = c.run_rut
+                    WHERE c.auditor = %s
+                    ORDER BY c.empresa, b.periodo, a.codigo
+                """
+                parametros = (nombre_usuario,)
 
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
-                cursor.execute(consulta, (nombre_usuario,))
+                cursor.execute(consulta, parametros)
                 resultados = cursor.fetchall()
 
             if not resultados:
@@ -354,7 +377,12 @@ class ServicioConsultaIntegral:
             # Crear workbook
             wb = openpyxl.Workbook()
             ws = wb.active  # type: ignore
-            ws.title = f"Observaciones {nombre_usuario}"  # type: ignore
+
+            # Título según tipo de usuario
+            if es_administrador:
+                ws.title = "Todas las Observaciones"  # type: ignore
+            else:
+                ws.title = f"Observaciones {nombre_usuario}"  # type: ignore
 
             # Estilos
             header_font = Font(bold=True, color="FFFFFF")
@@ -366,8 +394,11 @@ class ServicioConsultaIntegral:
                 bottom=Side(style='thin')
             )
 
-            # Headers
-            headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Descripción', 'Monto']
+            # Headers (agregar columna Auditor si es administrador)
+            if es_administrador:
+                headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Descripción', 'Monto', 'Auditor']
+            else:
+                headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Descripción', 'Monto']
 
             for col, header in enumerate(headers, 1):
                 cell = ws.cell(row=1, column=col, value=header)  # type: ignore
@@ -389,17 +420,34 @@ class ServicioConsultaIntegral:
                 ws.cell(row=row_idx, column=7, value=fila['descripcion']).border = border  # type: ignore
                 ws.cell(row=row_idx, column=8, value=fila['monto']).border = border  # type: ignore
 
+                # Agregar columna Auditor si es administrador
+                if es_administrador:
+                    ws.cell(row=row_idx, column=9, value=fila.get('auditor', '')).border = border  # type: ignore
+
             # Ajustar ancho de columnas
-            column_widths = {
-                1: 30,  # Empresa
-                2: 15,  # RUT
-                3: 12,  # Período
-                4: 10,  # Año
-                5: 12,  # Mes
-                6: 12,  # Código
-                7: 50,  # Descripción
-                8: 15   # Monto
-            }
+            if es_administrador:
+                column_widths = {
+                    1: 30,  # Empresa
+                    2: 15,  # RUT
+                    3: 12,  # Período
+                    4: 10,  # Año
+                    5: 12,  # Mes
+                    6: 12,  # Código
+                    7: 50,  # Descripción
+                    8: 15,  # Monto
+                    9: 20   # Auditor
+                }
+            else:
+                column_widths = {
+                    1: 30,  # Empresa
+                    2: 15,  # RUT
+                    3: 12,  # Período
+                    4: 10,  # Año
+                    5: 12,  # Mes
+                    6: 12,  # Código
+                    7: 50,  # Descripción
+                    8: 15   # Monto
+                }
 
             for col, width in column_widths.items():
                 ws.column_dimensions[openpyxl.utils.get_column_letter(col)].width = width  # type: ignore
