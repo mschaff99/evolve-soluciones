@@ -113,8 +113,16 @@
                                 <option value="con_observaciones">Solo con observaciones</option>
                                 <option value="sin_observaciones">Sin observaciones</option>
                                 <optgroup label="Por código específico">
-                                    {% for codigo in codigos_observaciones %}
-                                    <option value="codigo_{{ codigo }}">{{ codigo }}</option>
+                                    {% for item in codigos_observaciones %}
+                                        {% if item is mapping %}
+                                            {# Formato nuevo: diccionario con codigo, descripcion, tipo #}
+                                            <option value="codigo_{{ item.codigo }}" title="{{ item.descripcion }}">
+                                                {{ item.codigo }} - {{ item.descripcion }}
+                                            </option>
+                                        {% else %}
+                                            {# Formato legacy: string simple #}
+                                            <option value="codigo_{{ item }}">{{ item }}</option>
+                                        {% endif %}
                                     {% endfor %}
                                 </optgroup>
                             </select>

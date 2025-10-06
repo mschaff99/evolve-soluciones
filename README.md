@@ -20,6 +20,7 @@ Sistema integral de gestión empresarial para consultoría y asesoría tributari
 - **Consulta Integral F29**: Seguimiento de formularios tributarios mensuales
 - **Gestión de Tareas**: Sistema de tareas por empresa con estados y prioridades
 - **Observaciones**: Registro y seguimiento de observaciones por período
+- **Catálogo de Códigos F29**: Base de datos centralizada de códigos tributarios SII
 
 ### 🔐 Seguridad y Autenticación
 - **Autenticación robusta** con Flask-Login
@@ -107,10 +108,10 @@ evolve-soluciones/
 2. **Crear entorno virtual**
    ```bash
    python -m venv venv
-   
+
    # En Windows
    venv\Scripts\activate
-   
+
    # En Linux/Mac
    source venv/bin/activate
    ```
@@ -130,16 +131,30 @@ evolve-soluciones/
    ```sql
    -- Crear base de datos MySQL
    CREATE DATABASE evolve CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-   
+
    -- Crear usuario (opcional)
    CREATE USER 'evolve_user'@'localhost' IDENTIFIED BY 'tu_password';
    GRANT ALL PRIVILEGES ON evolve.* TO 'evolve_user'@'localhost';
    FLUSH PRIVILEGES;
    ```
 
-6. **Ejecutar migraciones** (cuando estén disponibles)
+6. **Ejecutar migraciones PostgreSQL**
    ```bash
-   python scripts/migrar_base_datos.py
+   # Ejecutar migración de autenticación
+   psql -U postgres -d evolve -f migraciones/001_crear_tablas_autenticacion_postgres.sql
+
+   # Ejecutar migración de códigos F29
+   psql -U postgres -d evolve -f migraciones/002_crear_tabla_codigos_observaciones_f29.sql
+
+   # Verificar instalación
+   python scripts/verificar_codigos_observaciones.py
+   ```
+
+   📖 Ver documentación completa: [`migraciones/README.md`](migraciones/README.md) y [`documentacion/CATALOGO_CODIGOS_F29.md`](documentacion/CATALOGO_CODIGOS_F29.md)
+
+7. **Crear usuario administrador** (opcional)
+   ```bash
+   python scripts/crear_admin_simple.py
    ```
 
 ## ⚙️ Configuración
@@ -234,7 +249,7 @@ class MiModelo:
     def __init__(self, id, nombre):
         self.id = id
         self.nombre = nombre
-    
+
     @staticmethod
     def obtener_por_id(id):
         consulta = "SELECT * FROM mi_tabla WHERE id = %s"

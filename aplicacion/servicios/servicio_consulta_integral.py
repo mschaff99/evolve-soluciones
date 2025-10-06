@@ -273,43 +273,80 @@ class ServicioConsultaIntegral:
 
     def obtener_codigos_observaciones_unicos(self):
         """
-        Obtiene los códigos únicos de observaciones de la base de datos
+        Obtiene los códigos únicos de observaciones desde el catálogo en PostgreSQL
 
         Returns:
-            list: Lista de códigos únicos ordenados
+            list: Lista de diccionarios con código y descripción
         """
-        conexion = None
         try:
-            conexion = self.obtener_conexion_evolve()
+            # Importar función de conexión a PostgreSQL
+            from aplicacion.modelos.base_datos import ejecutar_consulta_postgres
 
             consulta = """
-                SELECT DISTINCT codigo
-                FROM observaciones
-                WHERE codigo IS NOT NULL AND codigo != ''
+                SELECT
+                    codigo,
+                    descripcion
+                FROM codigos_observaciones_f29
+                WHERE activo = TRUE
                 ORDER BY codigo
             """
 
-            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
-                cursor.execute(consulta)
-                resultados = cursor.fetchall()
+            # Ejecutar consulta en PostgreSQL
+            resultados = ejecutar_consulta_postgres(consulta)
 
-            # Extraer solo los códigos
-            codigos = [fila['codigo'] for fila in resultados]
+            # Validar que se obtuvieron resultados
+            if not resultados:
+                print("⚠ No se encontraron códigos en el catálogo PostgreSQL")
+                return []
 
-            print(f"Códigos de observaciones encontrados: {len(codigos)}")
+            # Retornar lista completa con toda la información
+            codigos = []
+            for fila in resultados:
+                codigos.append({
+                    'codigo': fila['codigo'],
+                    'descripcion': fila['descripcion']
+                })
+
+            print(f"✓ Códigos de observaciones encontrados en catálogo PostgreSQL: {len(codigos)}")
             if codigos:
-                print(f"   Códigos: {', '.join(map(str, codigos[:10]))}{'...' if len(codigos) > 10 else ''}")
+                print(f"   Primeros códigos: {', '.join([c['codigo'] for c in codigos[:5]])}{'...' if len(codigos) > 5 else ''}")
 
             return codigos
 
         except Exception as e:
-            print(f"Error obteniendo códigos de observaciones: {e}")
+            print(f"⚠ Error obteniendo códigos de observaciones desde catálogo PostgreSQL: {e}")
             import traceback
             traceback.print_exc()
-            return []
-        finally:
-            if conexion:
-                conexion.close()
+
+            # Fallback: intentar obtener desde observaciones existentes en MySQL si falla PostgreSQL
+            print("   Intentando fallback desde tabla observaciones (MySQL)...")
+            conexion_fallback = None
+            try:
+                conexion_fallback = self.obtener_conexion_evolve()
+                consulta_fallback = """
+                    SELECT DISTINCT codigo
+                    FROM observaciones
+                    WHERE codigo IS NOT NULL AND codigo != ''
+                    ORDER BY codigo
+                """
+                with conexion_fallback.cursor(pymysql.cursors.DictCursor) as cursor:
+                    cursor.execute(consulta_fallback)
+                    resultados_fallback = cursor.fetchall()
+
+                # Retornar en formato simple para compatibilidad
+                codigos_fallback = [{'codigo': fila['codigo'], 'descripcion': ''}
+                                   for fila in resultados_fallback]
+
+                print(f"   ✓ Fallback exitoso: {len(codigos_fallback)} códigos desde observaciones MySQL")
+                return codigos_fallback
+
+            except Exception as e_fallback:
+                print(f"   ✗ Error en fallback: {e_fallback}")
+                # Retornar lista vacía como último recurso
+                return []
+            finally:
+                if conexion_fallback:
+                    conexion_fallback.close()
 
     def exportar_observaciones_usuario_excel(self, nombre_usuario, es_administrador=False):
         """
