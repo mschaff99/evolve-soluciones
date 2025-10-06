@@ -674,6 +674,56 @@ document.addEventListener('DOMContentLoaded', function () {
 
         // Debug de prueba removido tras validación
     }, 3000);
+
+    // ==================== INICIALIZAR TOOLTIPS DE BOOTSTRAP ====================
+
+    /**
+     * Inicializar todos los tooltips de Bootstrap
+     * Usar delegación de eventos para tooltips dinámicos
+     */
+    console.log('🔧 Inicializando tooltips de Bootstrap...');
+
+    // Inicializar tooltips estáticos
+    const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl, {
+            trigger: 'hover',
+            delay: { show: 100, hide: 100 }
+        });
+    });
+
+    // Observer para detectar nuevos elementos con tooltips (cuando se expanden filas)
+    const observador = new MutationObserver(function (mutations) {
+        mutations.forEach(function (mutation) {
+            mutation.addedNodes.forEach(function (node) {
+                if (node.nodeType === 1 && node.matches('[data-bs-toggle="tooltip"]')) {
+                    new bootstrap.Tooltip(node, {
+                        trigger: 'hover',
+                        delay: { show: 100, hide: 100 }
+                    });
+                }
+                // Buscar en descendientes también
+                if (node.querySelectorAll) {
+                    const tooltips = node.querySelectorAll('[data-bs-toggle="tooltip"]');
+                    tooltips.forEach(function (el) {
+                        new bootstrap.Tooltip(el, {
+                            trigger: 'hover',
+                            delay: { show: 100, hide: 100 }
+                        });
+                    });
+                }
+            });
+        });
+    });
+
+    // Observar cambios en la tabla
+    const tablaBody = document.querySelector('#tablaResultados tbody');
+    if (tablaBody) {
+        observador.observe(tablaBody, { childList: true, subtree: true });
+        console.log('✓ Observer de tooltips configurado');
+    }
+
+    console.log('✓ Tooltips de Bootstrap inicializados');
 });
 
 // ==================== EVENT LISTENERS GLOBALES ====================

@@ -73,11 +73,13 @@ class ServicioConsultaIntegral:
                     e.empresa as nombre,
                     e.auditor as usuario,
                     e.grupo as grupo,
+                    ci.id as consulta_id,
                     ci.periodo,
                     ci.tabla_resultados,
                     ci.estado,
                     COALESCE(obs_count.total_observaciones, 0) as total_observaciones,
-                    GROUP_CONCAT(DISTINCT obs_codigos.codigo ORDER BY obs_codigos.codigo SEPARATOR ',') as codigos_observaciones
+                    GROUP_CONCAT(DISTINCT obs_codigos.codigo ORDER BY obs_codigos.codigo SEPARATOR ',') as codigos_observaciones,
+                    GROUP_CONCAT(DISTINCT CONCAT(obs_codigos.codigo, ':', COALESCE(obs_codigos.descripcion, '')) ORDER BY obs_codigos.codigo SEPARATOR '|') as observaciones_detalle
                 FROM empresas e
                 LEFT JOIN stratex.consulta_integral ci ON e.run_rut = ci.rut
                 LEFT JOIN (
@@ -152,7 +154,8 @@ class ServicioConsultaIntegral:
                             'tabla_resultados': fila['tabla_resultados'] or '',
                             'estado': fila['estado'] or '',
                             'total_observaciones': fila['total_observaciones'] or 0,
-                            'codigos_observaciones': fila.get('codigos_observaciones', '').split(',') if fila.get('codigos_observaciones') else []
+                            'codigos_observaciones': fila.get('codigos_observaciones', '').split(',') if fila.get('codigos_observaciones') else [],
+                            'observaciones_detalle': fila.get('observaciones_detalle', '')
                         }
 
             return list(empresas_agrupadas.values())

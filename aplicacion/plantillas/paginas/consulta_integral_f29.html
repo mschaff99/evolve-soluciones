@@ -282,8 +282,7 @@
                             <td class="text-center">
                                 {% set datos_periodo = datos_empresa.periodos.get((año, mes_num), None) %}
                                 {% if datos_periodo %}
-                                <div class="info-periodo-inline"
-                                     title="Período: {{ datos_periodo.periodo }} | Observaciones: {{ datos_periodo.total_observaciones }} | Estado: {{ datos_periodo.estado }}">
+                                <div class="info-periodo-inline">
                                     {% if datos_periodo.tabla_resultados == '✓' %}
                                         <span class="badge bg-success">
                                             <i class="fas fa-check"></i>
@@ -293,10 +292,32 @@
                                             <i class="fas fa-minus"></i>
                                         </span>
                                     {% elif datos_periodo.tabla_resultados == 'X' %}
+                                        {% set observaciones_lista = datos_periodo.observaciones_detalle.split('|') if datos_periodo.observaciones_detalle else [] %}
+                                        {% set tooltip_content = '' %}
+                                        {% if observaciones_lista %}
+                                            {% set tooltip_parts = [] %}
+                                            {% for obs in observaciones_lista %}
+                                                {% if obs %}
+                                                    {% set parts = obs.split(':') %}
+                                                    {% set codigo = parts[0] if parts|length > 0 else '' %}
+                                                    {% set desc = parts[1] if parts|length > 1 and parts[1] else codigo %}
+                                                    {% set _ = tooltip_parts.append('• ' + codigo + ': ' + desc) %}
+                                                {% endif %}
+                                            {% endfor %}
+                                            {% set tooltip_content = tooltip_parts|join('&#10;') %}
+                                        {% else %}
+                                            {% set tooltip_content = 'Período con observaciones (click para ver detalles)' %}
+                                        {% endif %}
+
                                         <button class="btn btn-sm btn-danger btn-observaciones"
                                                 onclick="mostrarObservaciones('{{ datos_empresa.rut }}', '{{ datos_periodo.periodo }}')"
-                                                title="Ver observaciones del período {{ datos_periodo.periodo }}">
+                                                data-bs-toggle="tooltip"
+                                                data-bs-html="true"
+                                                data-bs-placement="top"
+                                                data-bs-custom-class="tooltip-observaciones"
+                                                title="{{ tooltip_content }}">
                                             <i class="fas fa-times"></i>
+                                            <span class="badge badge-count">{{ datos_periodo.total_observaciones }}</span>
                                         </button>
                                     {% elif datos_periodo.tabla_resultados == '' %}
                                         <span class="badge bg-light text-dark">
