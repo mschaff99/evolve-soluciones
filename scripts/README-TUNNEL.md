@@ -1,6 +1,6 @@
 # 🚇 Tunnelmole - Acceso Público para Evolve Soluciones
 
-## ✅ **Tunnelmole ya está instalado y configurado**
+##  **Tunnelmole ya está instalado y configurado**
 
 ## 🚀 **Opciones para Iniciar con Túnel Público:**
 
@@ -40,11 +40,11 @@ tunnelmole 5000
 
 ## 🌐 **Ventajas de Tunnelmole:**
 
-- ✅ **100% Gratuito**
-- ✅ **Sin registro requerido**
-- ✅ **Sin límites de tiempo**
-- ✅ **URLs HTTPS automáticas**
-- ✅ **Fácil de usar**
+-  **100% Gratuito**
+-  **Sin registro requerido**
+-  **Sin límites de tiempo**
+-  **URLs HTTPS automáticas**
+-  **Fácil de usar**
 
 ## 📱 **Para Compartir:**
 

@@ -169,7 +169,7 @@ function filtrarEmpresasF29() {
 
     // Limpiar el Set de empresas expandidas
     empresasExpandidas.clear();
-    console.log('✅ Todas las empresas expandidas colapsadas antes de filtrar');
+    console.log(' Todas las empresas expandidas colapsadas antes de filtrar');
 
     // PASO 2: Filtrado local optimizado
     const empresaInput = document.getElementById('empresaInput');
@@ -294,7 +294,7 @@ function filtrarEmpresasF29() {
         resultsCount.textContent = `${visibleCount} empresas encontradas`;
     }
 
-    console.log(`✅ Filtrado completado: ${visibleCount} empresas visibles de ${rows.length} totales`);
+    console.log(` Filtrado completado: ${visibleCount} empresas visibles de ${rows.length} totales`);
 
     return visibleCount;
 }
@@ -565,7 +565,7 @@ window.exportarObservacionesExcel = exportarObservacionesExcel;
 window.mostrarObservaciones = mostrarObservaciones;
 window.cerrarModalObservaciones = cerrarModalObservaciones;
 
-console.log('✅ Funciones globales asignadas:', {
+console.log(' Funciones globales asignadas:', {
     alternarEmpresa: typeof window.alternarEmpresa,
     expandirTodas: typeof window.expandirTodas,
     contraerTodas: typeof window.contraerTodas,
@@ -634,7 +634,7 @@ document.addEventListener('DOMContentLoaded', function () {
             filtrarEmpresasF29();
         });
 
-        console.log('✅ Event listener agregado para filtro de usuario');
+        console.log(' Event listener agregado para filtro de usuario');
     } else {
         console.log('❌ Element usuarioSelect no encontrado!');
     }
@@ -644,7 +644,7 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('🔥 Event listener de grupo disparado!');
             filtrarEmpresasF29();
         });
-        console.log('✅ Event listener agregado para filtro de grupo');
+        console.log(' Event listener agregado para filtro de grupo');
     }
 
     if (observacionesSelect) {
@@ -653,14 +653,14 @@ document.addEventListener('DOMContentLoaded', function () {
             console.log('   Valor seleccionado:', observacionesSelect.value);
             filtrarEmpresasF29();
         });
-        console.log('✅ Event listener agregado para filtro de observaciones');
+        console.log(' Event listener agregado para filtro de observaciones');
     }
 
     // Ejecutar filtros una vez al cargar
     setTimeout(() => {
         try {
             filtrarEmpresasF29();
-            console.log('✅ Filtros iniciales aplicados');
+            console.log(' Filtros iniciales aplicados');
         } catch (e) {
             console.warn('⚠️ Error aplicando filtros iniciales:', e);
         }

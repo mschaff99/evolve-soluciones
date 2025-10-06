@@ -122,7 +122,7 @@ def listar_empresas():
     2. Filtra por auditor si no es admin
     """
     empresas = obtener_empresas_usuario(current_user)
-    
+
     return render_template('empresas.html', empresas=empresas)
 ```
 
@@ -142,7 +142,7 @@ def editar_empresa(run_rut):
     if not puede_acceder_empresa(current_user, run_rut):
         flash('No tienes permisos', 'error')
         return redirect(url_for('listar_empresas'))
-    
+
     # Usuario tiene acceso, continuar...
     return render_template('editar_empresa.html')
 ```
@@ -159,21 +159,21 @@ def empresas_activas():
     # Conectar a la BD del usuario
     base_datos = current_user.base_datos_mysql or 'stratex'
     conexion = obtener_conexion_local(base_datos)
-    
+
     # Construir filtro según rol
     where_clause, params = construir_filtro_auditor(current_user)
-    
+
     consulta = f"""
         SELECT run_rut, empresa, auditor
         FROM empresas
         {where_clause}
         AND activo = 1
     """
-    
+
     with conexion.cursor() as cursor:
         cursor.execute(consulta, params if params else ())
         empresas = cursor.fetchall()
-    
+
     conexion.close()
     return render_template('empresas.html', empresas=empresas)
 ```
@@ -217,11 +217,11 @@ usuario = Usuario.crear_usuario(
 
 ## 🎯 Ventajas de esta Arquitectura
 
-✅ **Seguridad:** Cada usuario solo ve su BD y sus datos  
-✅ **Escalabilidad:** Fácil agregar nuevas BDs y usuarios  
-✅ **Flexibilidad:** Admin ve todo, usuarios solo lo suyo  
-✅ **Aislamiento:** Datos de diferentes empresas completamente separados  
-✅ **Simple:** Basado en campos existentes (base_datos_mysql, auditor)  
+ **Seguridad:** Cada usuario solo ve su BD y sus datos
+ **Escalabilidad:** Fácil agregar nuevas BDs y usuarios
+ **Flexibilidad:** Admin ve todo, usuarios solo lo suyo
+ **Aislamiento:** Datos de diferentes empresas completamente separados
+ **Simple:** Basado en campos existentes (base_datos_mysql, auditor)
 
 ## 🔐 Seguridad
 
@@ -241,7 +241,7 @@ empresas = obtener_empresas_usuario(
 )
 
 # ❌ BLOQUEADO: La función usa la BD del usuario, ignora conexión externa
-# ✅ Resultado: Solo ve empresas de "stratex"
+#  Resultado: Solo ve empresas de "stratex"
 ```
 
 ## 📚 Archivos Clave

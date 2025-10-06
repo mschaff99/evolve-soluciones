@@ -128,7 +128,7 @@ Texto:      #2d3748 (Gris oscuro)
 Fondo:      #f7fafc (Gris muy claro)
 ```
 
-## ✅ Checklist
+##  Checklist
 
 - [ ] Logo en formato PNG con transparencia
 - [ ] Dimensiones adecuadas (400x150 px recomendado)

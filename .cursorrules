@@ -70,7 +70,7 @@ evolve-soluciones/
 - **Docstrings**: En español para todas las funciones/clases
 - **Imports**: Agrupados (stdlib → third-party → local)
 - **Manejo de errores**: Try-except con logging apropiado
-- **Emojis/Iconos**: NUNCA usar en código 
+- **Emojis/Iconos**: NUNCA usar en código
 
 ```python
 from typing import Optional, Dict, List
@@ -78,14 +78,14 @@ from aplicacion.modelos.base_datos import ejecutar_consulta
 
 class MiServicio:
     """Servicio para manejar lógica de negocio de X"""
-    
+
     def obtener_datos(self, id_empresa: int) -> Optional[Dict]:
         """
         Obtiene datos de una empresa específica
-        
+
         Args:
             id_empresa: ID de la empresa
-            
+
         Returns:
             Dict con datos o None si no existe
         """
@@ -93,9 +93,9 @@ class MiServicio:
             consulta = "SELECT * FROM empresas WHERE id = %s"
             return ejecutar_consulta(consulta, (id_empresa,), obtener_uno=True)
         except Exception as e:
-            # ✅ CORRECTO: Sin emojis en código productivo
+            #  CORRECTO: Sin emojis en código productivo
             print(f"Error al obtener datos: {e}")
-            
+
             # ❌ INCORRECTO: No usar emojis en código productivo
             # print(f"❌ Error al obtener datos: {e}")
 
@@ -109,7 +109,7 @@ class MiServicio:
 - **Nombres**: snake_case para tablas y columnas
 
 ```python
-# ✅ CORRECTO
+#  CORRECTO
 consulta = "SELECT * FROM usuarios WHERE email = %s AND activo = %s"
 resultado = ejecutar_consulta(consulta, (email, True))
 
@@ -174,7 +174,7 @@ from flask_login import login_required
 - **Teclado**: navegación completa
 - **Alt text**: para todas las imágenes
 
-## ✅ Checklist por Defecto en Cada Respuesta
+##  Checklist por Defecto en Cada Respuesta
 
 Antes de responder, verificar:
 - [ ] ¿Incluí ejemplos ejecutables con rutas/archivos concretos del proyecto?

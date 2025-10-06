@@ -1,7 +1,7 @@
 /**
  * Scripts Globales para Evolve Soluciones
  * =======================================
- * 
+ *
  * Funcionalidades JavaScript comunes a toda la aplicación
  */
 
@@ -39,21 +39,21 @@ const Utils = {
      */
     formatearFecha: function(fecha, formato = 'dd/mm/yyyy') {
         if (!fecha) return '-';
-        
+
         const fechaObj = new Date(fecha);
         if (isNaN(fechaObj.getTime())) return '-';
-        
+
         const opciones = {
             year: 'numeric',
             month: '2-digit',
             day: '2-digit'
         };
-        
+
         if (formato.includes('hh:mm')) {
             opciones.hour = '2-digit';
             opciones.minute = '2-digit';
         }
-        
+
         return fechaObj.toLocaleDateString('es-CL', opciones);
     },
 
@@ -78,10 +78,10 @@ const Utils = {
     mostrarToast: function(mensaje, tipo = 'info') {
         const toast = this.crearToast(mensaje, tipo);
         document.body.appendChild(toast);
-        
+
         // Mostrar toast
         setTimeout(() => toast.classList.add('show'), 100);
-        
+
         // Ocultar automáticamente
         setTimeout(() => {
             toast.classList.remove('show');
@@ -110,7 +110,7 @@ const Utils = {
         const toast = document.createElement('div');
         toast.className = `toast align-items-center text-bg-${colores[tipo]} border-0 position-fixed`;
         toast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
-        
+
         toast.innerHTML = `
             <div class="d-flex">
                 <div class="toast-body">
@@ -130,10 +130,10 @@ const Utils = {
     confirmarAccion: function(titulo, mensaje, callback) {
         const modal = this.crearModalConfirmacion(titulo, mensaje, callback);
         document.body.appendChild(modal);
-        
+
         const bsModal = new bootstrap.Modal(modal);
         bsModal.show();
-        
+
         modal.addEventListener('hidden.bs.modal', () => {
             modal.remove();
         });
@@ -229,9 +229,9 @@ const ErrorHandler = {
      */
     manejarErrorAjax: function(xhr, status, error) {
         console.error('❌ Error AJAX:', { xhr, status, error });
-        
+
         let mensaje = 'Ha ocurrido un error inesperado.';
-        
+
         if (xhr.status === 401) {
             mensaje = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
             setTimeout(() => {
@@ -246,7 +246,7 @@ const ErrorHandler = {
         } else if (xhr.responseJSON && xhr.responseJSON.error) {
             mensaje = xhr.responseJSON.error;
         }
-        
+
         Utils.mostrarToast(mensaje, 'error');
     }
 };
@@ -268,28 +268,28 @@ const Validaciones = {
      */
     validarRut: function(rut) {
         if (!rut) return false;
-        
+
         // Limpiar RUT
         const rutLimpio = rut.replace(/[.\-]/g, '').toUpperCase();
-        
+
         // Validar formato
         if (!/^\d{7,8}[0-9K]$/.test(rutLimpio)) return false;
-        
+
         // Calcular dígito verificador
         const numero = rutLimpio.slice(0, -1);
         const dv = rutLimpio.slice(-1);
-        
+
         let suma = 0;
         let multiplicador = 2;
-        
+
         for (let i = numero.length - 1; i >= 0; i--) {
             suma += parseInt(numero[i]) * multiplicador;
             multiplicador = multiplicador === 7 ? 2 : multiplicador + 1;
         }
-        
+
         const resto = suma % 11;
         const dvCalculado = resto === 1 ? 'K' : resto === 0 ? '0' : (11 - resto).toString();
-        
+
         return dv === dvCalculado;
     },
 
@@ -298,11 +298,11 @@ const Validaciones = {
      */
     validarContraseña: function(contraseña) {
         if (!contraseña || contraseña.length < 8) return false;
-        
+
         const tieneMinuscula = /[a-z]/.test(contraseña);
         const tieneMayuscula = /[A-Z]/.test(contraseña);
         const tieneNumero = /\d/.test(contraseña);
-        
+
         return tieneMinuscula && tieneMayuscula && tieneNumero;
     }
 };
@@ -316,12 +316,12 @@ const App = {
      */
     init: function() {
         console.log('🎯 Inicializando aplicación Evolve Soluciones...');
-        
+
         this.configurarAjax();
         this.configurarEventosGlobales();
         this.verificarSesion();
-        
-        console.log('✅ Aplicación inicializada correctamente');
+
+        console.log(' Aplicación inicializada correctamente');
     },
 
     /**
@@ -353,7 +353,7 @@ const App = {
             e.preventDefault();
             const mensaje = $(this).data('confirm') || '¿Estás seguro?';
             const href = $(this).attr('href');
-            
+
             Utils.confirmarAccion('Confirmar acción', mensaje, function() {
                 window.location.href = href;
             });
@@ -410,4 +410,4 @@ $(document).ready(function() {
 });
 
 // Log de carga completada
-console.log('✅ Scripts globales de Evolve Soluciones cargados correctamente');
+console.log(' Scripts globales de Evolve Soluciones cargados correctamente');

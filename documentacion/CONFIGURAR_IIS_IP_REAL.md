@@ -10,7 +10,7 @@ Flask/Waitress recibe `127.0.0.1` como IP del cliente en `request.remote_addr`, 
 
 ---
 
-## ✅ Prerequisitos
+##  Prerequisitos
 
 - IIS instalado con rol **Application Request Routing (ARR)**
 - Si ARR no está instalado:

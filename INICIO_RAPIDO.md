@@ -1,6 +1,6 @@
 # Inicio Rápido - Sistema de Autenticación PostgreSQL
 
-## ✅ Estado Actual
+##  Estado Actual
 
 - PostgreSQL está instalado y funcionando
 - La base de datos `evolve_auth` existe
@@ -68,7 +68,7 @@ start http://localhost:5000
 ### Ver usuarios existentes en PostgreSQL
 
 ```sql
-SELECT id, nombre_usuario, email, rol, activo 
+SELECT id, nombre_usuario, email, rol, activo
 FROM auth.usuarios;
 ```
 
@@ -79,8 +79,8 @@ FROM auth.usuarios;
 -- from werkzeug.security import generate_password_hash
 -- print(generate_password_hash("NuevaContraseña123"))
 
-UPDATE auth.usuarios 
-SET hash_contraseña = 'hash-generado-aqui' 
+UPDATE auth.usuarios
+SET hash_contraseña = 'hash-generado-aqui'
 WHERE nombre_usuario = 'admin';
 ```
 
@@ -115,12 +115,12 @@ Regla de Acceso:
 
 ## 🔐 Características de Seguridad
 
-- ✅ Contraseñas hasheadas con bcrypt
-- ✅ Tokens de sesión seguros
-- ✅ Protección CSRF
-- ✅ Registro de intentos de login
-- ✅ Expiración de sesiones (24h)
-- ✅ Validaciones client y server-side
+-  Contraseñas hasheadas con bcrypt
+-  Tokens de sesión seguros
+-  Protección CSRF
+-  Registro de intentos de login
+-  Expiración de sesiones (24h)
+-  Validaciones client y server-side
 
 ## 📚 Documentación Adicional
 

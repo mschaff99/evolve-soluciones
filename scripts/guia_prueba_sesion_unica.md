@@ -6,10 +6,10 @@ Esta guía te explica cómo probar que la nueva funcionalidad
 de "una sola sesión activa" funciona correctamente.
 
 FUNCIONALIDAD IMPLEMENTADA:
-- ✅ Solo puede haber una sesión activa por usuario
-- ✅ Al iniciar sesión desde un nuevo dispositivo/navegador, se cierra la sesión anterior
-- ✅ El usuario recibe un mensaje explicando que su sesión fue cerrada por otro login
-- ✅ La IP real del cliente se detecta correctamente (incluso detrás de proxies)
+-  Solo puede haber una sesión activa por usuario
+-  Al iniciar sesión desde un nuevo dispositivo/navegador, se cierra la sesión anterior
+-  El usuario recibe un mensaje explicando que su sesión fue cerrada por otro login
+-  La IP real del cliente se detecta correctamente (incluso detrás de proxies)
 
 CAMBIOS REALIZADOS:
 ================
@@ -41,21 +41,21 @@ PRUEBA 1: SESIÓN ÚNICA BÁSICA
 1. Abrir navegador Chrome e iniciar sesión con tu usuario
 2. Verificar que puedes navegar normalmente
 3. Abrir navegador Edge (o modo incógnito) e iniciar sesión con el MISMO usuario
-4. ✅ RESULTADO ESPERADO: La sesión en Chrome se cierra automáticamente
-5. ✅ En Chrome aparece mensaje: "Tu sesión ha sido cerrada porque iniciaste sesión desde otro dispositivo"
+4.  RESULTADO ESPERADO: La sesión en Chrome se cierra automáticamente
+5.  En Chrome aparece mensaje: "Tu sesión ha sido cerrada porque iniciaste sesión desde otro dispositivo"
 
 PRUEBA 2: SESIÓN DESDE CELULAR
 ------------------------------
 1. Iniciar sesión desde tu computadora
 2. Iniciar sesión desde tu celular con el mismo usuario
-3. ✅ RESULTADO ESPERADO: La sesión en computadora se cierra
-4. ✅ Al volver a la computadora aparece el mensaje de sesión cerrada
+3.  RESULTADO ESPERADO: La sesión en computadora se cierra
+4.  Al volver a la computadora aparece el mensaje de sesión cerrada
 
 PRUEBA 3: VERIFICAR IP REAL
 ---------------------------
 1. Iniciar sesión desde celular
 2. Ir a: http://tu-dominio/diagnostico
-3. ✅ RESULTADO ESPERADO:
+3.  RESULTADO ESPERADO:
    - "ip_cliente" debe mostrar tu IP real (no 127.0.0.1)
    - "metodo_conexion" debe detectar el tipo correcto
 
@@ -97,13 +97,13 @@ ESCENARIO C: Segundo login simultáneo
 MENSAJES ESPERADOS:
 ==================
 
-✅ Al crear sesión única:
-"✅ Sesión única creada para usuario X. Token: abc123..."
+ Al crear sesión única:
+" Sesión única creada para usuario X. Token: abc123..."
 
-✅ Al invalidar sesión:
+ Al invalidar sesión:
 "🔒 Sesión invalidada automáticamente: abc123..."
 
-✅ Al usuario desconectado:
+ Al usuario desconectado:
 "Tu sesión ha sido cerrada porque iniciaste sesión desde otro dispositivo."
 
 ARCHIVOS MODIFICADOS:

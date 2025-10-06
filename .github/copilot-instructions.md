@@ -170,7 +170,7 @@ from flask_login import login_required
 - **Teclado**: navegación completa
 - **Alt text**: para todas las imágenes
 
-## ✅ Checklist por Defecto en Cada Respuesta
+##  Checklist por Defecto en Cada Respuesta
 
 Antes de responder, verificar:
 - Incluí ejemplos ejecutables con rutas/archivos concretos del proyecto

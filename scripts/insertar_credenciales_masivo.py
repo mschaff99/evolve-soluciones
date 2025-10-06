@@ -64,7 +64,7 @@ CREATE TABLE `credenciales_sii` (
             """)
             return False
 
-        print("✅ Tabla 'credenciales_sii' encontrada\n")
+        print(" Tabla 'credenciales_sii' encontrada\n")
         return True
 
     except pymysql.Error as e:
@@ -184,7 +184,7 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
 
         if exito:
             if mensaje == "Insertado":
-                print(f"✅ Insertado (ID: {id_registro})")
+                print(f" Insertado (ID: {id_registro})")
                 insertados += 1
             elif mensaje == "Actualizado":
                 print(f"🔄 Actualizado (ID: {id_registro})")
@@ -202,7 +202,7 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
     print("RESUMEN DE INSERCIÓN MASIVA")
     print("=" * 80)
     print(f"Total procesados:    {total}")
-    print(f"✅ Insertados:       {insertados}")
+    print(f" Insertados:       {insertados}")
     print(f"🔄 Actualizados:     {actualizados}")
     print(f"⚠️  Ya existían:      {existentes}")
     print(f"❌ Errores:          {errores}")
@@ -303,7 +303,7 @@ def main():
         print("⚠️  Hubo algunos errores durante el proceso.")
         print("   Revisa los mensajes anteriores para más detalles.")
     elif resultado['insertados'] > 0 or resultado['actualizados'] > 0:
-        print("✅ Proceso completado exitosamente!")
+        print(" Proceso completado exitosamente!")
     else:
         print("ℹ️  No se insertaron credenciales nuevas.")
 

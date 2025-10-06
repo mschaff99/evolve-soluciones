@@ -36,7 +36,7 @@ def listar_empresas():
     - Si es usuario normal: muestra solo donde auditor = nombre_usuario
     """
     empresas = obtener_empresas_usuario(current_user)
-    
+
     return render_template('empresas.html', empresas=empresas)
 ```
 
@@ -52,7 +52,7 @@ def empresas_activas():
         campos="run_rut, empresa, auditor, correo",
         condiciones_extra="AND activo = 1"
     )
-    
+
     return render_template('empresas.html', empresas=empresas)
 ```
 
@@ -69,17 +69,17 @@ import pymysql
 def empresas_por_grupo(grupo):
     """Muestra empresas de un grupo específico"""
     conexion = obtener_conexion_local()
-    
+
     try:
         # Construir filtro base
         where_clause, params = construir_filtro_auditor(current_user)
-        
+
         # Consulta base
         consulta = """
             SELECT run_rut, empresa, auditor, grupo
             FROM empresas
         """
-        
+
         # Aplicar filtros
         if where_clause:
             # Usuario normal: WHERE auditor = 'ALEXEI' AND grupo = 'A'
@@ -89,13 +89,13 @@ def empresas_por_grupo(grupo):
             # Admin: WHERE grupo = 'A'
             consulta += " WHERE grupo = %s"
             params = (grupo,)
-        
+
         with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
             cursor.execute(consulta, params)
             empresas = cursor.fetchall()
-        
-        return render_template('empresas_grupo.html', 
-                              empresas=empresas, 
+
+        return render_template('empresas_grupo.html',
+                              empresas=empresas,
                               grupo=grupo)
     finally:
         conexion.close()
@@ -111,12 +111,12 @@ from aplicacion.utilidades.filtros_empresas import puede_acceder_empresa
 @login_required
 def editar_empresa(run_rut):
     """Solo permite editar si el usuario tiene acceso"""
-    
+
     # Verificar permiso
     if not puede_acceder_empresa(current_user, run_rut):
         flash('No tienes permisos para editar esta empresa', 'error')
         return redirect(url_for('listar_empresas'))
-    
+
     # El usuario tiene acceso, continuar...
     empresa = obtener_empresa_por_rut(run_rut)
     return render_template('editar_empresa.html', empresa=empresa)
@@ -133,53 +133,53 @@ from aplicacion.utilidades.filtros_empresas import obtener_empresas_usuario, pue
 
 class ServicioEmpresas:
     """Servicio para gestión de empresas con permisos"""
-    
+
     @staticmethod
     def obtener_empresas_usuario(usuario, filtros=None):
         """
         Obtiene empresas según permisos del usuario
-        
+
         Args:
             usuario: Usuario actual
             filtros: Dict con filtros adicionales {'grupo': 'A', 'activo': 1}
         """
         condiciones = []
-        
+
         if filtros:
             if filtros.get('grupo'):
                 condiciones.append(f"AND grupo = '{filtros['grupo']}'")
             if filtros.get('activo') is not None:
                 condiciones.append(f"AND activo = {filtros['activo']}")
-        
+
         condiciones_extra = " ".join(condiciones)
-        
+
         return obtener_empresas_usuario(
             usuario,
             condiciones_extra=condiciones_extra
         )
-    
+
     @staticmethod
     def actualizar_empresa(usuario, run_rut, datos):
         """Actualiza empresa solo si el usuario tiene acceso"""
-        
+
         # Verificar permiso
         if not puede_acceder_empresa(usuario, run_rut):
             raise PermissionError(f"Usuario {usuario.nombre_usuario} no tiene acceso a empresa {run_rut}")
-        
+
         # Continuar con actualización...
         from aplicacion.modelos.base_datos import obtener_conexion_local
-        
+
         conexion = obtener_conexion_local()
         try:
             with conexion.cursor() as cursor:
                 consulta = """
-                    UPDATE empresas 
+                    UPDATE empresas
                     SET empresa = %s, correo = %s
                     WHERE run_rut = %s
                 """
                 cursor.execute(consulta, (datos['empresa'], datos['correo'], run_rut))
                 conexion.commit()
-                
+
             return True
         finally:
             conexion.close()
@@ -197,7 +197,7 @@ class ServicioEmpresas:
 {% block contenido %}
 <div class="container">
     <h1>Mis Empresas</h1>
-    
+
     {% if current_user.es_administrador() %}
         <div class="alert alert-info">
             <i class="fas fa-crown"></i>
@@ -209,7 +209,7 @@ class ServicioEmpresas:
             Viendo empresas asignadas a: {{ current_user.nombre_usuario }}
         </div>
     {% endif %}
-    
+
     <table class="table">
         <thead>
             <tr>
@@ -228,7 +228,7 @@ class ServicioEmpresas:
                     <span class="badge bg-primary">{{ empresa.auditor }}</span>
                 </td>
                 <td>
-                    <a href="{{ url_for('ver_empresa', run_rut=empresa.run_rut) }}" 
+                    <a href="{{ url_for('ver_empresa', run_rut=empresa.run_rut) }}"
                        class="btn btn-sm btn-info">
                         Ver
                     </a>
@@ -258,7 +258,7 @@ auditores = ejecutar_consulta(consulta)
 for row in auditores:
     auditor = row['auditor']
     email = f"{auditor.lower()}@evolve.cl"
-    
+
     try:
         usuario = Usuario.crear_usuario(
             nombre_usuario=auditor,
@@ -296,11 +296,11 @@ usuario = Usuario.crear_usuario(
 
 ## Ventajas de Este Sistema
 
-✅ **Simple**: Basado en columna `auditor` existente  
-✅ **Seguro**: Filtros aplicados en servidor, no en cliente  
-✅ **Flexible**: Admin ve todo, usuarios solo lo suyo  
-✅ **Escalable**: Fácil agregar más reglas de negocio  
-✅ **Sin cambios en BD**: Usa estructura actual  
+ **Simple**: Basado en columna `auditor` existente
+ **Seguro**: Filtros aplicados en servidor, no en cliente
+ **Flexible**: Admin ve todo, usuarios solo lo suyo
+ **Escalable**: Fácil agregar más reglas de negocio
+ **Sin cambios en BD**: Usa estructura actual
 
 ## Próximos Pasos
 

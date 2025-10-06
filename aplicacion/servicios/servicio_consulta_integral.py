@@ -296,7 +296,7 @@ class ServicioConsultaIntegral:
 
             # Validar que se obtuvieron resultados
             if not resultados:
-                print("⚠ No se encontraron códigos en el catálogo PostgreSQL")
+                print("[WARN] No se encontraron códigos en el catálogo PostgreSQL")
                 return []
 
             # Retornar lista completa con toda la información
@@ -307,19 +307,19 @@ class ServicioConsultaIntegral:
                     'descripcion': fila['descripcion']
                 })
 
-            print(f"✓ Códigos de observaciones encontrados en catálogo PostgreSQL: {len(codigos)}")
+            print(f"[OK] Códigos de observaciones encontrados en catálogo PostgreSQL: {len(codigos)}")
             if codigos:
-                print(f"   Primeros códigos: {', '.join([c['codigo'] for c in codigos[:5]])}{'...' if len(codigos) > 5 else ''}")
+                print(f"     Primeros códigos: {', '.join([c['codigo'] for c in codigos[:5]])}{'...' if len(codigos) > 5 else ''}")
 
             return codigos
 
         except Exception as e:
-            print(f"⚠ Error obteniendo códigos de observaciones desde catálogo PostgreSQL: {e}")
+            print(f"[ERROR] Error obteniendo códigos de observaciones desde catálogo PostgreSQL: {e}")
             import traceback
             traceback.print_exc()
 
             # Fallback: intentar obtener desde observaciones existentes en MySQL si falla PostgreSQL
-            print("   Intentando fallback desde tabla observaciones (MySQL)...")
+            print("        Intentando fallback desde tabla observaciones (MySQL)...")
             conexion_fallback = None
             try:
                 conexion_fallback = self.obtener_conexion_evolve()
@@ -337,11 +337,11 @@ class ServicioConsultaIntegral:
                 codigos_fallback = [{'codigo': fila['codigo'], 'descripcion': ''}
                                    for fila in resultados_fallback]
 
-                print(f"   ✓ Fallback exitoso: {len(codigos_fallback)} códigos desde observaciones MySQL")
+                print(f"        [OK] Fallback exitoso: {len(codigos_fallback)} códigos desde observaciones MySQL")
                 return codigos_fallback
 
             except Exception as e_fallback:
-                print(f"   ✗ Error en fallback: {e_fallback}")
+                print(f"        [ERROR] Error en fallback: {e_fallback}")
                 # Retornar lista vacía como último recurso
                 return []
             finally:
