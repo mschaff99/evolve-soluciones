@@ -731,3 +731,8 @@ body {
 }
 </style>
 {% endblock %}
+
+{% block scripts %}
+<!-- Script para limpiar cookies automáticamente después de error CSRF -->
+<script src="{{ url_for('static', filename='js/login-csrf-fix.js') }}"></script>
+{% endblock %}

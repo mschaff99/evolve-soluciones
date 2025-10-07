@@ -151,6 +151,32 @@ def cerrar_sesion():
     return redirect(url_for('autenticacion.iniciar_sesion'))
 
 
+@autenticacion_bp.route('/limpiar-sesion')
+def limpiar_sesion():
+    """
+    Limpia completamente la sesión del navegador
+    Útil cuando hay cookies corruptas o problemas de CSRF
+    """
+    try:
+        # Cerrar sesión de Flask-Login si existe
+        if current_user.is_authenticated:
+            logout_user()
+
+        # Limpiar toda la sesión de Flask
+        session.clear()
+
+        flash('Tu sesión ha sido limpiada exitosamente. Ahora puedes iniciar sesión nuevamente.', 'success')
+        flash('Si el problema persiste, limpia las cookies de tu navegador (Ctrl+Shift+Delete).', 'info')
+
+    except Exception as e:
+        print(f"Error limpiando sesión: {e}")
+        # Limpiar de todas formas
+        session.clear()
+        flash('Sesión limpiada. Intenta iniciar sesión nuevamente.', 'info')
+
+    return redirect(url_for('autenticacion.iniciar_sesion'))
+
+
 @autenticacion_bp.route('/registrar', methods=['GET', 'POST'])
 def registrar():
     """Maneja el registro de nuevos usuarios (solo administradores)"""
