@@ -120,7 +120,7 @@ class ServicioConsultaIntegral:
                 consulta_base += " AND YEAR(STR_TO_DATE(CONCAT(ci.periodo, '01'), '%Y%m%d')) <= %s"
                 parametros.append(filtros['año_hasta'])
 
-            consulta_base += " GROUP BY e.run_rut, e.empresa, e.auditor, e.grupo, ci.periodo, ci.tabla_resultados, ci.estado, obs_count.total_observaciones"
+            consulta_base += " GROUP BY e.run_rut, e.empresa, e.auditor, e.grupo, ci.id, ci.periodo, ci.tabla_resultados, ci.estado, obs_count.total_observaciones"
             consulta_base += " ORDER BY e.empresa, ci.periodo"
 
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
