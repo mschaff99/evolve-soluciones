@@ -20,7 +20,7 @@ Flask/Waitress recibe `127.0.0.1` como IP del cliente en `request.remote_addr`, 
 
 ---
 
-## 📋 Método 1: Configurar ARR Server Proxy (Recomendado)
+##  Método 1: Configurar ARR Server Proxy (Recomendado)
 
 ### Paso 1: Habilitar Proxy en ARR
 
@@ -67,7 +67,7 @@ iisreset /restart
 
 ---
 
-## 📋 Método 2: Agregar Header Manualmente con URL Rewrite
+##  Método 2: Agregar Header Manualmente con URL Rewrite
 
 Si ARR no está disponible o el método 1 no funciona, agregar header manualmente:
 
@@ -106,7 +106,7 @@ Si ARR no está disponible o el método 1 no funciona, agregar header manualment
 
 ---
 
-## 🔍 Verificación
+##  Verificación
 
 ### 1. Verificar en Logs de Waitress
 

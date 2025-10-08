@@ -16,13 +16,13 @@ function alternarEmpresa(boton) {
     try {
         const fila = boton.closest('tr');
         if (!fila) {
-            console.error('❌ No se pudo encontrar la fila padre del botón');
+            console.error('No se pudo encontrar la fila padre del botón');
             return;
         }
 
         const rut = fila.dataset.rut || boton.dataset.rut;
         if (!rut) {
-            console.error('❌ No se pudo encontrar el RUT de la empresa');
+            console.error('No se pudo encontrar el RUT de la empresa');
             return;
         }
 
@@ -41,7 +41,7 @@ function alternarEmpresa(boton) {
             }
             boton.title = 'Expandir períodos';
 
-            console.log(`📂 Empresa ${rut} colapsada`);
+            console.log(`Empresa ${rut} colapsada`);
         } else {
             // Expandir
             filasPeriodos.forEach(fila => fila.style.display = '');
@@ -54,10 +54,10 @@ function alternarEmpresa(boton) {
             }
             boton.title = 'Colapsar períodos';
 
-            console.log(`📂 Empresa ${rut} expandida`);
+            console.log(`Empresa ${rut} expandida`);
         }
     } catch (error) {
-        console.error('❌ Error en alternarEmpresa:', error);
+        console.error('Error en alternarEmpresa:', error);
     }
 }
 
@@ -146,7 +146,7 @@ function contraerTodas() {
  * Filtrar empresas F29 - Filtrado específico para consulta integral
  */
 function filtrarEmpresasF29() {
-    console.log('🔍 Iniciando filtrado específico para Consulta Integral F29...');
+    console.log(' Iniciando filtrado específico para Consulta Integral F29...');
 
     // PASO 1: Colapsar todas las empresas expandidas antes de filtrar
     // Esto evita que filas de detalle de otras empresas queden visibles
@@ -183,7 +183,7 @@ function filtrarEmpresasF29() {
     const observacionesFiltro = observacionesSelect ? observacionesSelect.value : '';
 
     // Debug: verificar valores de selectores
-    console.log('🔍 Valores actuales:');
+    console.log(' Valores actuales:');
     console.log('   usuario:', usuarioSelect?.value || 'vacío');
     console.log('   grupo:', grupoSelect?.value || 'vacío');
     console.log('   observaciones:', observacionesFiltro || 'todos');
@@ -198,7 +198,7 @@ function filtrarEmpresasF29() {
     const rows = document.querySelectorAll('.modern-table tbody tr.empresa-row');
     let visibleCount = 0;
 
-    console.log(`📋 Encontradas ${rows.length} filas para filtrar`);
+    console.log(` Encontradas ${rows.length} filas para filtrar`);
 
     // Debug: Mostrar datos de las primeras 3 filas
     if (usuarioTerm || grupoTerm) {
@@ -348,7 +348,7 @@ function clearAllFilters() {
  * Exportar observaciones del usuario a Excel
  */
 function exportarObservacionesExcel() {
-    console.log('📊 Iniciando exportación de observaciones a Excel...');
+    console.log(' Iniciando exportación de observaciones a Excel...');
 
     // Mostrar indicador de carga (opcional)
     const boton = event.target.closest('button');
@@ -579,8 +579,8 @@ console.log(' Funciones globales asignadas:', {
  * Inicialización cuando el DOM está listo
  */
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('🚀 Inicializando Consulta Integral F29...');
-    console.log('🔍 Verificando elementos del DOM...');
+    console.log(' Inicializando Consulta Integral F29...');
+    console.log('Verificando elementos del DOM...');
 
     // Obtener elementos del DOM
     const empresaInput = document.getElementById('empresaInput');
@@ -590,7 +590,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const grupoSelect = document.getElementById('grupoSelect');
     const observacionesSelect = document.getElementById('observacionesSelect');
 
-    console.log('📋 Elementos encontrados:');
+    console.log(' Elementos encontrados:');
     console.log('   empresaInput:', !!empresaInput);
     console.log('   usuarioSelect:', !!usuarioSelect);
     console.log('   grupoSelect:', !!grupoSelect);
@@ -623,25 +623,25 @@ document.addEventListener('DOMContentLoaded', function () {
         console.log('   Valor actual:', usuarioSelect.value);
 
         usuarioSelect.addEventListener('change', function () {
-            console.log('🔥 Event listener de usuario disparado!');
+            console.log(' Event listener de usuario disparado!');
             console.log('   Nuevo valor:', usuarioSelect.value);
             filtrarEmpresasF29();
         });
 
         // Test adicional: agregar también event listener para 'input'
         usuarioSelect.addEventListener('input', function () {
-            console.log('🔥 Event listener INPUT de usuario disparado!');
+            console.log(' Event listener INPUT de usuario disparado!');
             filtrarEmpresasF29();
         });
 
         console.log(' Event listener agregado para filtro de usuario');
     } else {
-        console.log('❌ Element usuarioSelect no encontrado!');
+        console.log('Element usuarioSelect no encontrado!');
     }
 
     if (grupoSelect) {
         grupoSelect.addEventListener('change', function () {
-            console.log('🔥 Event listener de grupo disparado!');
+            console.log(' Event listener de grupo disparado!');
             filtrarEmpresasF29();
         });
         console.log(' Event listener agregado para filtro de grupo');
@@ -649,7 +649,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     if (observacionesSelect) {
         observacionesSelect.addEventListener('change', function () {
-            console.log('🔥 Event listener de observaciones disparado!');
+            console.log(' Event listener de observaciones disparado!');
             console.log('   Valor seleccionado:', observacionesSelect.value);
             filtrarEmpresasF29();
         });
@@ -662,13 +662,13 @@ document.addEventListener('DOMContentLoaded', function () {
             filtrarEmpresasF29();
             console.log(' Filtros iniciales aplicados');
         } catch (e) {
-            console.warn('⚠️ Error aplicando filtros iniciales:', e);
+            console.warn(' Error aplicando filtros iniciales:', e);
         }
     }, 150);
 
     // Test manual después de 3 segundos
     setTimeout(() => {
-        console.log('🧪 Test manual de selectores...');
+        console.log(' Test manual de selectores...');
         const usuarioTest = document.getElementById('usuarioSelect');
         const grupoTest = document.getElementById('grupoSelect');
 
@@ -720,10 +720,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const tablaBody = document.querySelector('#tablaResultados tbody');
     if (tablaBody) {
         observador.observe(tablaBody, { childList: true, subtree: true });
-        console.log('✓ Observer de tooltips configurado');
+        console.log('Observer de tooltips configurado');
     }
 
-    console.log('✓ Tooltips de Bootstrap inicializados');
+    console.log('Tooltips de Bootstrap inicializados');
 });
 
 // ==================== EVENT LISTENERS GLOBALES ====================

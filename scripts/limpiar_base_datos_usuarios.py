@@ -33,7 +33,7 @@ def limpiar_base_datos_usuarios():
         usuarios = ejecutar_consulta_postgres(consulta_verificar)
 
         if usuarios:
-            print("\n📋 Usuarios actualizados:")
+            print("\n Usuarios actualizados:")
             for usuario in usuarios:
                 print(f"   ID: {usuario['id']}")
                 print(f"   Usuario: {usuario['nombre_usuario']}")
@@ -44,7 +44,7 @@ def limpiar_base_datos_usuarios():
         return True
 
     except Exception as e:
-        print(f"❌ Error limpiando base de datos: {e}")
+        print(f"Error limpiando base de datos: {e}")
         return False
 
 if __name__ == '__main__':
@@ -55,4 +55,4 @@ if __name__ == '__main__':
     if limpiar_base_datos_usuarios():
         print("\n Proceso completado exitosamente")
     else:
-        print("\n❌ El proceso falló")
+        print("\nEl proceso falló")

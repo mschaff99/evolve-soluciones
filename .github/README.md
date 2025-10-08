@@ -1,12 +1,12 @@
 # Configuración de GitHub Copilot
 
-## 📋 Archivos de Configuración
+##  Archivos de Configuración
 
 Este directorio contiene la configuración para GitHub Copilot y GitHub Copilot Chat:
 
 - **`copilot-instructions.md`**: Instrucciones y contexto para GitHub Copilot sobre el proyecto Evolve Soluciones
 
-## 🚀 Cómo Usar
+##  Cómo Usar
 
 ### GitHub Copilot en el Navegador
 

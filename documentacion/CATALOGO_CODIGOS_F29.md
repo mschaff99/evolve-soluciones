@@ -1,6 +1,6 @@
 # Catálogo de Códigos de Observaciones F29
 
-## 📋 Descripción
+##  Descripción
 
 Este documento describe el catálogo centralizado de códigos de observaciones del Formulario 29 (F29) del SII, almacenado en PostgreSQL.
 
@@ -40,7 +40,7 @@ CREATE TABLE codigos_observaciones_f29 (
 | W01LF | Debito Fiscal |
 | W16 | Iva Retenido por NC emitidas |
 
-## 🚀 Instalación Inicial
+##  Instalación Inicial
 
 ### 1. Ejecutar Migración SQL
 
@@ -99,7 +99,7 @@ SET activo = FALSE
 WHERE codigo = 'W99';
 ```
 
-## 📊 Consultas Útiles
+##  Consultas Útiles
 
 ### Ver Todos los Códigos Activos
 
@@ -175,7 +175,7 @@ Si la tabla del catálogo no existe o falla la consulta, el sistema automáticam
 4. **Validar antes de agregar**: Verificar que el código no exista
 5. **Mantener sincronización**: Actualizar cuando el SII agregue nuevos códigos
 
-## 🔍 Troubleshooting
+##  Troubleshooting
 
 ### La tabla no existe
 ```bash

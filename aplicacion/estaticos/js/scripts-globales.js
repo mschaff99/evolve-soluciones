@@ -5,7 +5,7 @@
  * Funcionalidades JavaScript comunes a toda la aplicación
  */
 
-console.log('🚀 Cargando scripts globales de Evolve Soluciones...');
+console.log(' Cargando scripts globales de Evolve Soluciones...');
 
 // Configuración global
 window.EvolveApp = {
@@ -25,7 +25,7 @@ const Utils = {
     /**
      * Formatea un número como moneda chilena
      */
-    formatearMoneda: function(numero) {
+    formatearMoneda: function (numero) {
         if (numero === null || numero === undefined) return '$0';
         return new Intl.NumberFormat('es-CL', {
             style: 'currency',
@@ -37,7 +37,7 @@ const Utils = {
     /**
      * Formatea una fecha
      */
-    formatearFecha: function(fecha, formato = 'dd/mm/yyyy') {
+    formatearFecha: function (fecha, formato = 'dd/mm/yyyy') {
         if (!fecha) return '-';
 
         const fechaObj = new Date(fecha);
@@ -60,7 +60,7 @@ const Utils = {
     /**
      * Debounce para optimizar eventos
      */
-    debounce: function(func, wait) {
+    debounce: function (func, wait) {
         let timeout;
         return function executedFunction(...args) {
             const later = () => {
@@ -75,7 +75,7 @@ const Utils = {
     /**
      * Muestra notificación toast
      */
-    mostrarToast: function(mensaje, tipo = 'info') {
+    mostrarToast: function (mensaje, tipo = 'info') {
         const toast = this.crearToast(mensaje, tipo);
         document.body.appendChild(toast);
 
@@ -92,7 +92,7 @@ const Utils = {
     /**
      * Crea elemento toast
      */
-    crearToast: function(mensaje, tipo) {
+    crearToast: function (mensaje, tipo) {
         const iconos = {
             success: 'fas fa-check-circle',
             error: 'fas fa-exclamation-triangle',
@@ -127,7 +127,7 @@ const Utils = {
     /**
      * Confirma acción con modal
      */
-    confirmarAccion: function(titulo, mensaje, callback) {
+    confirmarAccion: function (titulo, mensaje, callback) {
         const modal = this.crearModalConfirmacion(titulo, mensaje, callback);
         document.body.appendChild(modal);
 
@@ -142,7 +142,7 @@ const Utils = {
     /**
      * Crea modal de confirmación
      */
-    crearModalConfirmacion: function(titulo, mensaje, callback) {
+    crearModalConfirmacion: function (titulo, mensaje, callback) {
         const modal = document.createElement('div');
         modal.className = 'modal fade';
         modal.innerHTML = `
@@ -183,7 +183,7 @@ const Utils = {
     /**
      * Muestra overlay de carga
      */
-    mostrarCarga: function(mensaje = 'Cargando...') {
+    mostrarCarga: function (mensaje = 'Cargando...') {
         const overlay = document.getElementById('loadingOverlay');
         if (overlay) {
             overlay.querySelector('.loading-text').textContent = mensaje;
@@ -196,7 +196,7 @@ const Utils = {
     /**
      * Oculta overlay de carga
      */
-    ocultarCarga: function() {
+    ocultarCarga: function () {
         const overlay = document.getElementById('loadingOverlay');
         if (overlay) {
             overlay.style.display = 'none';
@@ -206,7 +206,7 @@ const Utils = {
     /**
      * Crea overlay de carga
      */
-    crearOverlayCarga: function(mensaje) {
+    crearOverlayCarga: function (mensaje) {
         const overlay = document.createElement('div');
         overlay.id = 'loadingOverlay';
         overlay.className = 'loading-overlay';
@@ -227,8 +227,8 @@ const ErrorHandler = {
     /**
      * Maneja errores de peticiones AJAX
      */
-    manejarErrorAjax: function(xhr, status, error) {
-        console.error('❌ Error AJAX:', { xhr, status, error });
+    manejarErrorAjax: function (xhr, status, error) {
+        console.error('Error AJAX:', { xhr, status, error });
 
         let mensaje = 'Ha ocurrido un error inesperado.';
 
@@ -258,7 +258,7 @@ const Validaciones = {
     /**
      * Valida email
      */
-    validarEmail: function(email) {
+    validarEmail: function (email) {
         const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         return regex.test(email);
     },
@@ -266,7 +266,7 @@ const Validaciones = {
     /**
      * Valida RUT chileno
      */
-    validarRut: function(rut) {
+    validarRut: function (rut) {
         if (!rut) return false;
 
         // Limpiar RUT
@@ -296,7 +296,7 @@ const Validaciones = {
     /**
      * Valida contraseña
      */
-    validarContraseña: function(contraseña) {
+    validarContraseña: function (contraseña) {
         if (!contraseña || contraseña.length < 8) return false;
 
         const tieneMinuscula = /[a-z]/.test(contraseña);
@@ -314,7 +314,7 @@ const App = {
     /**
      * Inicializa la aplicación
      */
-    init: function() {
+    init: function () {
         console.log('🎯 Inicializando aplicación Evolve Soluciones...');
 
         this.configurarAjax();
@@ -327,7 +327,7 @@ const App = {
     /**
      * Configura peticiones AJAX globales
      */
-    configurarAjax: function() {
+    configurarAjax: function () {
         // Configurar timeout por defecto
         $.ajaxSetup({
             timeout: 30000,
@@ -335,11 +335,11 @@ const App = {
         });
 
         // Mostrar/ocultar indicador de carga en peticiones AJAX
-        $(document).ajaxStart(function() {
+        $(document).ajaxStart(function () {
             Utils.mostrarCarga();
         });
 
-        $(document).ajaxStop(function() {
+        $(document).ajaxStop(function () {
             Utils.ocultarCarga();
         });
     },
@@ -347,20 +347,20 @@ const App = {
     /**
      * Configura eventos globales
      */
-    configurarEventosGlobales: function() {
+    configurarEventosGlobales: function () {
         // Confirmar enlaces de eliminación
-        $(document).on('click', '[data-confirm]', function(e) {
+        $(document).on('click', '[data-confirm]', function (e) {
             e.preventDefault();
             const mensaje = $(this).data('confirm') || '¿Estás seguro?';
             const href = $(this).attr('href');
 
-            Utils.confirmarAccion('Confirmar acción', mensaje, function() {
+            Utils.confirmarAccion('Confirmar acción', mensaje, function () {
                 window.location.href = href;
             });
         });
 
         // Auto-ocultar alertas
-        $('.alert').each(function() {
+        $('.alert').each(function () {
             const alert = this;
             setTimeout(() => {
                 $(alert).fadeOut();
@@ -377,7 +377,7 @@ const App = {
     /**
      * Verifica estado de la sesión
      */
-    verificarSesion: function() {
+    verificarSesion: function () {
         // Solo verificar si el usuario está autenticado
         if (!document.querySelector('.navbar')) return;
 
@@ -405,7 +405,7 @@ window.Validaciones = Validaciones;
 window.EvolveApp.App = App;
 
 // Inicializar cuando el DOM esté listo
-$(document).ready(function() {
+$(document).ready(function () {
     App.init();
 });
 

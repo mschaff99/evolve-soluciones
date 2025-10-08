@@ -159,4 +159,4 @@ Copy-Item "C:\Downloads\mi-logo.png" "logo-evolve.png"
 Get-ChildItem logo-evolve.png
 ```
 
-¡Listo! Tu logo aparecerá en la página de inicio de sesión 🚀
+¡Listo! Tu logo aparecerá en la página de inicio de sesión

@@ -1,6 +1,6 @@
 # Configuración de VS Code para Evolve Soluciones
 
-## 📋 Archivos de Configuración
+##  Archivos de Configuración
 
 Este directorio contiene toda la configuración de VS Code para el proyecto:
 
@@ -16,7 +16,7 @@ Este directorio contiene toda la configuración de VS Code para el proyecto:
 
 - **`.editorconfig`**: Configuración de formato de archivos (en raíz del proyecto)
 
-## 🚀 Primeros Pasos
+##  Primeros Pasos
 
 ### 1. Instalar Extensiones Recomendadas
 

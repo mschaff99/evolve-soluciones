@@ -47,7 +47,7 @@ def verificar_tabla_existe():
         resultado = cursor.fetchone()
 
         if resultado[0] == 0:  # type: ignore
-            print("❌ La tabla 'credenciales_sii' no existe.")
+            print("La tabla 'credenciales_sii' no existe.")
             print("\nLa tabla debe existir con la siguiente estructura:")
             print("""
 CREATE TABLE `credenciales_sii` (
@@ -68,7 +68,7 @@ CREATE TABLE `credenciales_sii` (
         return True
 
     except pymysql.Error as e:
-        print(f"❌ Error verificando tabla: {e}")
+        print(f"Error verificando tabla: {e}")
         return False
     finally:
         if conexion:
@@ -167,7 +167,7 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
     existentes = 0
     errores = 0
 
-    print(f"📊 Total de credenciales a procesar: {total}\n")
+    print(f" Total de credenciales a procesar: {total}\n")
     print("-" * 80)
 
     for idx, (rut, clave) in enumerate(credenciales, 1):
@@ -191,10 +191,10 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
                 actualizados += 1
         else:
             if "Ya existe" in mensaje:
-                print(f"⚠️  Ya existe (ID: {id_registro})")
+                print(f"  Ya existe (ID: {id_registro})")
                 existentes += 1
             else:
-                print(f"❌ Error: {mensaje}")
+                print(f"Error: {mensaje}")
                 errores += 1
 
     print("-" * 80)
@@ -204,8 +204,8 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
     print(f"Total procesados:    {total}")
     print(f" Insertados:       {insertados}")
     print(f"🔄 Actualizados:     {actualizados}")
-    print(f"⚠️  Ya existían:      {existentes}")
-    print(f"❌ Errores:          {errores}")
+    print(f"  Ya existían:      {existentes}")
+    print(f"Errores:          {errores}")
     print("=" * 80 + "\n")
 
     return {
@@ -226,7 +226,7 @@ def main():
 
     # Verificar que exista la tabla
     if not verificar_tabla_existe():
-        print("❌ No se pudo verificar la tabla. Verifica la conexión a la base de datos.")
+        print("No se pudo verificar la tabla. Verifica la conexión a la base de datos.")
         print("   O asegúrate de que la tabla 'credenciales_sii' exista.")
         return
 
@@ -269,7 +269,7 @@ def main():
     ]
 
     if not credenciales:
-        print("⚠️  No hay credenciales definidas en el script.")
+        print("  No hay credenciales definidas en el script.")
         print("\nPara usar este script:")
         print("1. Abre el archivo: scripts/insertar_credenciales_masivo.py")
         print("2. Busca la lista 'credenciales' en la función main()")
@@ -282,7 +282,7 @@ def main():
         print('   ]')
         return
 
-    print(f"📋 Se encontraron {len(credenciales)} credenciales para insertar.\n")
+    print(f" Se encontraron {len(credenciales)} credenciales para insertar.\n")
 
     # Preguntar si actualizar existentes
     respuesta = input("¿Actualizar credenciales que ya existan? (s/n) [n]: ").lower().strip()
@@ -300,7 +300,7 @@ def main():
     resultado = insertar_credenciales_masivo(credenciales, actualizar)
 
     if resultado['errores'] > 0:
-        print("⚠️  Hubo algunos errores durante el proceso.")
+        print("  Hubo algunos errores durante el proceso.")
         print("   Revisa los mensajes anteriores para más detalles.")
     elif resultado['insertados'] > 0 or resultado['actualizados'] > 0:
         print(" Proceso completado exitosamente!")
@@ -312,8 +312,8 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Operación cancelada por el usuario")
+        print("\n\n  Operación cancelada por el usuario")
     except Exception as e:
-        print(f"\n❌ Error inesperado: {e}")
+        print(f"\nError inesperado: {e}")
         import traceback
         traceback.print_exc()

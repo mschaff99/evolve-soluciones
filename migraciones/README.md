@@ -19,7 +19,7 @@ Este directorio contiene los scripts de migración SQL para las bases de datos d
 - **Base de datos remota**: stratex
 - **Uso**: Datos operacionales de empresas y períodos
 
-## 🚀 Cómo Ejecutar Migraciones
+##  Cómo Ejecutar Migraciones
 
 ### Opción 1: Con psql (Línea de comandos)
 
@@ -47,7 +47,7 @@ psql -U postgres -d evolve -f migraciones/002_crear_tabla_codigos_observaciones_
 python scripts/verificar_codigos_observaciones.py
 ```
 
-## 📋 Lista de Migraciones
+##  Lista de Migraciones
 
 ### 001 - Autenticación (PostgreSQL)
 **Archivo**: `001_crear_tablas_autenticacion_postgres.sql`
@@ -78,7 +78,7 @@ Crea tabla centralizada para códigos de observaciones del Formulario 29:
 python scripts/verificar_codigos_observaciones.py
 ```
 
-## 🔍 Verificar Estado de Migraciones
+##  Verificar Estado de Migraciones
 
 ### PostgreSQL
 
@@ -105,7 +105,7 @@ SHOW TABLES FROM evolve;
 SHOW TABLES FROM stratex;
 ```
 
-## ⚠️ Consideraciones Importantes
+##  Consideraciones Importantes
 
 1. **Backups**: Hacer backup antes de ejecutar migraciones en producción
 2. **Orden**: Ejecutar migraciones en orden numérico
@@ -148,7 +148,7 @@ SELECT current_database(); -- PostgreSQL
 -- [Consultas para verificar que se aplicó correctamente]
 ```
 
-## 📊 Scripts de Utilidad
+##  Scripts de Utilidad
 
 ### Verificación General
 ```bash

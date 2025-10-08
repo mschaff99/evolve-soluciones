@@ -2,7 +2,7 @@
 
 ##  **Tunnelmole ya está instalado y configurado**
 
-## 🚀 **Opciones para Iniciar con Túnel Público:**
+##  **Opciones para Iniciar con Túnel Público:**
 
 ### **Opción 1: Script Automático (Recomendado)**
 ```bash
@@ -31,7 +31,7 @@ python aplicacion.py
 tunnelmole 5000
 ```
 
-## 📋 **¿Cómo Funciona?**
+##  **¿Cómo Funciona?**
 
 1. **Flask se inicia** en el puerto 5000 localmente
 2. **Tunnelmole crea un túnel** hacia tu puerto 5000
@@ -53,7 +53,7 @@ tunnelmole 5000
 3. Comparte esa URL con quien necesite acceso
 4. ¡Listo! Pueden acceder desde cualquier lugar del mundo
 
-## ❌ **Para Detener:**
+## **Para Detener:**
 
 - Presiona `Ctrl+C` en las ventanas de terminal
 - O cierra las ventanas directamente

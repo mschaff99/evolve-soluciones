@@ -32,7 +32,7 @@
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 📋 Reglas de Acceso
+##  Reglas de Acceso
 
 ### Nivel 1: Base de Datos (campo `base_datos_mysql`)
 
@@ -206,7 +206,7 @@ usuario = Usuario.crear_usuario(
 )
 ```
 
-## 📊 Tabla de Permisos
+##  Tabla de Permisos
 
 | Usuario | BD MySQL | Rol | Ve Empresas |
 |---------|----------|-----|-------------|
@@ -240,7 +240,7 @@ empresas = obtener_empresas_usuario(
     conexion=obtener_conexion_local("empresa_x")  # Intenta otra BD
 )
 
-# ❌ BLOQUEADO: La función usa la BD del usuario, ignora conexión externa
+# BLOQUEADO: La función usa la BD del usuario, ignora conexión externa
 #  Resultado: Solo ve empresas de "stratex"
 ```
 

@@ -1034,6 +1034,14 @@ table.table.modern-table tbody tr:hover {
     box-shadow: 0 2px 4px rgba(22, 163, 154, 0.3);
 }
 
+/* Badge Warning Amarillo - Sin procesar por SII */
+.badge.bg-warning.badge-sin-procesar {
+    background: #FFA500 !important;
+    color: #000 !important;
+    box-shadow: 0 2px 4px rgba(255, 165, 0, 0.3);
+    font-weight: 600;
+}
+
 /* Badge Secondary (Sin color - Solo texto para RUT) */
 .badge.bg-secondary {
     background: transparent !important;

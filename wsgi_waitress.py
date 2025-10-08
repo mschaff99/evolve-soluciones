@@ -34,7 +34,7 @@ if __name__ == '__main__':
     from waitress import serve
 
     print("=" * 60)
-    print("🚀 Evolve Soluciones - Servidor Waitress (Producción)")
+    print(" Evolve Soluciones - Servidor Waitress (Producción)")
     print("=" * 60)
     print("Servidor iniciando en puerto 8080...")
     print("URLs de acceso:")

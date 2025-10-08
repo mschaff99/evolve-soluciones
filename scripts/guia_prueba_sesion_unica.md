@@ -139,5 +139,5 @@ Si IP sigue siendo 127.0.0.1:
 - Revisar que ProxyFix esté habilitado
 - Probar acceso directo a Waitress (puerto 8080)
 
-¡LISTO PARA PROBAR! 🚀
+¡LISTO PARA PROBAR!
 """

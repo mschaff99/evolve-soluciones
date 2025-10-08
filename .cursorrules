@@ -96,8 +96,8 @@ class MiServicio:
             #  CORRECTO: Sin emojis en código productivo
             print(f"Error al obtener datos: {e}")
 
-            # ❌ INCORRECTO: No usar emojis en código productivo
-            # print(f"❌ Error al obtener datos: {e}")
+            # INCORRECTO: No usar emojis en código productivo
+            # print(f"Error al obtener datos: {e}")
 
             return None
 ```
@@ -113,7 +113,7 @@ class MiServicio:
 consulta = "SELECT * FROM usuarios WHERE email = %s AND activo = %s"
 resultado = ejecutar_consulta(consulta, (email, True))
 
-# ❌ INCORRECTO - Vulnerable a SQL Injection
+# INCORRECTO - Vulnerable a SQL Injection
 consulta = f"SELECT * FROM usuarios WHERE email = '{email}'"
 ```
 
@@ -186,7 +186,7 @@ Antes de responder, verificar:
 - [ ] ¿Mencioné implicancias de SEO/A11y si es vista pública?
 - [ ] ¿Sugerí tests o comandos para verificar?
 
-## 🧪 Testing y Desarrollo
+##  Testing y Desarrollo
 
 ### Comandos Útiles
 ```bash
@@ -216,7 +216,7 @@ flake8 aplicacion/
 - Usar pytest fixtures
 - Mockear DB en tests
 
-## 📊 Funcionalidades del Sistema
+##  Funcionalidades del Sistema
 
 ### Módulos Principales
 1. **Autenticación**: Login/logout con Flask-Login
@@ -284,14 +284,14 @@ Descripción detallada opcional
 
 ## 🚨 Errores Comunes a Evitar
 
-1. ❌ NO concatenar SQL con f-strings
-2. ❌ NO poner lógica de negocio en controladores
-3. ❌ NO olvidar CSRF tokens en formularios
-4. ❌ NO hardcodear credenciales (usar .env)
-5. ❌ NO mezclar inglés y español en naming
-6. ❌ NO olvidar validación server-side
-7. ❌ NO retornar errores detallados al cliente en producción
-8. ❌ NO usar emojis/iconos en código productivo (solo en debug temporal)
+1. NO concatenar SQL con f-strings
+2. NO poner lógica de negocio en controladores
+3. NO olvidar CSRF tokens en formularios
+4. NO hardcodear credenciales (usar .env)
+5. NO mezclar inglés y español en naming
+6. NO olvidar validación server-side
+7. NO retornar errores detallados al cliente en producción
+8. NO usar emojis/iconos en código productivo (solo en debug temporal)
 
 ## 💡 Filosofía de Desarrollo
 

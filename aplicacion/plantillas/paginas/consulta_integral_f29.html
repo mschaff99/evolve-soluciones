@@ -250,17 +250,19 @@
                             </td>
                             {% endfor %}
                             <td class="resumen-estadisticas text-center">
-                                {# Solo total de 'X' en todos los períodos #}
-                                {% set nsx = namespace(total_x=0) %}
+                                {# Contar 'X' (con observaciones) y '⚠️' (sin procesar) #}
+                                {% set stats = namespace(total_x=0, sin_procesar=0) %}
                                 {% for clave, periodo in datos_empresa.periodos.items() %}
                                     {% if periodo.tabla_resultados == 'X' %}
-                                        {% set nsx.total_x = nsx.total_x + 1 %}
+                                        {% set stats.total_x = stats.total_x + 1 %}
+                                    {% elif periodo.tabla_resultados == '⚠️' %}
+                                        {% set stats.sin_procesar = stats.sin_procesar + 1 %}
                                     {% endif %}
                                 {% endfor %}
-                                {% if nsx.total_x > 0 %}
-                                    <span class="badge bg-warning text-dark" title="Total de observaciones">
-                                        {{ nsx.total_x }}
-                                    </span>
+
+                                {% set total_sum = stats.total_x + stats.sin_procesar %}
+                                {% if total_sum > 0 %}
+                                    <span class="badge bg-danger">{{ total_sum }}</span>
                                 {% else %}
                                     <span class="text-muted">0</span>
                                 {% endif %}
@@ -284,11 +286,15 @@
                                 {% if datos_periodo %}
                                 <div class="info-periodo-inline">
                                     {% if datos_periodo.tabla_resultados == '✓' %}
-                                        <span class="badge bg-success">
+                                        <span class="badge bg-success" title="OK, sin observaciones">
                                             <i class="fas fa-check"></i>
                                         </span>
+                                    {% elif datos_periodo.tabla_resultados == '⚠️' %}
+                                        <span class="badge bg-warning badge-sin-procesar" title="Sin procesar por SII">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </span>
                                     {% elif datos_periodo.tabla_resultados == '-' %}
-                                        <span class="badge bg-secondary">
+                                        <span class="badge bg-secondary" title="Período neutral">
                                             <i class="fas fa-minus"></i>
                                         </span>
                                     {% elif datos_periodo.tabla_resultados == 'X' %}
@@ -319,6 +325,10 @@
                                             <i class="fas fa-times"></i>
                                             <span class="badge badge-count">{{ datos_periodo.total_observaciones }}</span>
                                         </button>
+                                    {% elif datos_periodo.tabla_resultados == '⚠️' %}
+                                        <span class="badge bg-warning text-dark" title="Sin procesar por SII">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                        </span>
                                     {% elif datos_periodo.tabla_resultados == '' %}
                                         <span class="badge bg-light text-dark">
                                             <i class="fas fa-circle"></i>

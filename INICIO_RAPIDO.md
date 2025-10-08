@@ -7,7 +7,7 @@
 - Las tablas están creadas
 - **Solo falta crear el usuario administrador**
 
-## 🚀 Crear Usuario Administrador (2 opciones)
+##  Crear Usuario Administrador (2 opciones)
 
 ### Opción 1: Script Automático (Más Rápido)
 
@@ -20,7 +20,7 @@ python scripts/crear_admin_simple.py
 - Contraseña: `Admin123456`
 - Email: `admin@evolve.cl`
 
-⚠️ **IMPORTANTE:** Cambiar la contraseña después del primer login
+ **IMPORTANTE:** Cambiar la contraseña después del primer login
 
 ### Opción 2: Script Interactivo (Personalizado)
 
@@ -47,7 +47,7 @@ python wsgi_waitress.py
 
 Accede en: **http://localhost:5000**
 
-## 📋 Resumen de Comandos
+##  Resumen de Comandos
 
 ```powershell
 # 1. Activar entorno virtual (si no está activado)

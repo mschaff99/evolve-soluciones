@@ -53,14 +53,14 @@ def verificar_tabla_existe():
         resultado = cursor.fetchone()
 
         if resultado[0] == 0:  # type: ignore
-            print("❌ La tabla 'credenciales_sii' no existe.")
+            print("La tabla 'credenciales_sii' no existe.")
             return False
 
         print(" Tabla 'credenciales_sii' encontrada\n")
         return True
 
     except pymysql.Error as e:
-        print(f"❌ Error verificando tabla: {e}")
+        print(f"Error verificando tabla: {e}")
         return False
     finally:
         if conexion:
@@ -122,7 +122,7 @@ def parsear_linea(linea):
         return (rut, clave)
 
     except Exception as e:
-        print(f"⚠️  Error parseando línea '{linea[:50]}...': {e}")
+        print(f"  Error parseando línea '{linea[:50]}...': {e}")
         return None
 
 
@@ -149,10 +149,10 @@ def leer_credenciales_desde_archivo(archivo_path):
         return credenciales
 
     except FileNotFoundError:
-        print(f"❌ Archivo no encontrado: {archivo_path}")
+        print(f"Archivo no encontrado: {archivo_path}")
         return []
     except Exception as e:
-        print(f"❌ Error leyendo archivo: {e}")
+        print(f"Error leyendo archivo: {e}")
         return []
 
 
@@ -221,7 +221,7 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
     existentes = 0
     errores = 0
 
-    print(f"📊 Total de credenciales a procesar: {total}\n")
+    print(f" Total de credenciales a procesar: {total}\n")
     print("-" * 80)
 
     for idx, (rut, clave) in enumerate(credenciales, 1):
@@ -242,10 +242,10 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
                 actualizados += 1
         else:
             if "Ya existe" in mensaje:
-                print(f"⚠️  Ya existe (ID: {id_registro})")
+                print(f"  Ya existe (ID: {id_registro})")
                 existentes += 1
             else:
-                print(f"❌ Error: {mensaje}")
+                print(f"Error: {mensaje}")
                 errores += 1
 
     print("-" * 80)
@@ -254,9 +254,9 @@ def insertar_credenciales_masivo(credenciales, actualizar_existentes=False):
     print("=" * 80)
     print(f"Total procesados:    {total}")
     print(f" Insertados:       {insertados}")
-    print(f"🔄 Actualizados:     {actualizados}")
-    print(f"⚠️  Ya existían:      {existentes}")
-    print(f"❌ Errores:          {errores}")
+    print(f" Actualizados:     {actualizados}")
+    print(f"  Ya existían:      {existentes}")
+    print(f"Errores:          {errores}")
     print("=" * 80 + "\n")
 
     return {
@@ -278,7 +278,7 @@ def main():
 
     # Verificar tabla
     if not verificar_tabla_existe():
-        print("❌ No se pudo verificar la tabla.")
+        print("No se pudo verificar la tabla.")
         return
 
     # Determinar archivo a usar
@@ -289,7 +289,7 @@ def main():
 
         # Si no existe, informar
         if not Path(archivo).exists():
-            print(f"⚠️  No se encontró el archivo: {archivo}\n")
+            print(f"  No se encontró el archivo: {archivo}\n")
             print("Para usar este script:")
             print(f"1. Crea un archivo de texto (ej: {archivo})")
             print("2. Agrega tus credenciales en el formato:")
@@ -301,13 +301,13 @@ def main():
             print('  ("76.553.200-0","otra_clave"),')
             return
 
-    print(f"📂 Leyendo archivo: {archivo}\n")
+    print(f"Leyendo archivo: {archivo}\n")
 
     # Leer credenciales
     credenciales = leer_credenciales_desde_archivo(archivo)
 
     if not credenciales:
-        print("❌ No se encontraron credenciales válidas en el archivo.")
+        print("No se encontraron credenciales válidas en el archivo.")
         print("\nVerifica que el formato sea correcto:")
         print("  RUT,CLAVE")
         print("\nEjemplo:")
@@ -342,7 +342,7 @@ def main():
     resultado = insertar_credenciales_masivo(credenciales, actualizar)
 
     if resultado['errores'] > 0:
-        print("⚠️  Hubo algunos errores durante el proceso.")
+        print("  Hubo algunos errores durante el proceso.")
     elif resultado['insertados'] > 0 or resultado['actualizados'] > 0:
         print(" Proceso completado exitosamente!")
     else:
@@ -353,8 +353,8 @@ if __name__ == "__main__":
     try:
         main()
     except KeyboardInterrupt:
-        print("\n\n⚠️  Operación cancelada por el usuario")
+        print("\n\n  Operación cancelada por el usuario")
     except Exception as e:
-        print(f"\n❌ Error inesperado: {e}")
+        print(f"\nError inesperado: {e}")
         import traceback
         traceback.print_exc()

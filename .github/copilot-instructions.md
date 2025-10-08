@@ -182,7 +182,7 @@ Antes de responder, verificar:
 - Mencioné implicancias de SEO/A11y si es vista pública
 - Sugerí tests o comandos para verificar
 
-## 🧪 Testing y Desarrollo
+##  Testing y Desarrollo
 
 ### Comandos Útiles
 ```powershell
@@ -212,7 +212,7 @@ flake8 aplicacion/
 - Usar pytest fixtures
 - Mockear DB en tests
 
-## 📊 Funcionalidades del Sistema
+##  Funcionalidades del Sistema
 
 ### Módulos Principales
 1. **Autenticación**: Login/logout con Flask-Login

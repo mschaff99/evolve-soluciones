@@ -1,8 +1,8 @@
-# 🚀 Evolve Soluciones
+#  Evolve Soluciones
 
 Sistema integral de gestión empresarial para consultoría y asesoría tributaria, desarrollado con Flask y arquitectura MVC escalable.
 
-## 📋 Tabla de Contenidos
+##  Tabla de Contenidos
 
 - [Características](#características)
 - [Estructura del Proyecto](#estructura-del-proyecto)
@@ -29,7 +29,7 @@ Sistema integral de gestión empresarial para consultoría y asesoría tributari
 - **Protección CSRF** en todos los formularios
 - **Validación de datos** tanto en cliente como servidor
 
-### 📊 Funcionalidades Avanzadas
+###  Funcionalidades Avanzadas
 - **Filtros dinámicos** en tiempo real
 - **Exportación a Excel** de datos
 - **Estadísticas y reportes**
@@ -194,7 +194,7 @@ El sistema soporta múltiples entornos de configuración:
 - **Pruebas** (`pruebas`): Base de datos en memoria, CSRF desactivado
 - **Producción** (`produccion`): Configuraciones de seguridad estrictas
 
-## 🚀 Uso
+##  Uso
 
 ### Ejecutar la Aplicación
 
@@ -377,7 +377,7 @@ Para soporte técnico o preguntas:
 - ✨ Lanzamiento inicial del sistema
 - 🏢 Módulo de consulta integral F29
 - 🔐 Sistema de autenticación y autorización
-- 📊 Exportación a Excel
+-  Exportación a Excel
 - 🎨 Interfaz responsive con Bootstrap 5
 
 ---
