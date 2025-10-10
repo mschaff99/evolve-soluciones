@@ -371,7 +371,7 @@ class ServicioConsultaIntegral:
             # Si es administrador, no filtra por auditor
             if es_administrador:
                 consulta = """
-                    SELECT
+                    SELECT DISTINCT
                         c.empresa as nombre_empresa,
                         c.run_rut as rut,
                         b.periodo,
@@ -380,17 +380,19 @@ class ServicioConsultaIntegral:
                         a.codigo,
                         a.descripcion,
                         a.monto,
-                        c.auditor
+                        c.auditor,
+                        a.id
                     FROM observaciones a
-                    LEFT JOIN consulta_integral b ON a.consulta_id = b.id
-                    LEFT JOIN empresas c ON b.rut = c.run_rut
+                    INNER JOIN consulta_integral b ON a.consulta_id = b.id
+                    INNER JOIN empresas c ON b.rut = c.run_rut
+                    WHERE b.estado='V'
                     ORDER BY c.empresa, b.periodo, a.codigo
                 """
                 parametros = ()
             else:
-                # Usuario normal: solo sus observaciones
+                # Usuario normal: solo sus observaciones (con DISTINCT para evitar duplicados)
                 consulta = """
-                    SELECT
+                    SELECT DISTINCT
                         c.empresa as nombre_empresa,
                         c.run_rut as rut,
                         b.periodo,
@@ -398,11 +400,13 @@ class ServicioConsultaIntegral:
                         b.mes,
                         a.codigo,
                         a.descripcion,
-                        a.monto
+                        a.monto,
+                        a.id
                     FROM observaciones a
-                    LEFT JOIN consulta_integral b ON a.consulta_id = b.id
-                    LEFT JOIN empresas c ON b.rut = c.run_rut
+                    INNER JOIN consulta_integral b ON a.consulta_id = b.id
+                    INNER JOIN empresas c ON b.rut = c.run_rut
                     WHERE c.auditor = %s
+                    AND b.estado='V'
                     ORDER BY c.empresa, b.periodo, a.codigo
                 """
                 parametros = (nombre_usuario,)
