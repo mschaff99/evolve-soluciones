@@ -36,9 +36,9 @@ def validar_base_datos_usuario(base_datos):
 
 @rutas_dinamicas_bp.route('/<base_datos>')
 @login_required
-def dashboard_base_datos(base_datos):
+def inicio_base_datos(base_datos):
     """
-    Dashboard principal para una base de datos específica
+    Página de inicio principal para una base de datos específica
     URL: /<base_datos> (ej: /stratex, /otra-base)
     """
     # Validar acceso a la base de datos
@@ -58,14 +58,14 @@ def dashboard_base_datos(base_datos):
             auditor = empresa.get('auditor', 'Sin asignar')
             empresas_por_auditor[auditor] = empresas_por_auditor.get(auditor, 0) + 1
 
-        return render_template('paginas/dashboard_base_datos.html',
+        return render_template('paginas/inicio.html',
                              base_datos=base_datos,
                              total_empresas=total_empresas,
                              empresas_por_auditor=empresas_por_auditor,
                              empresas=empresas[:10])  # Mostrar solo las primeras 10
 
     except Exception as e:
-        print(f"Error cargando dashboard para base {base_datos}: {e}")
+        print(f"Error cargando página de inicio para base {base_datos}: {e}")
         from flask import flash
         flash(f'Error cargando datos de la base de datos "{base_datos}"', 'error')
         return redirect(url_for('autenticacion.iniciar_sesion'))
@@ -141,7 +141,7 @@ def consulta_integral_f29_base_datos(base_datos):
         traceback.print_exc()
         from flask import flash
         flash('Error cargando la consulta integral', 'error')
-        return redirect(url_for('rutas_dinamicas.dashboard_base_datos', base_datos=base_datos))
+        return redirect(url_for('rutas_dinamicas.inicio_base_datos', base_datos=base_datos))
 
 
 @rutas_dinamicas_bp.route('/<base_datos>/api/exportar-observaciones-excel')

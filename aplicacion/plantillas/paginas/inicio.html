@@ -1,10 +1,10 @@
 {% extends "diseños/base.html" %}
 
-{% block titulo %}Dashboard - {{ base_datos|upper }}{% endblock %}
+{% block titulo %}Inicio - {{ base_datos|upper }}{% endblock %}
 
 {% block estilos %}
-<!-- Estilos específicos para Dashboard -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/dashboard.css') }}">
+<!-- Estilos específicos para Inicio -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/inicio.css') }}">
 {% endblock %}
 
 {% block contenido %}
@@ -323,6 +323,6 @@
 {% endblock %}
 
 {% block scripts %}
-<!-- JavaScript específico para Dashboard -->
-<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+<!-- JavaScript específico para Inicio -->
+<script src="{{ url_for('static', filename='js/inicio.js') }}"></script>
 {% endblock %}

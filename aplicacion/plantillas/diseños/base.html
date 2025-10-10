@@ -116,7 +116,7 @@
                 <div class="d-flex align-items-center">
                     <!-- Logo con diseño mejorado y optimizado para LCP -->
                     {% if current_user.is_authenticated and current_user.base_datos_mysql %}
-                    <a href="{{ url_for('rutas_dinamicas.dashboard_base_datos', base_datos=current_user.base_datos_mysql) }}" class="logo-link" title="Ir al inicio">
+                    <a href="{{ url_for('rutas_dinamicas.inicio_base_datos', base_datos=current_user.base_datos_mysql) }}" class="logo-link" title="Ir al inicio">
                     {% else %}
                     <a href="/" class="logo-link" title="Ir al inicio">
                     {% endif %}

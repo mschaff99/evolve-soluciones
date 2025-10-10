@@ -1,9 +1,9 @@
 /**
- * Dashboard - JavaScript
- * Funcionalidades para el dashboard principal de Evolve Soluciones
+ * Inicio - JavaScript
+ * Funcionalidades para la página de inicio de Evolve Soluciones
  */
 
-console.log('Cargando dashboard.js...');
+console.log('Cargando inicio.js...');
 
 // ============================================
 // CALENDARIO DINÁMICO
@@ -157,4 +157,4 @@ window.generarCalendario = generarCalendario;
 window.mesAnterior = mesAnterior;
 window.mesSiguiente = mesSiguiente;
 
-console.log('Dashboard.js cargado correctamente');
+console.log('inicio.js cargado correctamente');
