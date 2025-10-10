@@ -14,6 +14,13 @@ from aplicacion.modelos.usuario import Usuario
 from aplicacion.modelos.sesion import SesionUsuario
 from aplicacion.utilidades.validadores import validar_email, validar_contraseña
 from aplicacion.utilidades.herramientas_ip import obtener_ip_real_cliente
+from aplicacion.utilidades.logging_detallado import (
+    log_intento_login,
+    log_creacion_sesion,
+    log_acceso_bloqueado,
+    log_diagnostico_cookies,
+    detectar_problema_cookies_chrome
+)
 
 # Crear blueprint para autenticación
 autenticacion_bp = Blueprint('autenticacion', __name__, url_prefix='/auth')
@@ -27,6 +34,15 @@ def iniciar_sesion():
     if current_user.is_authenticated:
         base_datos = current_user.base_datos_mysql or 'stratex'
         return redirect(f'/{base_datos}')
+
+    # GET request - Verificar si hay problema de cookies ANTES de mostrar el form
+    if request.method == 'GET':
+        # Registrar diagnóstico de cookies para usuarios con problemas
+        diagnostico = detectar_problema_cookies_chrome()
+
+        if diagnostico['problema_detectado']:
+            log_diagnostico_cookies()
+            # No mostrar mensajes al usuario, será automático
 
     if request.method == 'POST':
         nombre_usuario = request.form.get('nombre_usuario', '').strip()
@@ -42,30 +58,47 @@ def iniciar_sesion():
         usuario = Usuario.obtener_por_nombre_usuario(nombre_usuario)
 
         if not usuario:
-            # Registrar intento fallido
+            # Registrar intento fallido en BD
             SesionUsuario.registrar_intento_login(
                 nombre_usuario=nombre_usuario,
                 direccion_ip=obtener_ip_real_cliente(),
                 exitoso=False,
                 mensaje="Usuario no encontrado"
             )
+            # Registrar en log detallado
+            log_intento_login(
+                usuario=nombre_usuario,
+                exito=False,
+                razon="Usuario no encontrado en la base de datos"
+            )
             flash('Credenciales inválidas.', 'error')
             return render_template('paginas/iniciar_sesion.html')
 
         # Verificar contraseña
         if not usuario.verificar_contraseña(contraseña):
-            # Registrar intento fallido
+            # Registrar intento fallido en BD
             SesionUsuario.registrar_intento_login(
                 nombre_usuario=nombre_usuario,
                 direccion_ip=obtener_ip_real_cliente(),
                 exitoso=False,
                 mensaje="Contraseña incorrecta"
             )
+            # Registrar en log detallado
+            log_intento_login(
+                usuario=nombre_usuario,
+                exito=False,
+                razon="Contraseña incorrecta"
+            )
             flash('Credenciales inválidas.', 'error')
             return render_template('paginas/iniciar_sesion.html')
 
         # Verificar que el usuario esté activo
         if not usuario.es_activo():
+            # Registrar acceso bloqueado
+            log_acceso_bloqueado(
+                usuario=nombre_usuario,
+                razon="Cuenta desactivada"
+            )
             flash('Tu cuenta está desactivada. Contacta al administrador.', 'error')
             return render_template('paginas/iniciar_sesion.html')
 
@@ -82,6 +115,15 @@ def iniciar_sesion():
                 user_agent=user_agent
             )
 
+            # Registrar creación de sesión en log detallado
+            sesiones_cerradas = sesion_usuario.get('sesiones_cerradas', 0) if isinstance(sesion_usuario, dict) else 0
+            log_creacion_sesion(
+                usuario=usuario.nombre_usuario,
+                token=sesion_usuario.token_sesion if hasattr(sesion_usuario, 'token_sesion') else 'N/A',
+                ip=ip_cliente,
+                sesiones_cerradas=sesiones_cerradas
+            )
+
             # Iniciar sesión con Flask-Login
             login_user(usuario, remember=recordarme)
 
@@ -93,12 +135,18 @@ def iniciar_sesion():
 
             print(f"Usuario {usuario.nombre_usuario} ha iniciado sesion exitosamente")
 
-            # Registrar intento exitoso
+            # Registrar intento exitoso en BD
             SesionUsuario.registrar_intento_login(
                 nombre_usuario=usuario.nombre_usuario,
                 direccion_ip=ip_cliente,
                 exitoso=True,
                 mensaje="Inicio de sesion exitoso"
+            )
+
+            # Registrar en log detallado
+            log_intento_login(
+                usuario=usuario.nombre_usuario,
+                exito=True
             )
 
             flash(f'¡Bienvenido, {usuario.nombre_usuario}!', 'success')
@@ -156,17 +204,33 @@ def limpiar_sesion():
     """
     Limpia completamente la sesión del navegador
     Útil cuando hay cookies corruptas o problemas de CSRF
+    Especialmente diseñado para Chrome con problemas de cookies
     """
     try:
+        # Registrar diagnóstico de cookies ANTES de limpiar
+        log_diagnostico_cookies()
+
+        # Detectar si es el problema típico de Chrome
+        diagnostico = detectar_problema_cookies_chrome()
+
         # Cerrar sesión de Flask-Login si existe
         if current_user.is_authenticated:
+            usuario_nombre = current_user.nombre_usuario
             logout_user()
+            print(f"Usuario {usuario_nombre} cerró sesión vía limpiar-sesion")
 
         # Limpiar toda la sesión de Flask
         session.clear()
 
-        flash('Tu sesión ha sido limpiada exitosamente. Ahora puedes iniciar sesión nuevamente.', 'success')
-        flash('Si el problema persiste, limpia las cookies de tu navegador (Ctrl+Shift+Delete).', 'info')
+        # Mensajes específicos según el diagnóstico
+        if diagnostico['problema_detectado']:
+            flash(' Problema detectado: Cookies corruptas en Chrome/Edge.', 'warning')
+            flash('Sesión limpiada exitosamente. Intenta iniciar sesión nuevamente.', 'success')
+            flash(' Si el problema persiste:', 'info')
+            flash('1. Presiona Ctrl+Shift+Delete → Eliminar cookies del sitio', 'info')
+            flash('2. O usa modo incógnito temporalmente', 'info')
+        else:
+            flash('Tu sesión ha sido limpiada exitosamente. Ahora puedes iniciar sesión nuevamente.', 'success')
 
     except Exception as e:
         print(f"Error limpiando sesión: {e}")
@@ -174,7 +238,28 @@ def limpiar_sesion():
         session.clear()
         flash('Sesión limpiada. Intenta iniciar sesión nuevamente.', 'info')
 
-    return redirect(url_for('autenticacion.iniciar_sesion'))
+    # Crear respuesta con headers para forzar limpieza de cookies
+    response = redirect(url_for('autenticacion.iniciar_sesion'))
+
+    # Eliminar cookies explícitamente
+    response.set_cookie('session', '', expires=0, path='/')
+    response.set_cookie('csrf_token', '', expires=0, path='/')
+
+    # Headers para prevenir caché
+    response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
+    response.headers['Expires'] = '0'
+
+    return response
+
+
+@autenticacion_bp.route('/ayuda-navegador')
+def ayuda_navegador():
+    """
+    Página de ayuda para usuarios con problemas de navegador
+    Especialmente diseñada para problemas de cookies en Chrome
+    """
+    return render_template('paginas/ayuda_navegador.html')
 
 
 @autenticacion_bp.route('/registrar', methods=['GET', 'POST'])

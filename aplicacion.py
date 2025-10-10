@@ -11,6 +11,7 @@ from datetime import datetime
 from configuracion.configuracion import obtener_configuracion
 from aplicacion.utilidades.inicializadores import inicializar_extensiones
 from aplicacion.utilidades.manejadores_errores import registrar_manejadores_errores
+from aplicacion.utilidades.logging_detallado import configurar_logging_detallado
 
 
 def crear_aplicacion(nombre_entorno=None):
@@ -55,6 +56,9 @@ def crear_aplicacion(nombre_entorno=None):
 
     # Inicializar extensiones
     inicializar_extensiones(aplicacion)
+
+    # Configurar sistema de logging detallado
+    configurar_logging_detallado(aplicacion)
 
     # Registrar manejadores de errores
     registrar_manejadores_errores(aplicacion)
@@ -141,6 +145,23 @@ def registrar_middleware(aplicacion):
         x_host=1,     # Confía en X-Forwarded-Host
         x_prefix=1    # Confía en X-Forwarded-Prefix
     )
+
+    @aplicacion.before_request
+    def detectar_y_reparar_cookies_chrome():
+        """
+        Detecta automáticamente problemas de cookies en Chrome y los repara
+        sin intervención del usuario
+        """
+        # Solo actuar en el endpoint de login en POST (cuando intenta autenticarse)
+        if request.path == '/auth/iniciar-sesion' and request.method == 'POST':
+            from aplicacion.utilidades.logging_detallado import detectar_problema_cookies_chrome
+
+            diagnostico = detectar_problema_cookies_chrome()
+
+            # Si detectamos el problema, limpiar sesión preventivamente
+            if diagnostico['problema_detectado']:
+                session.clear()
+                print(f"[AUTO-FIX] Cookies corruptas detectadas y limpiadas preventivamente")
 
     @aplicacion.before_request
     def validar_sesion_unica():
