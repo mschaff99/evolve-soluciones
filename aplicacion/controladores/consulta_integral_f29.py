@@ -23,7 +23,10 @@ consulta_integral_f29_bp = Blueprint('consulta_integral_f29', __name__, url_pref
 def probar_conexion():
     """Endpoint para probar la conexión a la base de datos evolve"""
     try:
-        servicio_consulta = ServicioConsultaIntegral()
+        # Obtener base de datos del usuario autenticado
+        from flask_login import current_user
+        base_datos = current_user.base_datos_mysql
+        servicio_consulta = ServicioConsultaIntegral(base_datos)
         conexion = servicio_consulta.obtener_conexion_evolve()
 
         with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -52,7 +55,7 @@ def inicio_consulta_integral():
     """Ruta principal para la Consulta Integral F29 - Redirige a dashboard"""
     from flask_login import current_user
     if current_user.is_authenticated:
-        base_datos = current_user.base_datos_mysql or 'stratex'
+        base_datos = current_user.base_datos_mysql
         return redirect(f'/{base_datos}/consulta-integral-f29')
     else:
         return redirect(url_for('autenticacion.iniciar_sesion'))
@@ -71,7 +74,10 @@ def inicio_consulta_integral():
 def obtener_observaciones(rut, periodo):
     """Obtener observaciones de un período específico"""
     try:
-        servicio_consulta = ServicioConsultaIntegral()
+        # Obtener base de datos del usuario autenticado
+        from flask_login import current_user
+        base_datos = current_user.base_datos_mysql
+        servicio_consulta = ServicioConsultaIntegral(base_datos)
         conexion = servicio_consulta.obtener_conexion_evolve()
 
         # Limpiar el RUT para que coincida con el formato en BD
@@ -80,10 +86,10 @@ def obtener_observaciones(rut, periodo):
         print(f"[DEBUG] Buscando observaciones para RUT: {rut} -> {rut_limpio}, Periodo: {periodo}")
 
         with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
-            # Primero verificar si existe el registro en consulta_integral
-            sql_verificacion = """
+            # Primero verificar si existe el registro en consulta_integral (usar f-string para BD dinámica)
+            sql_verificacion = f"""
             SELECT id, rut, periodo
-            FROM stratex.consulta_integral
+            FROM {base_datos}.consulta_integral
             WHERE rut = %s AND periodo = %s
             """
 
@@ -119,11 +125,11 @@ def obtener_observaciones(rut, periodo):
                     'mensaje': 'No se encontró el período en consulta_integral'
                 })
 
-            # Consulta para obtener observaciones
-            sql_observaciones = """
+            # Consulta para obtener observaciones (usar f-string para BD dinámica)
+            sql_observaciones = f"""
             SELECT a.*, b.rut as consulta_rut, b.periodo as consulta_periodo
-            FROM stratex.observaciones a
-            INNER JOIN consulta_integral b ON a.consulta_id = b.id
+            FROM {base_datos}.observaciones a
+            INNER JOIN {base_datos}.consulta_integral b ON a.consulta_id = b.id
             WHERE a.consulta_id = %s
             ORDER BY a.fecha_creacion DESC
             """
@@ -161,7 +167,10 @@ def obtener_observaciones(rut, periodo):
 def obtener_detalles_empresa(rut):
     """API endpoint para obtener detalles específicos de una empresa"""
     try:
-        servicio_consulta = ServicioConsultaIntegral()
+        # Obtener base de datos del usuario autenticado
+        from flask_login import current_user
+        base_datos = current_user.base_datos_mysql
+        servicio_consulta = ServicioConsultaIntegral(base_datos)
         detalles = servicio_consulta.obtener_detalles_empresa_por_rut(rut)
 
         return jsonify({
@@ -183,8 +192,11 @@ def obtener_detalles_empresa(rut):
 def exportar_datos():
     """API endpoint para exportar datos de consulta integral a Excel"""
     try:
+        # Obtener base de datos del usuario autenticado
+        from flask_login import current_user
+        base_datos = current_user.base_datos_mysql
         filtros = request.json if request.is_json else {}
-        servicio = ServicioConsultaIntegral()
+        servicio = ServicioConsultaIntegral(base_datos)
         # Obtener datos según filtros para exportar
         datos_empresas = servicio.obtener_datos_empresas_con_periodos(filtros)
         buffer_excel = servicio.exportar_a_excel(datos_empresas)
@@ -207,7 +219,10 @@ def exportar_datos():
 def obtener_estadisticas_generales():
     """API endpoint para obtener estadísticas generales de la consulta integral"""
     try:
-        servicio_consulta = ServicioConsultaIntegral()
+        # Obtener base de datos del usuario autenticado
+        from flask_login import current_user
+        base_datos = current_user.base_datos_mysql
+        servicio_consulta = ServicioConsultaIntegral(base_datos)
         estadisticas = servicio_consulta.obtener_estadisticas_generales()
 
         return jsonify({
@@ -244,13 +259,14 @@ def exportar_observaciones_excel():
                 'error': 'Usuario no autenticado'
             }), 401
 
-        # Obtener nombre de usuario
+        # Obtener nombre de usuario y base de datos
         nombre_usuario = current_user.nombre_usuario
+        base_datos = current_user.base_datos_mysql
 
-        print(f"[EXPORT] Exportando observaciones para usuario: {nombre_usuario}")
+        print(f"[EXPORT] Exportando observaciones para usuario: {nombre_usuario}, BD: {base_datos}")
 
         # Generar Excel
-        servicio_consulta = ServicioConsultaIntegral()
+        servicio_consulta = ServicioConsultaIntegral(base_datos)
         buffer_excel = servicio_consulta.exportar_observaciones_usuario_excel(nombre_usuario)
 
         if not buffer_excel:

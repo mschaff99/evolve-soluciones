@@ -23,17 +23,24 @@ config = obtener_configuracion()
 class ServicioConsultaIntegral:
     """Servicio para manejar consultas integrales F29"""
 
-    def __init__(self):
+    def __init__(self, base_datos='stratex'):
+        """
+        Inicializa el servicio con la base de datos a usar
+
+        Args:
+            base_datos (str): Nombre de la base de datos MySQL (ej: 'stratex', 'evolve', etc.)
+        """
         self.config = config
+        self.base_datos = base_datos
 
     def obtener_conexion_evolve(self):
         """
-        Obtiene conexión a la base de datos evolve (local)
+        Obtiene conexión a la base de datos MySQL asignada al usuario
 
         Returns:
             pymysql.Connection: Conexión a la base de datos
         """
-        return obtener_conexion_local()
+        return obtener_conexion_local(self.base_datos)
 
     def limpiar_rut(self, rut):
         """
@@ -66,8 +73,8 @@ class ServicioConsultaIntegral:
         try:
             conexion = self.obtener_conexion_evolve()
 
-            # Construir consulta base
-            consulta_base = """
+            # Construir consulta base (usar f-string para base de datos dinámica)
+            consulta_base = f"""
                 SELECT DISTINCT
                     e.run_rut as rut,
                     e.empresa as nombre,
@@ -81,13 +88,13 @@ class ServicioConsultaIntegral:
                     GROUP_CONCAT(DISTINCT obs_codigos.codigo ORDER BY obs_codigos.codigo SEPARATOR ',') as codigos_observaciones,
                     GROUP_CONCAT(DISTINCT CONCAT(obs_codigos.codigo, ':', COALESCE(obs_codigos.descripcion, '')) ORDER BY obs_codigos.codigo SEPARATOR '|') as observaciones_detalle
                 FROM empresas e
-                LEFT JOIN stratex.consulta_integral ci ON e.run_rut = ci.rut
+                LEFT JOIN {self.base_datos}.consulta_integral ci ON e.run_rut = ci.rut
                 LEFT JOIN (
                     SELECT consulta_id, COUNT(*) as total_observaciones
-                    FROM stratex.observaciones
+                    FROM {self.base_datos}.observaciones
                     GROUP BY consulta_id
                 ) obs_count ON ci.id = obs_count.consulta_id
-                LEFT JOIN stratex.observaciones obs_codigos ON ci.id = obs_codigos.consulta_id
+                LEFT JOIN {self.base_datos}.observaciones obs_codigos ON ci.id = obs_codigos.consulta_id
                 WHERE 1=1
             """
 
@@ -232,18 +239,18 @@ class ServicioConsultaIntegral:
                 cursor.execute("SELECT COUNT(*) as total FROM empresas WHERE activo = 1")
                 total_empresas = cursor.fetchone()['total']  # type: ignore
 
-                # Total de períodos
-                cursor.execute("SELECT COUNT(*) as total FROM stratex.consulta_integral")
+                # Total de períodos (usar f-string para base de datos dinámica)
+                cursor.execute(f"SELECT COUNT(*) as total FROM {self.base_datos}.consulta_integral")
                 total_periodos = cursor.fetchone()['total']  # type: ignore
 
-                # Total de observaciones
-                cursor.execute("SELECT COUNT(*) as total FROM stratex.observaciones")
+                # Total de observaciones (usar f-string para base de datos dinámica)
+                cursor.execute(f"SELECT COUNT(*) as total FROM {self.base_datos}.observaciones")
                 total_observaciones = cursor.fetchone()['total']  # type: ignore
 
-                # Períodos por estado
-                cursor.execute("""
+                # Períodos por estado (usar f-string para base de datos dinámica)
+                cursor.execute(f"""
                     SELECT estado, COUNT(*) as cantidad
-                    FROM stratex.consulta_integral
+                    FROM {self.base_datos}.consulta_integral
                     GROUP BY estado
                 """)
                 periodos_por_estado = cursor.fetchall()
@@ -586,3 +593,4 @@ class ServicioConsultaIntegral:
         except Exception as e:
             print(f"Error exportando a Excel: {e}")
             return None
+

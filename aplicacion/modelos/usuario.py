@@ -6,6 +6,7 @@ Define la clase Usuario y sus métodos para interactuar con la base de datos
 PostgreSQL y manejar la autenticación y autorización.
 """
 
+from typing import Optional, Dict, Any, List, cast
 from flask_login import UserMixin
 from werkzeug.security import check_password_hash, generate_password_hash
 from datetime import datetime
@@ -131,7 +132,7 @@ class Usuario(UserMixin):
                 FROM auth.usuarios
                 WHERE id = %s AND activo = TRUE
             """
-            resultado = ejecutar_consulta_postgres(consulta, (id_usuario,), obtener_uno=True)
+            resultado = cast(Optional[Dict[str, Any]], ejecutar_consulta_postgres(consulta, (id_usuario,), obtener_uno=True))
 
             if resultado:
                 return Usuario(
@@ -168,7 +169,7 @@ class Usuario(UserMixin):
                 FROM auth.usuarios
                 WHERE nombre_usuario = %s
             """
-            resultado = ejecutar_consulta_postgres(consulta, (nombre_usuario,), obtener_uno=True)
+            resultado = cast(Optional[Dict[str, Any]], ejecutar_consulta_postgres(consulta, (nombre_usuario,), obtener_uno=True))
 
             if resultado:
                 return Usuario(
@@ -205,7 +206,7 @@ class Usuario(UserMixin):
                 FROM auth.usuarios
                 WHERE email = %s
             """
-            resultado = ejecutar_consulta_postgres(consulta, (email,), obtener_uno=True)
+            resultado = cast(Optional[Dict[str, Any]], ejecutar_consulta_postgres(consulta, (email,), obtener_uno=True))
 
             if resultado:
                 return Usuario(
@@ -285,22 +286,23 @@ class Usuario(UserMixin):
                 WHERE activo = TRUE
                 ORDER BY nombre_usuario
             """
-            resultados = ejecutar_consulta_postgres(consulta)
+            resultados = cast(List[Dict[str, Any]], ejecutar_consulta_postgres(consulta))
 
             usuarios = []
-            for resultado in resultados:
-                usuario = Usuario(
-                    id=resultado['id'],
-                    nombre_usuario=resultado['nombre_usuario'],
-                    email=resultado['email'],
-                    hash_contraseña=resultado['hash_contraseña'],
-                    rol=resultado['rol'],
-                    base_datos_mysql=resultado.get('base_datos_mysql'),
-                    activo=resultado['activo'],
-                    fecha_creacion=resultado['fecha_creacion'],
-                    fecha_ultimo_acceso=resultado['fecha_ultimo_acceso']
-                )
-                usuarios.append(usuario)
+            if resultados:
+                for resultado in resultados:
+                    usuario = Usuario(
+                        id=resultado['id'],
+                        nombre_usuario=resultado['nombre_usuario'],
+                        email=resultado['email'],
+                        hash_contraseña=resultado['hash_contraseña'],
+                        rol=resultado['rol'],
+                        base_datos_mysql=resultado.get('base_datos_mysql'),
+                        activo=resultado['activo'],
+                        fecha_creacion=resultado['fecha_creacion'],
+                        fecha_ultimo_acceso=resultado['fecha_ultimo_acceso']
+                    )
+                    usuarios.append(usuario)
 
             return usuarios
         except Exception as e:

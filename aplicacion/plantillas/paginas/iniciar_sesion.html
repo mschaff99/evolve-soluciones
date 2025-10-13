@@ -180,15 +180,39 @@
 
 <style>
 /* ============================================
-   OCULTAR HEADER EN LOGIN
+   FORZAR TEMA OSCURO EN LOGIN - SIEMPRE NEGRO
+   ============================================ */
+/* Sobrescribir cualquier tema activo */
+body.login-page,
+[data-theme='light'] body.login-page,
+[data-theme='dark'] body.login-page {
+    background: #000000 !important;
+}
+
+/* Forzar variables de tema oscuro para el login */
+:root,
+[data-theme='light'] {
+    --login-bg-primary: #000000 !important;
+    --login-bg-secondary: #1a1a1a !important;
+    --login-text-primary: #ffffff !important;
+    --login-text-secondary: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* ============================================
+   OCULTAR HEADER Y BOTÓN DE TEMA EN LOGIN
    ============================================ */
 .header-top {
+    display: none !important;
+}
+
+#theme-toggle {
     display: none !important;
 }
 
 .main-content {
     margin-top: 0 !important;
     padding-top: 0 !important;
+    background: #000000 !important;
 }
 
 /* ============================================
@@ -202,13 +226,13 @@
 
 body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background: #000000;
+    background: #000000 !important;
     min-height: 100vh;
     overflow-x: hidden;
 }
 
 /* ============================================
-   CONTENEDOR PRINCIPAL
+   CONTENEDOR PRINCIPAL - SIEMPRE NEGRO
    ============================================ */
 .login-container {
     min-height: 100vh;
@@ -216,6 +240,7 @@ body {
     align-items: center;
     justify-content: center;
     padding: 20px;
+    background: #000000 !important;
 }
 
 .login-wrapper {
@@ -223,12 +248,12 @@ body {
     grid-template-columns: 1fr 1fr;
     max-width: 1200px;
     width: 100%;
-    background: #1a1a1a;
+    background: #1a1a1a !important;
     border-radius: 24px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
     overflow: hidden;
     min-height: 700px;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 /* ============================================
@@ -280,14 +305,14 @@ body {
     justify-content: center;
     width: 100%;
     height: 100%;
-    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%) !important;
     border-radius: 20px;
 }
 
 .logo-initials {
     font-size: 40px;
     font-weight: 700;
-    color: white;
+    color: white !important; /* SIEMPRE BLANCO */
     letter-spacing: -0.5px;
 }
 
@@ -298,14 +323,14 @@ body {
 .login-title {
     font-size: 18px;
     font-weight: 700;
-    color: #ffffff;
+    color: #ffffff !important;
     margin: 0;
     letter-spacing: 0.3px;
 }
 
 .login-subtitle {
     font-size: 13px;
-    color: rgba(255, 255, 255, 0.6);
+    color: rgba(255, 255, 255, 0.6) !important;
     margin: 0;
 }
 
@@ -315,18 +340,18 @@ body {
     align-items: center;
     gap: 6px;
     padding: 6px 12px;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.05) !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 999px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.7) !important;
 }
 
 .badge-dot {
     width: 6px;
     height: 6px;
     border-radius: 50%;
-    background: #E13278;
+    background: #E13278 !important;
 }
 
 /* ============================================
@@ -343,7 +368,7 @@ body {
 .form-label {
     display: block;
     font-weight: 600;
-    color: #ffffff;
+    color: #ffffff !important; /* SIEMPRE BLANCO */
     font-size: 13px;
     margin-bottom: 8px;
     letter-spacing: 0.2px;
@@ -358,31 +383,31 @@ body {
     left: 14px;
     top: 50%;
     transform: translateY(-50%);
-    color: rgba(255, 255, 255, 0.4);
+    color: rgba(255, 255, 255, 0.4) !important; /* SIEMPRE BLANCO */
     font-size: 14px;
     pointer-events: none;
 }
 
 .form-control {
     width: 100%;
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
     border-radius: 12px;
     padding: 12px 14px 12px 40px;
     font-size: 15px;
     transition: all 0.3s ease;
-    background-color: rgba(0, 0, 0, 0.25);
-    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.25) !important;
+    color: #ffffff !important; /* SIEMPRE BLANCO */
 }
 
 .form-control:focus {
-    border-color: #7A007B;
-    box-shadow: 0 0 0 3px rgba(122, 0, 123, 0.15);
-    background-color: rgba(0, 0, 0, 0.35);
+    border-color: #7A007B !important;
+    box-shadow: 0 0 0 3px rgba(122, 0, 123, 0.15) !important;
+    background-color: rgba(0, 0, 0, 0.35) !important;
     outline: none;
 }
 
 .form-control::placeholder {
-    color: rgba(255, 255, 255, 0.35);
+    color: rgba(255, 255, 255, 0.35) !important; /* SIEMPRE BLANCO */
 }
 
 /* Checkbox */
@@ -396,20 +421,20 @@ body {
 .form-check-input {
     width: 18px;
     height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2) !important;
     border-radius: 4px;
     cursor: pointer;
-    background-color: rgba(0, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.25) !important;
     margin: 0;
 }
 
 .form-check-input:checked {
-    background-color: #7A007B;
-    border-color: #7A007B;
+    background-color: #7A007B !important;
+    border-color: #7A007B !important;
 }
 
 .form-check-label {
-    color: rgba(255, 255, 255, 0.7);
+    color: rgba(255, 255, 255, 0.7) !important; /* SIEMPRE BLANCO */
     font-size: 13px;
     cursor: pointer;
     user-select: none;
@@ -418,16 +443,16 @@ body {
 /* Botón principal */
 .btn-primary {
     width: 100%;
-    background: #7A007B;
-    border: none;
+    background: #7A007B !important;
+    border: none !important;
     border-radius: 12px;
     padding: 14px 24px;
     font-size: 15px;
     font-weight: 600;
     letter-spacing: 0.3px;
     transition: all 0.3s ease;
-    box-shadow: 0 4px 12px rgba(122, 0, 123, 0.3);
-    color: white;
+    box-shadow: 0 4px 12px rgba(122, 0, 123, 0.3) !important;
+    color: white !important; /* SIEMPRE BLANCO */
     display: flex;
     align-items: center;
     justify-content: center;
@@ -460,21 +485,21 @@ body {
 }
 
 .alert-danger {
-    background-color: rgba(225, 50, 120, 0.12);
-    color: #E13278;
-    border: 1px solid rgba(225, 50, 120, 0.2);
+    background-color: rgba(225, 50, 120, 0.12) !important;
+    color: #E13278 !important;
+    border: 1px solid rgba(225, 50, 120, 0.2) !important;
 }
 
 .alert-success {
-    background-color: rgba(22, 163, 154, 0.12);
-    color: #16A39A;
-    border: 1px solid rgba(22, 163, 154, 0.2);
+    background-color: rgba(22, 163, 154, 0.12) !important;
+    color: #16A39A !important;
+    border: 1px solid rgba(22, 163, 154, 0.2) !important;
 }
 
 .alert-info {
-    background-color: rgba(83, 190, 211, 0.12);
-    color: #53BED3;
-    border: 1px solid rgba(83, 190, 211, 0.2);
+    background-color: rgba(83, 190, 211, 0.12) !important;
+    color: #53BED3 !important;
+    border: 1px solid rgba(83, 190, 211, 0.2) !important;
 }
 
 .alert i {
@@ -483,9 +508,9 @@ body {
 
 .btn-close {
     margin-left: auto;
-    background: none;
-    border: none;
-    color: currentColor;
+    background: none !important;
+    border: none !important;
+    color: currentColor !important;
     opacity: 0.6;
     cursor: pointer;
     padding: 4px;
@@ -499,7 +524,7 @@ body {
 .login-footer {
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 .footer-indicators {
@@ -513,25 +538,26 @@ body {
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.5) !important; /* SIEMPRE BLANCO */
 }
 
 .indicator i {
     font-size: 13px;
+    color: rgba(255, 255, 255, 0.5) !important; /* SIEMPRE BLANCO */
 }
 
 /* ============================================
-   SECCIÓN INFORMACIÓN (DERECHA)
+   SECCIÓN INFORMACIÓN (DERECHA) - SIEMPRE NEGRO
    ============================================ */
 .login-info-section {
-    background: #000000;
+    background: #000000 !important;
     padding: 48px 40px;
     display: flex;
     flex-direction: column;
     justify-content: center;
     position: relative;
     overflow: hidden;
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
+    border-left: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 /* Gradient orbs decoration */
@@ -575,31 +601,31 @@ body {
 .info-icon {
     width: 80px;
     height: 80px;
-    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%) !important;
     border-radius: 20px;
     display: flex;
     align-items: center;
     justify-content: center;
     margin: 0 auto 20px;
-    box-shadow: 0 8px 24px rgba(122, 0, 123, 0.3);
+    box-shadow: 0 8px 24px rgba(122, 0, 123, 0.3) !important;
 }
 
 .info-icon i {
     font-size: 36px;
-    color: white;
+    color: white !important; /* SIEMPRE BLANCO */
 }
 
 .info-title {
     font-size: 28px;
     font-weight: 700;
-    color: white;
+    color: white !important; /* SIEMPRE BLANCO */
     margin-bottom: 8px;
     letter-spacing: 0.3px;
 }
 
 .info-subtitle {
     font-size: 15px;
-    color: rgba(255, 255, 255, 0.65);
+    color: rgba(255, 255, 255, 0.65) !important; /* SIEMPRE BLANCO */
     line-height: 1.5;
 }
 
@@ -615,15 +641,15 @@ body {
     align-items: center;
     gap: 14px;
     padding: 16px;
-    background: rgba(0, 0, 0, 0.25);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: rgba(0, 0, 0, 0.25) !important;
+    border: 1px solid rgba(255, 255, 255, 0.06) !important;
     border-radius: 14px;
     transition: all 0.3s ease;
 }
 
 .feature-card:hover {
-    background: rgba(0, 0, 0, 0.35);
-    border-color: rgba(255, 255, 255, 0.1);
+    background: rgba(0, 0, 0, 0.35) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
     transform: translateY(-2px);
 }
 
@@ -639,7 +665,7 @@ body {
 
 .feature-icon i {
     font-size: 18px;
-    color: white;
+    color: white !important; /* SIEMPRE BLANCO */
 }
 
 .feature-text {
@@ -649,20 +675,20 @@ body {
 .feature-title {
     font-size: 14px;
     font-weight: 600;
-    color: white;
+    color: white !important; /* SIEMPRE BLANCO */
     margin-bottom: 2px;
 }
 
 .feature-desc {
     font-size: 12px;
-    color: rgba(255, 255, 255, 0.5);
+    color: rgba(255, 255, 255, 0.5) !important; /* SIEMPRE BLANCO */
 }
 
 /* Info footer */
 .info-footer {
     margin-top: 32px;
     padding-top: 24px;
-    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    border-top: 1px solid rgba(255, 255, 255, 0.06) !important;
 }
 
 .color-indicators {

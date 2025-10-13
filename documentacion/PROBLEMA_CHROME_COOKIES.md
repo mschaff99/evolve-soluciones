@@ -168,7 +168,7 @@ Razón del fallo: Error CSRF - cookies bloqueadas
 
 ---
 
-## 🎯 Flujo de Usuario con Problema
+##  Flujo de Usuario con Problema
 
 ### Escenario: Chrome modo normal bloqueado
 

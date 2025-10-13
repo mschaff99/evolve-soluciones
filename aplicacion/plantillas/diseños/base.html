@@ -48,6 +48,9 @@
 
     <!-- Variables CSS para temas -->
     <style>
+        /* Las variables de tema ya están definidas en estilos-base.css */
+
+        /* Variables legacy para compatibilidad */
         :root {
             /* Paleta principal */
             --color-primario: #7A007B;          /* Morado - acción/brand principal */
@@ -57,30 +60,31 @@
             --color-exito: #16A39A;             /* Teal - éxito/estados OK */
             --color-info: #53BED3;              /* Cian - info/gráficos suaves */
 
-            /* Neutros */
-            --color-fondo: #000000;             /* Negro - fondo principal */
-            --color-superficie: #3E3B3C;        /* Gris oscuro - superficies/cards */
-            --color-texto: #ffffff;             /* Blanco - texto principal */
-            --color-texto-secundario: rgba(255, 255, 255, 0.7);  /* Texto secundario */
-            --color-borde: rgba(255, 255, 255, 0.1);  /* Bordes sutiles */
+            /* Neutros - Ahora usan las variables de tema */
+            --color-fondo: var(--bg-primary);
+            --color-superficie: var(--bg-card);
+            --color-texto: var(--text-primary);
+            --color-texto-secundario: var(--text-secondary);
+            --color-borde: var(--border-color);
 
             /* Alias para compatibilidad */
             --color-advertencia: #EA7A35;
             --color-peligro: #E13278;
 
             /* Sombras y efectos */
-            --sombra-card: 0 4px 12px rgba(0, 0, 0, 0.3);
-            --sombra-hover: 0 8px 24px rgba(122, 0, 123, 0.3);
+            --sombra-card: var(--shadow-md);
+            --sombra-hover: var(--shadow-lg);
             --radio-borde: 16px;
             --radio-borde-lg: 20px;
         }
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--color-fondo);
-            color: var(--color-texto);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
             font-size: 16px;
             line-height: 1.6;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Estilos para botones de cerrar con ícono X */
@@ -100,7 +104,74 @@
         .btn-close i {
             color: currentColor;
         }
+
+        /* Botón de cambio de tema - siempre visible en header negro */
+        .theme-toggle-btn {
+            position: relative;
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: transform 0.15s ease, background 0.15s ease;
+            margin-right: 16px;
+            will-change: transform;
+        }
+
+        .theme-toggle-btn:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: scale(1.05);
+        }
+
+        .theme-toggle-btn:active {
+            transform: scale(0.95);
+        }
+
+        .theme-toggle-btn i {
+            font-size: 18px;
+            position: absolute;
+            transition: opacity 0.2s ease, transform 0.2s ease;
+            will-change: opacity, transform;
+        }
+
+        .theme-icon-light {
+            color: #F59E0B;
+            opacity: 0;
+            transform: rotate(-90deg) scale(0.5);
+        }
+
+        .theme-icon-dark {
+            color: #6366F1;
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        /* Estado tema claro - transiciones optimizadas */
+        [data-theme='light'] .theme-icon-light {
+            opacity: 1;
+            transform: rotate(0deg) scale(1);
+        }
+
+        [data-theme='light'] .theme-icon-dark {
+            opacity: 0;
+            transform: rotate(90deg) scale(0.5);
+        }
     </style>
+
+    <!-- Script inline para inicializar tema ANTES de cargar la página (evita flash) -->
+    <script>
+        (function() {
+            const savedTheme = localStorage.getItem('theme');
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+            document.documentElement.setAttribute('data-theme', theme);
+        })();
+    </script>
 </head>
 <body>
     <!-- Barra de navegación -->
@@ -143,6 +214,12 @@
                 <!-- Usuario actual (si está autenticado) -->
                 {% if current_user.is_authenticated %}
                 <div class="header-user-section">
+                    <!-- Botón de cambio de tema -->
+                    <button id="theme-toggle" class="theme-toggle-btn" onclick="toggleTheme()" title="Cambiar tema" aria-label="Cambiar entre tema claro y oscuro">
+                        <i class="fas fa-sun theme-icon-light"></i>
+                        <i class="fas fa-moon theme-icon-dark"></i>
+                    </button>
+
                     <div class="user-info-badge">
                         <div class="user-avatar">
                             <i class="fas fa-user"></i>
@@ -184,6 +261,9 @@
         <!-- Contenido específico de cada página -->
         {% block contenido %}{% endblock %}
     </main>
+
+    <!-- Modales globales (fuera de main-content para evitar conflictos de z-index) -->
+    {% block modales %}{% endblock %}
 
     <!-- Footer -->
     {# {% if current_user.is_authenticated %} - Comentado temporalmente #}

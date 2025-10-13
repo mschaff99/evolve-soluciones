@@ -4,8 +4,8 @@
 
 {% block estilos %}
 <!-- Estilos específicos para Consulta Integral F29 -->
-<link rel="stylesheet" href="{{ url_for('static', filename='css/consulta-integral-f29.css') }}">
-<link rel="stylesheet" href="{{ url_for('static', filename='css/modal-observaciones.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/consulta-integral-f29.css') }}?v=20250110-02">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modal-observaciones.css') }}?v=20250110-02">
 {% endblock %}
 
 {% block contenido %}
@@ -367,12 +367,14 @@
     </div>
 </div>
 
-<!-- Modal para mostrar observaciones -->
-{% include 'componentes/modal-observaciones.html' %}
+{% endblock %}
 
+{% block modales %}
+<!-- Modal para mostrar observaciones (fuera de main-content) -->
+{% include 'componentes/modal-observaciones.html' %}
 {% endblock %}
 
 {% block scripts %}
 <!-- JavaScript específico para Consulta Integral F29 -->
-<script src="{{ url_for('static', filename='js/consulta-integral-f29.js') }}"></script>
+<script src="{{ url_for('static', filename='js/consulta-integral-f29.js') }}?v=20250110-02"></script>
 {% endblock %}

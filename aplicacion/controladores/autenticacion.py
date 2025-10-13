@@ -32,7 +32,7 @@ def iniciar_sesion():
 
     # Si el usuario ya está autenticado, redirigir al dashboard
     if current_user.is_authenticated:
-        base_datos = current_user.base_datos_mysql or 'stratex'
+        base_datos = current_user.base_datos_mysql
         return redirect(f'/{base_datos}')
 
     # GET request - Verificar si hay problema de cookies ANTES de mostrar el form
@@ -336,7 +336,7 @@ def listar_usuarios():
 
     if not current_user.es_administrador():
         flash('No tienes permisos para ver esta página.', 'error')
-        base_datos = current_user.base_datos_mysql or 'stratex'
+        base_datos = current_user.base_datos_mysql
         return redirect(f'/{base_datos}')
 
     try:
@@ -345,7 +345,7 @@ def listar_usuarios():
     except Exception as e:
         print(f"Error obteniendo usuarios: {e}")
         flash('Error cargando usuarios.', 'error')
-        base_datos = current_user.base_datos_mysql or 'stratex'
+        base_datos = current_user.base_datos_mysql
         return redirect(f'/{base_datos}')
 
 
@@ -390,7 +390,7 @@ def cambiar_contraseña():
             print(f"Usuario {current_user.nombre_usuario} cambio su contraseña")
 
             flash('Contraseña cambiada exitosamente.', 'success')
-            base_datos = current_user.base_datos_mysql or 'stratex'
+            base_datos = current_user.base_datos_mysql
             return redirect(f'/{base_datos}')
 
         except Exception as e:

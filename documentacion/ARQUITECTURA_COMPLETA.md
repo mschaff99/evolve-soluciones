@@ -157,7 +157,7 @@ from aplicacion.utilidades.filtros_empresas import construir_filtro_auditor
 @login_required
 def empresas_activas():
     # Conectar a la BD del usuario
-    base_datos = current_user.base_datos_mysql or 'stratex'
+    base_datos = current_user.base_datos_mysql
     conexion = obtener_conexion_local(base_datos)
 
     # Construir filtro según rol
@@ -215,7 +215,7 @@ usuario = Usuario.crear_usuario(
 | JUAN | stratex | usuario | Solo donde auditor='JUAN' en stratex |
 | admin-empresaX | empresa_x | administrador | TODAS en empresa_x |
 
-## 🎯 Ventajas de esta Arquitectura
+##  Ventajas de esta Arquitectura
 
  **Seguridad:** Cada usuario solo ve su BD y sus datos
  **Escalabilidad:** Fácil agregar nuevas BDs y usuarios

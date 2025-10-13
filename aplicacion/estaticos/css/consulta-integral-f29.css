@@ -30,16 +30,16 @@
     max-width: 100%;
     margin: 0 auto;
     padding: 20px;
-    background: #000000;
+    background: var(--bg-primary);
     min-height: 100vh;
 }
 
 .envoltorio-contenido {
-    background: #1a1a1a;
+    background: var(--bg-secondary);
     border-radius: 12px;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+    box-shadow: var(--shadow-lg);
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
 }
 
 /* Encabezado */
@@ -101,13 +101,13 @@
 /* Filtros */
 .contenedor-filtros {
     padding: 30px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
-    background: #1a1a1a;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-secondary);
 }
 
 .seccion-filtros .card {
-    background: rgba(0, 0, 0, 0.3);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--bg-tertiary);
+    border: 1px solid var(--border-color);
 }
 
 .seccion-filtros .card-header {
@@ -130,7 +130,7 @@
 }
 
 .seccion-filtros .card-body {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-tertiary);
 }
 
 .encabezado-filtros {
@@ -139,14 +139,14 @@
     justify-content: space-between;
     cursor: pointer;
     padding: 15px;
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--bg-tertiary);
     border-radius: 8px;
     margin-bottom: 20px;
     transition: background 0.3s ease;
 }
 
 .encabezado-filtros:hover {
-    background: rgba(0, 0, 0, 0.4);
+    background: var(--bg-hover);
 }
 
 .encabezado-filtros h3 {
@@ -268,8 +268,8 @@
     justify-content: space-between;
     align-items: center;
     padding: 20px 30px;
-    background: rgba(0, 0, 0, 0.3);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--bg-tertiary);
+    border-bottom: 1px solid var(--border-color);
 }
 
 .contador-resultados {
@@ -322,7 +322,7 @@
 /* Tabla principal */
 .contenedor-resultados {
     padding: 30px;
-    background: #000000;
+    background: var(--bg-primary);
 }
 
 /* Sobrescribir estilos de Bootstrap para la tabla */
@@ -335,12 +335,12 @@
 table.table.modern-table {
     width: 100%;
     border-collapse: collapse;
-    background: #1a1a1a !important;
+    background: var(--bg-secondary) !important;
     border-radius: 12px;
     overflow: hidden;
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5);
-    border: 1px solid rgba(255, 255, 255, 0.06);
-    color: rgba(255, 255, 255, 0.9) !important;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+    color: var(--text-primary) !important;
 }
 
 .tabla-moderna th,
@@ -348,8 +348,8 @@ table.table.modern-table {
 table.table.modern-table thead th,
 .tabla-moderna thead.table-dark th,
 table.table.modern-table thead.table-dark th {
-    background: rgba(0, 0, 0, 0.3) !important;
-    color: #ffffff !important;
+    background: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
     padding: 20px 24px;
     text-align: center;
     font-weight: 600;
@@ -374,24 +374,24 @@ table.table.modern-table thead.table-dark th i {
 .tabla-moderna.table tbody td,
 table.table.modern-table tbody td {
     padding: 15px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04) !important;
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border-color) !important;
+    border-right: 1px solid var(--border-color);
     vertical-align: middle;
-    background: #1a1a1a !important;
-    color: rgba(255, 255, 255, 0.9) !important;
+    background: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
 }
 
 .tabla-moderna tbody tr,
 .tabla-moderna.table tbody tr,
 table.table.modern-table tbody tr {
-    background: #1a1a1a !important;
+    background: var(--bg-secondary) !important;
     transition: all 0.2s ease;
 }
 
 .tabla-moderna tbody tr:hover,
 .tabla-moderna.table tbody tr:hover,
 table.table.modern-table tbody tr:hover {
-    background: rgba(122, 0, 123, 0.08) !important;
+    background: var(--bg-hover) !important;
 }
 
 .tabla-moderna tbody td.resumen-año,
@@ -449,7 +449,7 @@ table.table.modern-table tbody tr:hover {
     width: 32px;
     height: 32px;
     border: none;
-    background: #7A007B;
+    background: #E13278;
     color: white;
     border-radius: 8px;
     cursor: pointer;
@@ -552,12 +552,12 @@ table.table.modern-table tbody tr:hover {
 
 /* Detalle expandido */
 .detalle-empresa {
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-tertiary);
 }
 
 .contenedor-meses {
     padding: 30px;
-    background: rgba(0, 0, 0, 0.3);
+    background: var(--bg-tertiary);
 }
 
 .contenedor-meses h4 {
@@ -578,10 +578,10 @@ table.table.modern-table tbody tr:hover {
 .tabla-periodos {
     width: 100%;
     border-collapse: collapse;
-    background: #1a1a1a;
+    background: var(--bg-secondary);
     border-radius: 8px;
     overflow: hidden;
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    border: 1px solid var(--border-color);
 }
 
 /* Tabla integrada que se alinea con columnas principales */
@@ -597,22 +597,22 @@ table.table.modern-table tbody tr:hover {
 
 .tabla-periodos-integrada td {
     padding: 8px 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
     text-align: center;
     vertical-align: middle;
     position: relative;
-    background: #1a1a1a;
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .nombre-mes-integrado {
     font-weight: 700;
     color: #7A007B;
     text-align: left !important;
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--bg-tertiary);
     width: 350px;
-    border-right: 2px solid rgba(255, 255, 255, 0.1);
+    border-right: 2px solid var(--border-color);
 }
 
 /* Columnas de años - coinciden con las de la tabla principal */
@@ -628,8 +628,8 @@ table.table.modern-table tbody tr:hover {
 
 .empresa-repetida,
 .rut-repetido {
-    background: rgba(0, 0, 0, 0.25);
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    background: var(--bg-tertiary);
+    border-right: 1px solid var(--border-color);
 }
 
 .celda-periodo-integrada {
@@ -638,7 +638,7 @@ table.table.modern-table tbody tr:hover {
 }
 
 .estadisticas-mes-integrada {
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--bg-tertiary);
     border-right: none;
 }
 
@@ -662,11 +662,11 @@ table.table.modern-table tbody tr:hover {
 
 .tabla-periodos td {
     padding: 12px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
-    border-right: 1px solid rgba(255, 255, 255, 0.04);
+    border-bottom: 1px solid var(--border-color);
+    border-right: 1px solid var(--border-color);
     text-align: center;
-    background: #1a1a1a;
-    color: rgba(255, 255, 255, 0.9);
+    background: var(--bg-secondary);
+    color: var(--text-primary);
 }
 
 .encabezado-mes {
@@ -682,11 +682,11 @@ table.table.modern-table tbody tr:hover {
     font-weight: 700;
     color: #7A007B;
     text-align: left !important;
-    background: rgba(0, 0, 0, 0.25);
+    background: var(--bg-tertiary);
 }
 
 .fila-periodo:hover {
-    background: rgba(122, 0, 123, 0.08);
+    background: var(--bg-hover);
 }
 
 /* Información de períodos */
@@ -1078,8 +1078,8 @@ table.table.modern-table tbody tr:hover {
 #tablaResultados,
 #tablaResultados.table,
 .contenedor-resultados .table {
-    background-color: #1a1a1a !important;
-    color: rgba(255, 255, 255, 0.9) !important;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
 }
 
 #tablaResultados thead,
@@ -1090,33 +1090,33 @@ table.table.modern-table tbody tr:hover {
 #tablaResultados thead th,
 #tablaResultados.table thead th,
 #tablaResultados thead.table-dark th {
-    background: rgba(0, 0, 0, 0.3);
-    color: #ffffff;
+    background: var(--bg-tertiary);
+    color: var(--text-primary);
     padding: 20px 24px;
     font-weight: 600;
     font-size: 16px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.06) !important;
+    border-bottom: 1px solid var(--border-color) !important;
     border-right: none !important;
     border-left: none !important;
     border-top: none !important;
 }
 
 #tablaResultados thead th i {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 #tablaResultados tbody tr {
-    background-color: #1a1a1a !important;
+    background-color: var(--bg-secondary) !important;
 }
 
 #tablaResultados tbody tr:hover {
-    background-color: rgba(122, 0, 123, 0.08) !important;
+    background-color: var(--bg-hover) !important;
 }
 
 #tablaResultados tbody td {
-    background-color: #1a1a1a !important;
-    color: rgba(255, 255, 255, 0.9) !important;
-    border-color: rgba(255, 255, 255, 0.04) !important;
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-color: var(--border-color) !important;
 }
 
 /* Forzar color de texto en todos los elementos */
@@ -1127,12 +1127,12 @@ table.table.modern-table tbody tr:hover {
 #tablaResultados .fw-semibold,
 #tablaResultados span,
 #tablaResultados div {
-    color: rgba(255, 255, 255, 0.9) !important;
+    color: var(--text-primary) !important;
 }
 
 #tablaResultados .text-muted,
 #tablaResultados small.text-muted {
-    color: rgba(255, 255, 255, 0.6) !important;
+    color: var(--text-secondary) !important;
 }
 
 /* ============================================
@@ -1197,7 +1197,7 @@ table.table.modern-table tbody tr:hover {
     position: absolute;
     top: -6px;
     right: -6px;
-    background: #7A007B;
+    background: #E13278;
     color: white;
     font-size: 10px;
     font-weight: 700;

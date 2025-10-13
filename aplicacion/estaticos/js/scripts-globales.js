@@ -5,7 +5,89 @@
  * Funcionalidades JavaScript comunes a toda la aplicación
  */
 
-console.log(' Cargando scripts globales de Evolve Soluciones...');
+console.log('🚀 Cargando scripts globales de Evolve Soluciones...');
+
+// ============================================
+// SISTEMA DE TEMAS (CLARO/OSCURO)
+// ============================================
+
+/**
+ * Inicializa el tema desde localStorage o preferencia del sistema
+ */
+function initTheme() {
+    const savedTheme = localStorage.getItem('theme');
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+    // Usar tema guardado, o preferencia del sistema, o modo oscuro por defecto
+    const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+
+    // Aplicar tema inmediatamente para evitar flash
+    document.documentElement.setAttribute('data-theme', theme);
+
+    console.log(`✅ Tema inicializado: ${theme}`);
+}
+
+/**
+ * Cambia entre tema claro y oscuro (ultra-optimizado)
+ */
+function toggleTheme() {
+    // Evitar múltiples clicks rápidos
+    if (toggleTheme.isChanging) return;
+    toggleTheme.isChanging = true;
+
+    const currentTheme = document.documentElement.getAttribute('data-theme') || 'dark';
+    const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+
+    // Aplicar cambio inmediatamente en el siguiente frame
+    document.documentElement.setAttribute('data-theme', newTheme);
+
+    // Operaciones no críticas en microtask
+    queueMicrotask(() => {
+        localStorage.setItem('theme', newTheme);
+
+        if (window.EvolveApp?.debug) {
+            console.log(`🎨 Tema cambiado a: ${newTheme}`);
+        }
+
+        // Evento después del render
+        window.dispatchEvent(new CustomEvent('themeChanged', {
+            detail: { theme: newTheme }
+        }));
+
+        // Permitir siguiente cambio
+        setTimeout(() => {
+            toggleTheme.isChanging = false;
+        }, 100);
+    });
+}
+
+/**
+ * Obtiene el tema actual
+ */
+function getCurrentTheme() {
+    return document.documentElement.getAttribute('data-theme') || 'dark';
+}
+
+// Inicializar tema INMEDIATAMENTE (antes de que cargue la página)
+initTheme();
+
+// Escuchar cambios en la preferencia del sistema
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+    // Solo aplicar si el usuario no ha guardado una preferencia manual
+    if (!localStorage.getItem('theme')) {
+        const newTheme = e.matches ? 'dark' : 'light';
+        document.documentElement.setAttribute('data-theme', newTheme);
+        console.log(`🔄 Tema actualizado según preferencia del sistema: ${newTheme}`);
+    }
+});
+
+// Hacer funciones disponibles globalmente
+window.toggleTheme = toggleTheme;
+window.getCurrentTheme = getCurrentTheme;
+
+// ============================================
+// CONFIGURACIÓN GLOBAL
+// ============================================
 
 // Configuración global
 window.EvolveApp = {
@@ -315,7 +397,7 @@ const App = {
      * Inicializa la aplicación
      */
     init: function () {
-        console.log('🎯 Inicializando aplicación Evolve Soluciones...');
+        console.log(' Inicializando aplicación Evolve Soluciones...');
 
         this.configurarAjax();
         this.configurarEventosGlobales();

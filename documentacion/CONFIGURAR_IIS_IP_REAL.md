@@ -1,6 +1,6 @@
 # Configuración de IIS para Preservar IP Real del Cliente
 
-## 🎯 Problema
+##  Problema
 
 Flask/Waitress recibe `127.0.0.1` como IP del cliente en `request.remote_addr`, a pesar de que IIS está recibiendo correctamente la IP real (ej: `181.161.88.222`).
 

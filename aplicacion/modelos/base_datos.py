@@ -28,7 +28,7 @@ config = obtener_configuracion()
 def obtener_conexion_postgres():
     """
     Obtiene una conexión a la base de datos PostgreSQL (autenticación)
-    
+
     Returns:
         psycopg2.Connection: Conexión a PostgreSQL
     """
@@ -43,10 +43,10 @@ def obtener_conexion_postgres():
             connect_timeout=30,
             options='-c client_encoding=UTF8'
         )
-        
+
         # Configurar encoding después de conectar
         conexion.set_client_encoding('UTF8')
-        
+
         return conexion
     except Exception as e:
         print(f"Error conectando a PostgreSQL: {e}")
@@ -56,32 +56,33 @@ def obtener_conexion_postgres():
 def ejecutar_consulta_postgres(consulta_sql, parametros=None, obtener_uno=False):
     """
     Ejecuta una consulta SQL en PostgreSQL
-    
+
     Args:
         consulta_sql (str): Consulta SQL a ejecutar
         parametros (tuple): Parámetros para la consulta
         obtener_uno (bool): Si obtener solo un resultado
-        
+
     Returns:
-        list|dict: Resultados de la consulta
+        dict|None: Si obtener_uno=True, retorna un diccionario o None
+        list[dict]: Si obtener_uno=False, retorna lista de diccionarios
     """
     conexion = None
     try:
         conexion = obtener_conexion_postgres()
-        
+
         with conexion.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
             else:
                 cursor.execute(consulta_sql)
-            
+
             if obtener_uno:
                 resultado = cursor.fetchone()
                 return dict(resultado) if resultado else None
             else:
                 resultados = cursor.fetchall()
-                return [dict(row) for row in resultados]
-                
+                return [dict(row) for row in resultados] if resultados else []
+
     except Exception as e:
         print(f"Error ejecutando consulta en PostgreSQL: {e}")
         raise
@@ -93,34 +94,34 @@ def ejecutar_consulta_postgres(consulta_sql, parametros=None, obtener_uno=False)
 def ejecutar_insercion_postgres(consulta_sql, parametros=None):
     """
     Ejecuta una inserción en PostgreSQL
-    
+
     Args:
         consulta_sql (str): Consulta SQL de inserción
         parametros (tuple): Parámetros para la consulta
-        
+
     Returns:
         int: ID del registro insertado
     """
     conexion = None
     try:
         conexion = obtener_conexion_postgres()
-        
+
         with conexion.cursor() as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
             else:
                 cursor.execute(consulta_sql)
-            
+
             # PostgreSQL usa RETURNING para obtener el ID
             if 'RETURNING' in consulta_sql.upper():
                 resultado = cursor.fetchone()
                 id_insertado = resultado[0] if resultado else None
             else:
                 id_insertado = cursor.lastrowid if hasattr(cursor, 'lastrowid') else None
-            
+
             conexion.commit()
             return id_insertado
-            
+
     except Exception as e:
         if conexion:
             conexion.rollback()
@@ -134,27 +135,27 @@ def ejecutar_insercion_postgres(consulta_sql, parametros=None):
 def ejecutar_actualizacion_postgres(consulta_sql, parametros=None):
     """
     Ejecuta una actualización en PostgreSQL
-    
+
     Args:
         consulta_sql (str): Consulta SQL de actualización
         parametros (tuple): Parámetros para la consulta
-        
+
     Returns:
         int: Número de filas afectadas
     """
     conexion = None
     try:
         conexion = obtener_conexion_postgres()
-        
+
         with conexion.cursor() as cursor:
             if parametros:
                 filas_afectadas = cursor.execute(consulta_sql, parametros)
             else:
                 filas_afectadas = cursor.execute(consulta_sql)
-            
+
             conexion.commit()
             return cursor.rowcount
-            
+
     except Exception as e:
         if conexion:
             conexion.rollback()
@@ -172,17 +173,17 @@ def ejecutar_actualizacion_postgres(consulta_sql, parametros=None):
 def obtener_conexion_local(nombre_base_datos=None):
     """
     Obtiene una conexión a la base de datos MySQL local (empresas)
-    
+
     Args:
         nombre_base_datos (str): Nombre de la base de datos. Si no se especifica, usa la configurada por defecto
-    
+
     Returns:
         pymysql.Connection: Conexión a la base de datos local
     """
     try:
         # Usar la base de datos especificada o la por defecto
         database = nombre_base_datos if nombre_base_datos else config.DB_NAME
-        
+
         conexion = pymysql.connect(
             host=config.DB_HOST,
             user=config.DB_USER,
@@ -204,10 +205,10 @@ def obtener_conexion_local(nombre_base_datos=None):
 def obtener_conexion_usuario(usuario):
     """
     Obtiene una conexión MySQL usando la base de datos asignada al usuario
-    
+
     Args:
         usuario: Instancia de Usuario con base_datos_mysql configurada
-        
+
     Returns:
         pymysql.Connection: Conexión a la base de datos del usuario
     """
@@ -218,7 +219,7 @@ def obtener_conexion_usuario(usuario):
 def obtener_conexion_remota():
     """
     Obtiene una conexión a la base de datos MySQL remota (para consolidados)
-    
+
     Returns:
         pymysql.Connection: Conexión a la base de datos remota
     """
@@ -244,12 +245,12 @@ def obtener_conexion_remota():
 def ejecutar_procedimiento_almacenado(nombre_procedimiento, parametros=None, usar_remota=True):
     """
     Ejecuta un procedimiento almacenado en la base de datos MySQL
-    
+
     Args:
         nombre_procedimiento (str): Nombre del procedimiento a ejecutar
         parametros (list): Lista de parámetros para el procedimiento
         usar_remota (bool): Si usar la base de datos remota o local
-        
+
     Returns:
         list: Resultados del procedimiento almacenado
     """
@@ -260,16 +261,16 @@ def ejecutar_procedimiento_almacenado(nombre_procedimiento, parametros=None, usa
             conexion = obtener_conexion_remota()
         else:
             conexion = obtener_conexion_local()
-        
+
         with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
             if parametros:
                 cursor.callproc(nombre_procedimiento, parametros)
             else:
                 cursor.callproc(nombre_procedimiento)
-            
+
             resultados = cursor.fetchall()
             return resultados
-            
+
     except Exception as e:
         print(f"Error ejecutando procedimiento {nombre_procedimiento}: {e}")
         raise
@@ -281,13 +282,13 @@ def ejecutar_procedimiento_almacenado(nombre_procedimiento, parametros=None, usa
 def ejecutar_consulta(consulta_sql, parametros=None, usar_remota=False, obtener_uno=False):
     """
     Ejecuta una consulta SQL en la base de datos MySQL
-    
+
     Args:
         consulta_sql (str): Consulta SQL a ejecutar
         parametros (tuple): Parámetros para la consulta
         usar_remota (bool): Si usar la base de datos remota o local
         obtener_uno (bool): Si obtener solo un resultado
-        
+
     Returns:
         list|dict: Resultados de la consulta
     """
@@ -298,18 +299,18 @@ def ejecutar_consulta(consulta_sql, parametros=None, usar_remota=False, obtener_
             conexion = obtener_conexion_remota()
         else:
             conexion = obtener_conexion_local()
-        
+
         with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
             else:
                 cursor.execute(consulta_sql)
-            
+
             if obtener_uno:
                 return cursor.fetchone()
             else:
                 return cursor.fetchall()
-                
+
     except Exception as e:
         print(f"Error ejecutando consulta en MySQL: {e}")
         raise
@@ -321,12 +322,12 @@ def ejecutar_consulta(consulta_sql, parametros=None, usar_remota=False, obtener_
 def ejecutar_insercion(consulta_sql, parametros=None, usar_remota=False):
     """
     Ejecuta una inserción en la base de datos MySQL
-    
+
     Args:
         consulta_sql (str): Consulta SQL de inserción
         parametros (tuple): Parámetros para la consulta
         usar_remota (bool): Si usar la base de datos remota o local
-        
+
     Returns:
         int: ID del registro insertado
     """
@@ -337,16 +338,16 @@ def ejecutar_insercion(consulta_sql, parametros=None, usar_remota=False):
             conexion = obtener_conexion_remota()
         else:
             conexion = obtener_conexion_local()
-        
+
         with conexion.cursor() as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
             else:
                 cursor.execute(consulta_sql)
-            
+
             conexion.commit()
             return cursor.lastrowid
-            
+
     except Exception as e:
         if conexion:
             conexion.rollback()
@@ -360,12 +361,12 @@ def ejecutar_insercion(consulta_sql, parametros=None, usar_remota=False):
 def ejecutar_actualizacion(consulta_sql, parametros=None, usar_remota=False):
     """
     Ejecuta una actualización en la base de datos MySQL
-    
+
     Args:
         consulta_sql (str): Consulta SQL de actualización
         parametros (tuple): Parámetros para la consulta
         usar_remota (bool): Si usar la base de datos remota o local
-        
+
     Returns:
         int: Número de filas afectadas
     """
@@ -376,16 +377,16 @@ def ejecutar_actualizacion(consulta_sql, parametros=None, usar_remota=False):
             conexion = obtener_conexion_remota()
         else:
             conexion = obtener_conexion_local()
-        
+
         with conexion.cursor() as cursor:
             if parametros:
                 filas_afectadas = cursor.execute(consulta_sql, parametros)
             else:
                 filas_afectadas = cursor.execute(consulta_sql)
-            
+
             conexion.commit()
             return filas_afectadas
-            
+
     except Exception as e:
         if conexion:
             conexion.rollback()
@@ -403,7 +404,7 @@ def ejecutar_actualizacion(consulta_sql, parametros=None, usar_remota=False):
 def obtener_conexion_mongo():
     """
     Obtiene una conexión a MongoDB
-    
+
     Returns:
         pymongo.database.Database: Conexión a la base de datos MongoDB
     """
@@ -422,11 +423,11 @@ def obtener_conexion_mongo():
 
 class ManejadorBaseDatos:
     """Clase para manejar operaciones de base de datos MySQL de forma contextual"""
-    
+
     def __init__(self, usar_remota=False):
         self.usar_remota = usar_remota
         self.conexion = None
-    
+
     def __enter__(self):
         """Abre conexión al entrar al contexto"""
         if self.usar_remota:
@@ -434,7 +435,7 @@ class ManejadorBaseDatos:
         else:
             self.conexion = obtener_conexion_local()
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Cierra conexión al salir del contexto"""
         if self.conexion:
@@ -443,22 +444,28 @@ class ManejadorBaseDatos:
             else:
                 self.conexion.commit()
             self.conexion.close()
-    
+
     def ejecutar_consulta(self, consulta_sql, parametros=None, obtener_uno=False):
         """Ejecuta una consulta usando la conexión del contexto"""
+        if not self.conexion:
+            raise RuntimeError("No hay conexión activa. Usa 'with ManejadorMySQL() as manejador'")
+
         with self.conexion.cursor(pymysql.cursors.DictCursor) as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
             else:
                 cursor.execute(consulta_sql)
-            
+
             if obtener_uno:
                 return cursor.fetchone()
             else:
                 return cursor.fetchall()
-    
+
     def ejecutar_insercion(self, consulta_sql, parametros=None):
         """Ejecuta una inserción usando la conexión del contexto"""
+        if not self.conexion:
+            raise RuntimeError("No hay conexión activa. Usa 'with ManejadorMySQL() as manejador'")
+
         with self.conexion.cursor() as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
@@ -469,15 +476,15 @@ class ManejadorBaseDatos:
 
 class ManejadorPostgreSQL:
     """Clase para manejar operaciones de PostgreSQL de forma contextual"""
-    
+
     def __init__(self):
         self.conexion = None
-    
+
     def __enter__(self):
         """Abre conexión al entrar al contexto"""
         self.conexion = obtener_conexion_postgres()
         return self
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         """Cierra conexión al salir del contexto"""
         if self.conexion:
@@ -486,30 +493,36 @@ class ManejadorPostgreSQL:
             else:
                 self.conexion.commit()
             self.conexion.close()
-    
+
     def ejecutar_consulta(self, consulta_sql, parametros=None, obtener_uno=False):
         """Ejecuta una consulta usando la conexión del contexto"""
+        if not self.conexion:
+            raise RuntimeError("No hay conexión activa. Usa 'with ManejadorPostgreSQL() as manejador'")
+
         with self.conexion.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
             else:
                 cursor.execute(consulta_sql)
-            
+
             if obtener_uno:
                 resultado = cursor.fetchone()
                 return dict(resultado) if resultado else None
             else:
                 resultados = cursor.fetchall()
                 return [dict(row) for row in resultados]
-    
+
     def ejecutar_insercion(self, consulta_sql, parametros=None):
         """Ejecuta una inserción usando la conexión del contexto"""
+        if not self.conexion:
+            raise RuntimeError("No hay conexión activa. Usa 'with ManejadorPostgreSQL() as manejador'")
+
         with self.conexion.cursor() as cursor:
             if parametros:
                 cursor.execute(consulta_sql, parametros)
             else:
                 cursor.execute(consulta_sql)
-            
+
             if 'RETURNING' in consulta_sql.upper():
                 resultado = cursor.fetchone()
                 return resultado[0] if resultado else None

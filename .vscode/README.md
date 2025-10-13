@@ -60,7 +60,7 @@ Presiona `F5` para iniciar el debug. Configuraciones disponibles:
 - **Flask: Producción (Waitress)** - Debug con Waitress
 - **Python: Tests con pytest** - Debug de tests
 
-## 🎯 Snippets Personalizados
+##  Snippets Personalizados
 
 Escribe estos prefijos y presiona `Tab` para usar snippets:
 

@@ -1,8 +1,3 @@
-"""
-Controlador para rutas dinámicas basadas en la base de datos del usuario
-Permite URLs como /stratex, /otra-base, etc.
-"""
-
 from flask import Blueprint, render_template, request, redirect, url_for, current_app, session, jsonify
 from flask_login import login_required, current_user
 from datetime import datetime
@@ -85,8 +80,8 @@ def consulta_integral_f29_base_datos(base_datos):
         return redirect(url_for('autenticacion.iniciar_sesion'))
 
     try:
-        # Inicializar servicio
-        servicio = ServicioConsultaIntegral()
+        # Inicializar servicio con la base de datos del usuario
+        servicio = ServicioConsultaIntegral(base_datos)
 
         # Aplicar filtros según el rol del usuario
         filtros = {}
@@ -171,8 +166,8 @@ def exportar_observaciones_excel_base_datos(base_datos):
         else:
             print(f"[EXPORT] Exportando observaciones para usuario: {nombre_usuario} en BD: {base_datos}")
 
-        # Generar Excel
-        servicio = ServicioConsultaIntegral()
+        # Generar Excel con la base de datos del usuario
+        servicio = ServicioConsultaIntegral(base_datos)
         buffer_excel = servicio.exportar_observaciones_usuario_excel(
             nombre_usuario=nombre_usuario,
             es_administrador=es_admin

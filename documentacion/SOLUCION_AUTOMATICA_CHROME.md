@@ -1,6 +1,6 @@
 # Solución Automática para Problemas de Chrome
 
-## 🎯 Problema Identificado
+##  Problema Identificado
 
 **Síntoma**: Usuarios de Chrome que pueden iniciar sesión en modo incógnito pero NO en modo normal, incluso después de borrar cache y cookies.
 
@@ -158,7 +158,7 @@ COOKIES ACTUALES:
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 🎯 Ventajas de Esta Solución
+##  Ventajas de Esta Solución
 
 ### ✅ Sin Intervención del Usuario
 - No requiere que el usuario haga clic en nada

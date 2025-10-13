@@ -445,12 +445,19 @@ function exportarTabla() {
  * @param {string} periodo - Período a consultar
  */
 function mostrarObservaciones(rut, periodo) {
+    console.log(`Abriendo modal de observaciones para RUT: ${rut}, Período: ${periodo}`);
+
     const modal = document.getElementById('modalObservaciones');
     const loading = document.getElementById('modalLoading');
     const content = document.getElementById('modalObservacionesContent');
     const error = document.getElementById('modalError');
 
-    // Mostrar modal y estado de carga
+    if (!modal) {
+        console.error('Modal de observaciones no encontrado');
+        return;
+    }
+
+    // Mostrar modal con flex para centrar el contenido
     modal.style.display = 'flex';
     loading.style.display = 'block';
     content.style.display = 'none';
@@ -459,8 +466,11 @@ function mostrarObservaciones(rut, periodo) {
     // Actualizar título
     document.getElementById('modalTitle').textContent = `Observaciones - Período ${periodo}`;
 
-    // Realizar petición AJAX
-    fetch(`/consulta-integral-f29/api/observaciones/${rut}/${periodo}`)
+    // URL correcta SIN la base de datos en el path (usa el blueprint consulta_integral_f29_bp)
+    const url = `/consulta-integral-f29/api/observaciones/${rut}/${periodo}`;
+    console.log(`Haciendo petición a: ${url}`);
+
+    fetch(url)
         .then(response => response.json())
         .then(data => {
             loading.style.display = 'none';
@@ -513,7 +523,25 @@ function mostrarObservaciones(rut, periodo) {
  */
 function cerrarModalObservaciones() {
     const modal = document.getElementById('modalObservaciones');
-    modal.style.display = 'none';
+    if (modal) {
+        modal.style.display = 'none';
+        console.log('Modal de observaciones cerrado');
+    }
+}
+
+/**
+ * Cerrar modal al hacer click fuera del contenido
+ */
+function setupModalClickOutside() {
+    const modal = document.getElementById('modalObservaciones');
+    if (modal) {
+        modal.addEventListener('click', function (event) {
+            // Solo cerrar si se hizo click en el overlay (no en el contenido del modal)
+            if (event.target === modal) {
+                cerrarModalObservaciones();
+            }
+        });
+    }
 }
 
 /**
@@ -564,6 +592,7 @@ window.exportarTabla = exportarTabla;
 window.exportarObservacionesExcel = exportarObservacionesExcel;
 window.mostrarObservaciones = mostrarObservaciones;
 window.cerrarModalObservaciones = cerrarModalObservaciones;
+window.setupModalClickOutside = setupModalClickOutside;
 
 console.log(' Funciones globales asignadas:', {
     alternarEmpresa: typeof window.alternarEmpresa,
@@ -665,6 +694,10 @@ document.addEventListener('DOMContentLoaded', function () {
             console.warn(' Error aplicando filtros iniciales:', e);
         }
     }, 150);
+
+    // Configurar cierre de modal al hacer click fuera
+    setupModalClickOutside();
+    console.log(' Modal configurado para cerrar al hacer click fuera');
 
     // Test manual después de 3 segundos
     setTimeout(() => {

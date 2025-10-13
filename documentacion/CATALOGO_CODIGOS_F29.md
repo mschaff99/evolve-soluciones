@@ -158,7 +158,7 @@ Si la tabla del catálogo no existe o falla la consulta, el sistema automáticam
 2. Retorna lista en formato compatible
 3. Registra el error en los logs
 
-## 🎯 Ventajas del Catálogo
+##  Ventajas del Catálogo
 
 1. **Centralización**: Un único lugar para todos los códigos
 2. **Documentación**: Descripción clara de cada código

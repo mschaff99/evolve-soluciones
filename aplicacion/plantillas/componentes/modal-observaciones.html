@@ -8,7 +8,7 @@
                 <i class="fas fa-times"></i>
             </button>
         </div>
-        
+
         <!-- Contenido del modal -->
         <div class="modal-content">
             <!-- Estado de carga -->
@@ -16,25 +16,25 @@
                 <div class="spinner"></div>
                 <p>Cargando observaciones...</p>
             </div>
-            
+
             <!-- Contenido principal con observaciones -->
             <div id="modalObservacionesContent" style="display: none;">
                 <!-- Información básica del período -->
                 <div class="observaciones-info">
                     <div class="info-item">
-                        <strong>RUT:</strong> 
+                        <strong>RUT:</strong>
                         <span id="modalRut">-</span>
                     </div>
                     <div class="info-item">
-                        <strong>Período:</strong> 
+                        <strong>Período:</strong>
                         <span id="modalPeriodo">-</span>
                     </div>
                     <div class="info-item">
-                        <strong>Total Observaciones:</strong> 
+                        <strong>Total Observaciones:</strong>
                         <span id="modalTotal">0</span>
                     </div>
                 </div>
-                
+
                 <!-- Tabla de observaciones -->
                 <div class="observaciones-tabla-container">
                     <table id="tablaObservaciones" class="tabla-observaciones">
@@ -51,7 +51,7 @@
                     </table>
                 </div>
             </div>
-            
+
             <!-- Estado de error -->
             <div id="modalError" style="display: none;">
                 <div class="error-message">
@@ -60,7 +60,7 @@
                 </div>
             </div>
         </div>
-        
+
         <!-- Pie del modal -->
         <div class="modal-footer">
             <button class="btn-secondary" onclick="cerrarModalObservaciones()">
@@ -69,3 +69,15 @@
         </div>
     </div>
 </div>
+
+<!-- Script para asegurar que el modal esté oculto al cargar -->
+<script>
+    // Forzar el modal oculto al cargar la página
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('modalObservaciones');
+        if (modal) {
+            modal.style.display = 'none';
+            console.log('✓ Modal de observaciones inicializado correctamente (oculto)');
+        }
+    });
+</script>

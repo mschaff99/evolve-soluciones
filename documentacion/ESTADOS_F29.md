@@ -151,7 +151,7 @@ FROM stratex.consulta_integral ci
 WHERE periodo = 202410;
 ```
 
-## 🎯 UX/UI Consideraciones
+##  UX/UI Consideraciones
 
 ### Tooltips
 - Todos los badges tienen tooltip explicativo
