@@ -119,7 +119,7 @@ def registrar_manejadores_errores(aplicacion):
                                 document.cookie = nombre + "=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=." + window.location.hostname;
                             }
 
-                            console.log("✅ Cookies eliminadas automáticamente");
+                            console.log(" Cookies eliminadas automáticamente");
                         }
 
                         // Ejecutar limpieza inmediatamente
@@ -129,7 +129,7 @@ def registrar_manejadores_errores(aplicacion):
                         try {
                             localStorage.clear();
                             sessionStorage.clear();
-                            console.log("✅ Storage limpiado");
+                            console.log(" Storage limpiado");
                         } catch(e) {
                             console.log("⚠️ No se pudo limpiar storage:", e);
                         }
@@ -152,7 +152,7 @@ def registrar_manejadores_errores(aplicacion):
                 response.set_cookie('csrf_token', '', expires=0, path='/')
                 response.set_cookie('_csrf_token', '', expires=0, path='/')
 
-                print("[CSRF ERROR] ✅ Aplicando solución automática de limpieza de cookies")
+                print("[CSRF ERROR]  Aplicando solución automática de limpieza de cookies")
                 return response
 
             # Si no es Chrome o no se detectó el problema, flujo normal

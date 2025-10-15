@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from aplicacion.utilidades.filtros_empresas import obtener_empresas_usuario
 from aplicacion.servicios.servicio_consulta_integral import ServicioConsultaIntegral
+from aplicacion.utilidades.decoradores import requiere_modulo
 
 # Blueprint para rutas dinámicas
 rutas_dinamicas_bp = Blueprint('rutas_dinamicas', __name__)
@@ -44,6 +45,13 @@ def inicio_base_datos(base_datos):
 
     # Obtener empresas para esta base de datos
     try:
+        # Obtener módulos habilitados para esta base de datos
+        from aplicacion.modelos.modulo import BaseDatosMySQL
+        modulos_habilitados = BaseDatosMySQL.obtener_modulos_habilitados(base_datos)
+
+        # Crear diccionario de códigos de módulos habilitados para fácil acceso
+        modulos_dict = {m['codigo']: m for m in modulos_habilitados if m.get('habilitado', False)}
+
         empresas = obtener_empresas_usuario(current_user, campos="run_rut, empresa, auditor")
 
         # Estadísticas básicas
@@ -57,7 +65,8 @@ def inicio_base_datos(base_datos):
                              base_datos=base_datos,
                              total_empresas=total_empresas,
                              empresas_por_auditor=empresas_por_auditor,
-                             empresas=empresas[:10])  # Mostrar solo las primeras 10
+                             empresas=empresas[:10],  # Mostrar solo las primeras 10
+                             modulos_habilitados=modulos_dict)  # Pasar módulos al template
 
     except Exception as e:
         print(f"Error cargando página de inicio para base {base_datos}: {e}")
@@ -68,6 +77,7 @@ def inicio_base_datos(base_datos):
 
 @rutas_dinamicas_bp.route('/<base_datos>/consulta-integral-f29')
 @login_required
+@requiere_modulo('consulta_f29')
 def consulta_integral_f29_base_datos(base_datos):
     """
     Consulta Integral F29 para una base de datos específica
@@ -141,6 +151,7 @@ def consulta_integral_f29_base_datos(base_datos):
 
 @rutas_dinamicas_bp.route('/<base_datos>/api/exportar-observaciones-excel')
 @login_required
+@requiere_modulo('consulta_f29')
 def exportar_observaciones_excel_base_datos(base_datos):
     """
     Exporta las observaciones del usuario actual a Excel
@@ -208,6 +219,7 @@ def exportar_observaciones_excel_base_datos(base_datos):
 
 @rutas_dinamicas_bp.route('/<base_datos>/consolidado')
 @login_required
+@requiere_modulo('consolidado')
 def consolidado_base_datos(base_datos):
     """
     Consolidado para una base de datos específica
@@ -225,6 +237,7 @@ def consolidado_base_datos(base_datos):
 
 @rutas_dinamicas_bp.route('/<base_datos>/tareas')
 @login_required
+@requiere_modulo('tareas')
 def tareas_base_datos(base_datos):
     """
     Gestión de tareas para una base de datos específica
@@ -242,6 +255,7 @@ def tareas_base_datos(base_datos):
 
 @rutas_dinamicas_bp.route('/<base_datos>/observaciones')
 @login_required
+@requiere_modulo('observaciones')
 def observaciones_base_datos(base_datos):
     """
     Observaciones para una base de datos específica

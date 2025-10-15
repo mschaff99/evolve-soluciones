@@ -28,19 +28,26 @@
     <!-- Estadísticas Generales -->
     <div class="row g-4 mb-4">
         <div class="col-md-3">
-            <div class="stat-card stat-card-primary">
-                <div class="stat-card-body">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <div class="stat-info">
-                            <div class="stat-value">{{ total_empresas }}</div>
-                            <div class="stat-label">Total Empresas</div>
+            <!-- Card clickeable para ir a Gestión de Empresas -->
+            <a href="/{{ base_datos }}/empresas" class="text-decoration-none" style="cursor: pointer;">
+                <div class="stat-card stat-card-primary" style="transition: transform 0.2s, box-shadow 0.2s;">
+                    <div class="stat-card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div class="stat-info">
+                                <div class="stat-value">{{ total_empresas }}</div>
+                                <div class="stat-label">Total Empresas</div>
+                            </div>
+                            <div class="stat-icon" style="background: #16A39A;">
+                                <i class="fas fa-building"></i>
+                            </div>
                         </div>
-                        <div class="stat-icon" style="background: #16A39A;">
-                            <i class="fas fa-check"></i>
+                        <div class="mt-2 text-center" style="font-size: 0.85rem; opacity: 0.8;">
+                            <i class="fas fa-arrow-right me-1"></i>
+                            Ver todas las empresas
                         </div>
                     </div>
                 </div>
-            </div>
+            </a>
         </div>
 
         <div class="col-md-3">
@@ -104,6 +111,8 @@
                 </div>
                 <div class="dashboard-card-body">
                     <div class="row g-3">
+                        <!-- Consulta Integral F29 -->
+                        {% if 'consulta_f29' in modulos_habilitados %}
                         <div class="col-md-3">
                             <a href="/{{ base_datos }}/consulta-integral-f29" class="quick-access-btn">
                                 <div class="quick-access-icon" style="background: #16A39A;">
@@ -113,33 +122,76 @@
                                 <i class="fas fa-arrow-right quick-access-arrow"></i>
                             </a>
                         </div>
+                        {% endif %}
+
+                        <!-- Consolidado -->
+                        {% if 'consolidado' in modulos_habilitados %}
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/consolidado" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #2268AD;">
+                                    <i class="fas fa-chart-bar"></i>
+                                </div>
+                                <span class="quick-access-text">Consolidado</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        {% else %}
                         <div class="col-md-3">
                             <a href="#" class="quick-access-btn disabled" onclick="return false;" style="pointer-events: none; opacity: 0.5;">
                                 <div class="quick-access-icon" style="background: #2268AD;">
                                     <i class="fas fa-chart-bar"></i>
                                 </div>
                                 <span class="quick-access-text">Consolidado</span>
-                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">Próximamente</span>
+                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">No disponible</span>
                             </a>
                         </div>
+                        {% endif %}
+
+                        <!-- Gestión de Tareas -->
+                        {% if 'tareas' in modulos_habilitados %}
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/tareas" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #E13278;">
+                                    <i class="fas fa-tasks"></i>
+                                </div>
+                                <span class="quick-access-text">Gestión de Tareas</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        {% else %}
                         <div class="col-md-3">
                             <a href="#" class="quick-access-btn disabled" onclick="return false;" style="pointer-events: none; opacity: 0.5;">
                                 <div class="quick-access-icon" style="background: #E13278;">
                                     <i class="fas fa-tasks"></i>
                                 </div>
                                 <span class="quick-access-text">Gestión de Tareas</span>
-                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">Próximamente</span>
+                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">No disponible</span>
                             </a>
                         </div>
+                        {% endif %}
+
+                        <!-- Observaciones -->
+                        {% if 'observaciones' in modulos_habilitados %}
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/observaciones" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #53BED3;">
+                                    <i class="fas fa-sticky-note"></i>
+                                </div>
+                                <span class="quick-access-text">Observaciones</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        {% else %}
                         <div class="col-md-3">
                             <a href="#" class="quick-access-btn disabled" onclick="return false;" style="pointer-events: none; opacity: 0.5;">
                                 <div class="quick-access-icon" style="background: #53BED3;">
                                     <i class="fas fa-sticky-note"></i>
                                 </div>
                                 <span class="quick-access-text">Observaciones</span>
-                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">Próximamente</span>
+                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">No disponible</span>
                             </a>
                         </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

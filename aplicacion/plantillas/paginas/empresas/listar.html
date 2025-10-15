@@ -1,0 +1,276 @@
+{% extends "diseños/base.html" %}
+
+{% block titulo %}Gestión de Empresas - {{ base_datos|upper }}{% endblock %}
+
+{% block estilos %}
+<!-- Estilos específicos para Gestión de Empresas -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/empresas.css') }}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container-fluid px-4 py-4">
+    <!-- Header -->
+    <div class="empresas-header mb-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1 class="empresas-title mb-2">
+                    <i class="fas fa-building me-2"></i>
+                    Gestión de Empresas
+                </h1>
+                <p class="empresas-subtitle mb-0">
+                    Administración de empresas y credenciales SII
+                </p>
+            </div>
+            <div>
+                <a href="/{{ base_datos }}/empresas/nueva" class="btn btn-action btn-action-primary">
+                    <i class="fas fa-plus"></i>
+                    Nueva Empresa
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Estadísticas Rápidas -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ estadisticas.total_empresas }}</div>
+                            <div class="stat-label">Total Empresas</div>
+                        </div>
+                        <div class="stat-icon" style="background: #16A39A;">
+                            <i class="fas fa-building"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ estadisticas.con_credenciales }}</div>
+                            <div class="stat-label">Con Credenciales SII</div>
+                        </div>
+                        <div class="stat-icon" style="background: #2AB673;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ estadisticas.sin_credenciales }}</div>
+                            <div class="stat-label">Sin Credenciales SII</div>
+                        </div>
+                        <div class="stat-icon" style="background: #E13278;">
+                            <i class="fas fa-exclamation-triangle"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Buscador y Filtros -->
+    <div class="dashboard-card mb-4">
+        <div class="dashboard-card-body">
+            <form method="GET" action="/{{ base_datos }}/empresas" class="row g-3 align-items-center">
+                <div class="col-md-10">
+                    <div class="search-container">
+                        <i class="fas fa-search search-icon"></i>
+                        <input type="text"
+                               name="buscar"
+                               class="search-input"
+                               placeholder="Buscar por RUT, empresa, auditor o grupo..."
+                               value="{{ request.args.get('buscar', '') }}">
+                    </div>
+                </div>
+                <div class="col-md-2">
+                    <button type="submit" class="btn btn-action btn-action-secondary w-100">
+                        <i class="fas fa-search"></i>
+                        Buscar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Tabla de Empresas -->
+    <div class="dashboard-card">
+        <div class="dashboard-card-header">
+            <h3 class="dashboard-card-title">
+                <i class="fas fa-list me-2"></i>
+                Listado de Empresas
+            </h3>
+        </div>
+        <div class="dashboard-card-body p-0">
+            {% if empresas %}
+            <div class="table-responsive">
+                <table class="table table-empresas mb-0">
+                    <thead>
+                        <tr>
+                            <th>RUT</th>
+                            <th>Empresa</th>
+                            <th>Auditor</th>
+                            <th>Grupo</th>
+                            <th>Credencial SII</th>
+                            <th class="text-end">Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for empresa in empresas %}
+                        <tr>
+                            <td>
+                                <strong style="color: var(--text-primary);">{{ empresa.run_rut }}</strong>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-building me-2" style="color: var(--text-tertiary);"></i>
+                                    <span>{{ empresa.empresa }}</span>
+                                </div>
+                            </td>
+                            <td>
+                                {% if empresa.auditor %}
+                                    <span class="badge-credencial activa">
+                                        <i class="fas fa-user-tie me-1"></i>
+                                        {{ empresa.auditor }}
+                                    </span>
+                                {% else %}
+                                    <span class="badge-credencial inactiva">
+                                        Sin asignar
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {{ empresa.grupo or '-' }}
+                            </td>
+                            <td>
+                                {% if empresa.clave_sii %}
+                                    <span class="badge-credencial activa">
+                                        <i class="fas fa-check me-1"></i>
+                                        Configurada
+                                    </span>
+                                {% else %}
+                                    <span class="badge-credencial inactiva">
+                                        <i class="fas fa-exclamation-triangle me-1"></i>
+                                        Sin configurar
+                                    </span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <div class="d-flex gap-2 justify-content-end">
+                                    <button type="button"
+                                            class="btn-action-icon"
+                                            onclick="editarEmpresa('{{ empresa.run_rut }}')"
+                                            title="Editar empresa">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button type="button"
+                                            class="btn-action-icon"
+                                            onclick="gestionarCredencial('{{ empresa.run_rut }}', '{{ empresa.empresa }}', {{ 'true' if empresa.clave_sii else 'false' }})"
+                                            title="Gestionar credencial SII">
+                                        <i class="fas fa-key"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <div class="empty-state">
+                <div class="empty-state-icon">
+                    <i class="fas fa-building"></i>
+                </div>
+                <h3 class="empty-state-title">No hay empresas registradas</h3>
+                <p class="empty-state-text">Comienza agregando tu primera empresa al sistema</p>
+                <a href="/{{ base_datos }}/empresas/nueva" class="btn btn-action btn-action-primary">
+                    <i class="fas fa-plus"></i>
+                    Agregar Primera Empresa
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block modales %}
+<!-- Modal de Credencial SII -->
+<div class="modal fade" id="modalCredencial" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fas fa-key me-2"></i>
+                    Gestionar Credencial SII
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="formCredencial">
+                    <input type="hidden" id="credencial_rut">
+
+                    <div class="mb-3">
+                        <label class="form-label">Empresa</label>
+                        <input type="text" class="form-control" id="credencial_empresa" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Clave SII *</label>
+                        <div class="position-relative">
+                            <input type="password"
+                                   class="form-control"
+                                   id="credencial_clave"
+                                   placeholder="Ingrese la clave del SII"
+                                   required
+                                   style="padding-right: 45px;">
+                            <button class="password-toggle"
+                                    type="button"
+                                    onclick="togglePassword()">
+                                <i class="fas fa-eye" id="toggleIcon"></i>
+                            </button>
+                        </div>
+                        <small style="color: var(--text-tertiary); font-size: 12px;">
+                            Esta clave se almacenará de forma segura en la base de datos
+                        </small>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-action btn-action-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times"></i>
+                    Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="btnEliminarCredencial" style="display: none;">
+                    <i class="fas fa-trash"></i>
+                    Eliminar
+                </button>
+                <button type="button" class="btn btn-action btn-action-primary" onclick="guardarCredencial()">
+                    <i class="fas fa-save"></i>
+                    Guardar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<!-- Script de gestión de empresas - Listado -->
+<script>
+    // Configuración global para los scripts
+    window.baseDatos = '{{ base_datos }}';
+</script>
+<script src="{{ url_for('static', filename='js/empresas-listado.js') }}"></script>
+{% endblock %}

@@ -192,7 +192,7 @@ class ServicioConsultaIntegral:
                 SELECT
                     run_rut as rut,
                     empresa as nombre,
-                    quien_registra as usuario,
+                    auditor as usuario,
                     grupo,
                     fecha_registro,
                     activo
@@ -257,10 +257,10 @@ class ServicioConsultaIntegral:
 
                 # Empresas por usuario
                 cursor.execute("""
-                    SELECT quien_registra as usuario, COUNT(*) as cantidad
+                    SELECT auditor as usuario, COUNT(*) as cantidad
                     FROM empresas
-                    WHERE activo = 1 AND quien_registra IS NOT NULL
-                    GROUP BY quien_registra
+                    WHERE activo = 1 AND auditor IS NOT NULL
+                    GROUP BY auditor
                     ORDER BY cantidad DESC
                 """)
                 empresas_por_usuario = cursor.fetchall()

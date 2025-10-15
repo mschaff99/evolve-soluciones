@@ -1,0 +1,297 @@
+"""
+Controlador de Gestión de Empresas para Evolve Soluciones
+==========================================================
+
+Maneja las rutas para gestión de empresas y credenciales SII.
+"""
+
+from flask import Blueprint, render_template, request, jsonify, redirect, url_for, flash
+from flask_login import login_required, current_user
+from aplicacion.servicios.servicio_empresas import ServicioEmpresas
+from aplicacion.utilidades.decoradores import requiere_modulo
+
+# Crear blueprint sin url_prefix (se manejará en cada ruta)
+empresas_bp = Blueprint('empresas', __name__)
+
+
+@empresas_bp.route('/<base_datos>/empresas')
+@login_required
+@requiere_modulo('empresas')
+def listar_empresas(base_datos):
+    """
+    Lista todas las empresas con sus credenciales SII
+
+    URL: /<base_datos>/empresas
+    """
+    try:
+        # Inicializar servicio
+        servicio = ServicioEmpresas(base_datos)
+
+        # Aplicar filtros según rol del usuario
+        filtros = {}
+        if not current_user.es_administrador():
+            filtros['usuario_filtro'] = current_user.nombre_usuario
+
+        # Obtener búsqueda si existe
+        buscar = request.args.get('buscar', '').strip()
+        if buscar:
+            filtros['buscar'] = buscar
+
+        # Obtener empresas
+        empresas = servicio.obtener_todas_empresas_con_credenciales(filtros)
+
+        # Obtener estadísticas
+        estadisticas = servicio.obtener_estadisticas()
+
+        return render_template(
+            'paginas/empresas/listar.html',
+            base_datos=base_datos,
+            empresas=empresas,
+            estadisticas=estadisticas,
+            buscar=buscar
+        )
+
+    except Exception as e:
+        print(f"Error listando empresas: {e}")
+        import traceback
+        traceback.print_exc()
+        flash('Error cargando empresas', 'error')
+        return redirect(url_for('rutas_dinamicas.inicio_base_datos', base_datos=base_datos))
+
+
+@empresas_bp.route('/<base_datos>/empresas/nueva')
+@login_required
+@requiere_modulo('empresas')
+def nueva_empresa(base_datos):
+    """
+    Formulario para crear nueva empresa
+
+    URL: /<base_datos>/empresas/nueva
+    """
+    return render_template(
+        'paginas/empresas/formulario.html',
+        base_datos=base_datos,
+        empresa=None,
+        accion='crear'
+    )
+
+
+@empresas_bp.route('/<base_datos>/empresas/editar/<rut>')
+@login_required
+@requiere_modulo('empresas')
+def editar_empresa(base_datos, rut):
+    """
+    Formulario para editar empresa existente
+
+    URL: /<base_datos>/empresas/editar/<rut>
+    """
+    try:
+        servicio = ServicioEmpresas(base_datos)
+        empresa = servicio.obtener_empresa_por_rut(rut)
+
+        if not empresa:
+            flash(f'Empresa con RUT {rut} no encontrada', 'error')
+            return redirect(url_for('empresas.listar_empresas', base_datos=base_datos))
+
+        return render_template(
+            'paginas/empresas/formulario.html',
+            base_datos=base_datos,
+            empresa=empresa,
+            accion='editar'
+        )
+
+    except Exception as e:
+        print(f"Error cargando empresa {rut}: {e}")
+        flash('Error cargando empresa', 'error')
+        return redirect(url_for('empresas.listar_empresas', base_datos=base_datos))
+
+
+@empresas_bp.route('/<base_datos>/empresas/api/crear', methods=['POST'])
+@login_required
+@requiere_modulo('empresas')
+def api_crear_empresa(base_datos):
+    """
+    API para crear nueva empresa
+
+    URL: /<base_datos>/empresas/api/crear
+    Method: POST
+    """
+    try:
+        datos = request.get_json()
+
+        if not datos or not datos.get('run_rut') or not datos.get('empresa'):
+            return jsonify({
+                'exito': False,
+                'error': 'RUT y nombre de empresa son obligatorios'
+            }), 400
+
+        servicio = ServicioEmpresas(base_datos)
+        exito = servicio.crear_empresa(datos, current_user.nombre_usuario)
+
+        if exito:
+            return jsonify({
+                'exito': True,
+                'mensaje': 'Empresa creada exitosamente',
+                'rut': datos.get('run_rut')
+            })
+        else:
+            return jsonify({
+                'exito': False,
+                'error': 'Error al crear empresa'
+            }), 500
+
+    except Exception as e:
+        print(f"Error en API crear empresa: {e}")
+        return jsonify({
+            'exito': False,
+            'error': str(e)
+        }), 500
+
+
+@empresas_bp.route('/<base_datos>/empresas/api/actualizar/<rut>', methods=['PUT', 'POST'])
+@login_required
+@requiere_modulo('empresas')
+def api_actualizar_empresa(base_datos, rut):
+    """
+    API para actualizar empresa existente
+
+    URL: /<base_datos>/empresas/api/actualizar/<rut>
+    Method: PUT/POST
+    """
+    try:
+        datos = request.get_json()
+
+        if not datos:
+            return jsonify({
+                'exito': False,
+                'error': 'No se recibieron datos'
+            }), 400
+
+        servicio = ServicioEmpresas(base_datos)
+        exito = servicio.actualizar_empresa(rut, datos)
+
+        if exito:
+            return jsonify({
+                'exito': True,
+                'mensaje': 'Empresa actualizada exitosamente'
+            })
+        else:
+            return jsonify({
+                'exito': False,
+                'error': 'Error al actualizar empresa'
+            }), 500
+
+    except Exception as e:
+        print(f"Error en API actualizar empresa: {e}")
+        return jsonify({
+            'exito': False,
+            'error': str(e)
+        }), 500
+
+
+@empresas_bp.route('/<base_datos>/empresas/api/credencial/<rut>', methods=['POST'])
+@login_required
+@requiere_modulo('empresas')
+def api_guardar_credencial(base_datos, rut):
+    """
+    API para guardar/actualizar credencial SII
+
+    URL: /<base_datos>/empresas/api/credencial/<rut>
+    Method: POST
+    """
+    try:
+        datos = request.get_json()
+        clave = datos.get('clave', '').strip()
+
+        if not clave:
+            return jsonify({
+                'exito': False,
+                'error': 'La clave no puede estar vacía'
+            }), 400
+
+        servicio = ServicioEmpresas(base_datos)
+        exito = servicio.guardar_credencial_sii(rut, clave)
+
+        if exito:
+            return jsonify({
+                'exito': True,
+                'mensaje': 'Credencial SII guardada exitosamente'
+            })
+        else:
+            return jsonify({
+                'exito': False,
+                'error': 'Error al guardar credencial'
+            }), 500
+
+    except Exception as e:
+        print(f"Error en API guardar credencial: {e}")
+        return jsonify({
+            'exito': False,
+            'error': str(e)
+        }), 500
+
+
+@empresas_bp.route('/<base_datos>/empresas/api/credencial/<rut>', methods=['DELETE'])
+@login_required
+@requiere_modulo('empresas')
+def api_eliminar_credencial(base_datos, rut):
+    """
+    API para eliminar credencial SII
+
+    URL: /<base_datos>/empresas/api/credencial/<rut>
+    Method: DELETE
+    """
+    try:
+        servicio = ServicioEmpresas(base_datos)
+        exito = servicio.eliminar_credencial_sii(rut)
+
+        if exito:
+            return jsonify({
+                'exito': True,
+                'mensaje': 'Credencial SII eliminada'
+            })
+        else:
+            return jsonify({
+                'exito': False,
+                'error': 'Error al eliminar credencial'
+            }), 500
+
+    except Exception as e:
+        print(f"Error en API eliminar credencial: {e}")
+        return jsonify({
+            'exito': False,
+            'error': str(e)
+        }), 500
+
+
+@empresas_bp.route('/<base_datos>/empresas/api/obtener/<rut>')
+@login_required
+@requiere_modulo('empresas')
+def api_obtener_empresa(base_datos, rut):
+    """
+    API para obtener datos de una empresa
+
+    URL: /<base_datos>/empresas/api/obtener/<rut>
+    Method: GET
+    """
+    try:
+        servicio = ServicioEmpresas(base_datos)
+        empresa = servicio.obtener_empresa_por_rut(rut)
+
+        if empresa:
+            return jsonify({
+                'exito': True,
+                'empresa': empresa
+            })
+        else:
+            return jsonify({
+                'exito': False,
+                'error': 'Empresa no encontrada'
+            }), 404
+
+    except Exception as e:
+        print(f"Error en API obtener empresa: {e}")
+        return jsonify({
+            'exito': False,
+            'error': str(e)
+        }), 500

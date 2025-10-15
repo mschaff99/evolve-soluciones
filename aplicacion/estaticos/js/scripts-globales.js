@@ -24,7 +24,7 @@ function initTheme() {
     // Aplicar tema inmediatamente para evitar flash
     document.documentElement.setAttribute('data-theme', theme);
 
-    console.log(`✅ Tema inicializado: ${theme}`);
+    console.log(` Tema inicializado: ${theme}`);
 }
 
 /**

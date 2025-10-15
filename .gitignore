@@ -57,6 +57,9 @@ ipython_config.py
 .env.production
 .env.staging
 
+# Clave de encriptación de credenciales SII
+.encryption_key
+
 # Credenciales y configuración local
 configuracion/local.py
 configuracion/produccion.py
