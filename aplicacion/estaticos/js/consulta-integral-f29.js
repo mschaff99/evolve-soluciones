@@ -444,13 +444,22 @@ function exportarTabla() {
  * @param {string} rut - RUT de la empresa
  * @param {string} periodo - Período a consultar
  */
+// Variables globales para el modal de proveedores
+let currentRutObservaciones = null;
+let currentPeriodoObservaciones = null;
+
 function mostrarObservaciones(rut, periodo) {
     console.log(`Abriendo modal de observaciones para RUT: ${rut}, Período: ${periodo}`);
+
+    // Guardar RUT y período actuales para el botón de proveedores
+    currentRutObservaciones = rut;
+    currentPeriodoObservaciones = periodo;
 
     const modal = document.getElementById('modalObservaciones');
     const loading = document.getElementById('modalLoading');
     const content = document.getElementById('modalObservacionesContent');
     const error = document.getElementById('modalError');
+    const btnBuscarProveedores = document.getElementById('btnBuscarProveedores');
 
     if (!modal) {
         console.error('Modal de observaciones no encontrado');
@@ -462,6 +471,11 @@ function mostrarObservaciones(rut, periodo) {
     loading.style.display = 'block';
     content.style.display = 'none';
     error.style.display = 'none';
+    
+    // Mostrar botón de buscar proveedores
+    if (btnBuscarProveedores) {
+        btnBuscarProveedores.style.display = 'inline-block';
+    }
 
     // Actualizar título
     document.getElementById('modalTitle').textContent = `Observaciones - Período ${periodo}`;
@@ -578,6 +592,162 @@ function formatearFecha(fecha) {
     }
 }
 
+// ==================== MODAL DE PROVEEDORES ====================
+
+/**
+ * Abre el modal de proveedores con observaciones
+ */
+function buscarProveedores() {
+    if (!currentRutObservaciones || !currentPeriodoObservaciones) {
+        alert('ERROR: No hay datos de RUT y período disponibles');
+        return;
+    }
+
+    console.log(`Buscando proveedores para RUT: ${currentRutObservaciones}, Período: ${currentPeriodoObservaciones}`);
+
+    const modal = document.getElementById('modalProveedores');
+    const loading = document.getElementById('modalProveedoresLoading');
+    const content = document.getElementById('modalProveedoresContent');
+    const error = document.getElementById('modalProveedoresError');
+
+    if (!modal) {
+        console.error('Modal de proveedores no encontrado');
+        return;
+    }
+
+    // Mostrar modal con flex para centrar el contenido
+    modal.style.display = 'flex';
+    loading.style.display = 'block';
+    content.style.display = 'none';
+    error.style.display = 'none';
+
+    // Actualizar título e información
+    document.getElementById('modalProveedoresTitle').textContent = `Proveedores - Período ${currentPeriodoObservaciones}`;
+    document.getElementById('modalProveedoresRut').textContent = currentRutObservaciones;
+    document.getElementById('modalProveedoresPeriodo').textContent = currentPeriodoObservaciones;
+
+    // Construir URL del endpoint
+    const url = `/consulta-integral-f29/api/proveedores/${currentRutObservaciones}/${currentPeriodoObservaciones}`;
+    console.log(`Haciendo petición a: ${url}`);
+
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            loading.style.display = 'none';
+
+            if (data.exito) {
+                // Actualizar total
+                document.getElementById('modalProveedoresTotal').textContent = data.total;
+
+                // Llenar tabla de proveedores
+                const tbody = document.getElementById('proveedoresBody');
+                tbody.innerHTML = '';
+
+                if (data.proveedores && data.proveedores.length > 0) {
+                    data.proveedores.forEach(prov => {
+                        const row = document.createElement('tr');
+                        row.innerHTML = `
+                            <td>${prov.tipo_doc || '-'}</td>
+                            <td>${prov.tipo_compra || '-'}</td>
+                            <td>${prov.rut_proveedor || '-'}</td>
+                            <td>${prov.razon_social || '-'}</td>
+                            <td>${prov.folio || '-'}</td>
+                            <td>${formatearFechaProveedor(prov.fecha_docto)}</td>
+                            <td class="text-right">${formatearMonto(prov.monto_neto)}</td>
+                            <td class="text-right">${formatearMonto(prov.monto_iva_recuperable)}</td>
+                            <td class="text-right">${formatearMonto(prov.monto_total)}</td>
+                        `;
+                        tbody.appendChild(row);
+                    });
+                } else {
+                    tbody.innerHTML = `
+                        <tr>
+                            <td colspan="9" class="sin-observaciones">
+                                <i class="fas fa-info-circle"></i>
+                                No se encontraron proveedores con observaciones para este período
+                            </td>
+                        </tr>
+                    `;
+                }
+
+                content.style.display = 'block';
+            } else {
+                mostrarErrorProveedores(data.error || 'Error desconocido al cargar proveedores');
+            }
+        })
+        .catch(err => {
+            console.error('Error al cargar proveedores:', err);
+            loading.style.display = 'none';
+            mostrarErrorProveedores('Error de conexión al cargar proveedores');
+        });
+}
+
+/**
+ * Cierra el modal de proveedores
+ */
+function cerrarModalProveedores() {
+    const modal = document.getElementById('modalProveedores');
+    if (modal) {
+        modal.style.display = 'none';
+        console.log('Modal de proveedores cerrado');
+    }
+}
+
+/**
+ * Muestra un mensaje de error en el modal de proveedores
+ * @param {string} mensaje - Mensaje de error a mostrar
+ */
+function mostrarErrorProveedores(mensaje) {
+    const content = document.getElementById('modalProveedoresContent');
+    const error = document.getElementById('modalProveedoresError');
+    const errorText = document.getElementById('proveedoresErrorText');
+
+    if (content) content.style.display = 'none';
+    if (error) error.style.display = 'block';
+    if (errorText) errorText.textContent = mensaje;
+}
+
+/**
+ * Formatea una fecha para la tabla de proveedores
+ * @param {string} fecha - Fecha en formato YYYY-MM-DD
+ * @returns {string} - Fecha formateada DD-MM-YYYY
+ */
+function formatearFechaProveedor(fecha) {
+    if (!fecha) return '-';
+    
+    try {
+        // Si viene como string YYYY-MM-DD
+        const partes = fecha.split('-');
+        if (partes.length === 3) {
+            return `${partes[2]}-${partes[1]}-${partes[0]}`;
+        }
+        return fecha;
+    } catch (e) {
+        return fecha;
+    }
+}
+
+/**
+ * Formatea un monto numérico con separador de miles
+ * @param {number|string} monto - Monto a formatear
+ * @returns {string} - Monto formateado con separador de miles
+ */
+function formatearMonto(monto) {
+    if (monto === null || monto === undefined || monto === '') return '-';
+    
+    try {
+        const numero = parseFloat(monto);
+        if (isNaN(numero)) return '-';
+        
+        return numero.toLocaleString('es-CL', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
+    } catch (e) {
+        return monto;
+    }
+}
+
 // ==================== FUNCIONES GLOBALES PARA EL TEMPLATE ====================
 
 // Hacer funciones disponibles globalmente INMEDIATAMENTE para onclick en el template
@@ -593,6 +763,8 @@ window.exportarObservacionesExcel = exportarObservacionesExcel;
 window.mostrarObservaciones = mostrarObservaciones;
 window.cerrarModalObservaciones = cerrarModalObservaciones;
 window.setupModalClickOutside = setupModalClickOutside;
+window.buscarProveedores = buscarProveedores;
+window.cerrarModalProveedores = cerrarModalProveedores;
 
 console.log(' Funciones globales asignadas:', {
     alternarEmpresa: typeof window.alternarEmpresa,
@@ -761,18 +933,32 @@ document.addEventListener('DOMContentLoaded', function () {
 
 // ==================== EVENT LISTENERS GLOBALES ====================
 
-// Cerrar modal al hacer click fuera
+// Cerrar modales al hacer click fuera
 document.addEventListener('click', function (e) {
-    const modal = document.getElementById('modalObservaciones');
-    if (e.target === modal) {
+    const modalObservaciones = document.getElementById('modalObservaciones');
+    const modalProveedores = document.getElementById('modalProveedores');
+    
+    if (e.target === modalObservaciones) {
         cerrarModalObservaciones();
+    }
+    
+    if (e.target === modalProveedores) {
+        cerrarModalProveedores();
     }
 });
 
-// Cerrar modal con tecla Escape
+// Cerrar modales con tecla Escape
 document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
-        cerrarModalObservaciones();
+        const modalProveedores = document.getElementById('modalProveedores');
+        const modalObservaciones = document.getElementById('modalObservaciones');
+        
+        // Si el modal de proveedores está visible, cerrarlo primero
+        if (modalProveedores && modalProveedores.style.display === 'flex') {
+            cerrarModalProveedores();
+        } else if (modalObservaciones && modalObservaciones.style.display === 'flex') {
+            cerrarModalObservaciones();
+        }
     }
 });
 

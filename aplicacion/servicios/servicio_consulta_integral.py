@@ -594,3 +594,57 @@ class ServicioConsultaIntegral:
             print(f"Error exportando a Excel: {e}")
             return None
 
+    def obtener_proveedores_con_observaciones(self, rut, periodo):
+        """
+        Obtiene los proveedores con observaciones para un RUT y período específico
+
+        Args:
+            rut (str): RUT de la empresa
+            periodo (str): Período en formato AAAAMM
+
+        Returns:
+            list: Lista de diccionarios con datos de proveedores
+        """
+        try:
+            # NO limpiar el RUT - en observaciones_encontradas se guarda CON guión
+            # Asegurar que período sea string
+            periodo_str = str(periodo)
+            
+            conexion = self.obtener_conexion_evolve()
+
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                # Buscar directamente en observaciones_encontradas
+                # La tabla tiene columnas rut y periodo directamente
+                # Convertir fecha_docto a formato string directamente en SQL
+                consulta_proveedores = f"""
+                    SELECT 
+                        tipo_doc,
+                        tipo_compra,
+                        rut_proveedor,
+                        razon_social,
+                        folio,
+                        DATE_FORMAT(fecha_docto, '%Y-%m-%d') as fecha_docto,
+                        monto_neto,
+                        monto_iva_recuperable,
+                        monto_total
+                    FROM {self.base_datos}.observaciones_encontradas
+                    WHERE rut = %s AND periodo = %s
+                    ORDER BY fecha_docto DESC, folio DESC
+                """
+
+                print(f"INFO: Ejecutando consulta con RUT: {rut}, Período: {periodo_str}")
+                cursor.execute(consulta_proveedores, (rut, periodo_str))
+                resultados = cursor.fetchall()
+
+                print(f"OK: Se encontraron {len(resultados)} registros de proveedores")
+
+            conexion.close()
+
+            return resultados
+
+        except Exception as e:
+            print(f"ERROR: Error obteniendo proveedores con observaciones: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
+

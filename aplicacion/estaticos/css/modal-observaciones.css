@@ -317,6 +317,54 @@
 }
 
 /* Responsividad del modal */
+/* Modal de proveedores más grande */
+.modal-proveedores-large {
+    max-width: 1400px !important;
+    width: 95% !important;
+}
+
+/* Botón de buscar proveedores */
+.btn-primary {
+    background: var(--primary-gradient, linear-gradient(135deg, #667eea 0%, #764ba2 100%));
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.btn-primary:active {
+    transform: translateY(0);
+}
+
+.btn-primary i {
+    margin-right: 6px;
+}
+
+/* Ajustes para la tabla de proveedores */
+.modal-proveedores-large .tabla-observaciones {
+    font-size: 0.85rem;
+}
+
+.modal-proveedores-large .tabla-observaciones th,
+.modal-proveedores-large .tabla-observaciones td {
+    padding: 10px 8px;
+    white-space: nowrap;
+}
+
+.modal-proveedores-large .tabla-observaciones .text-right {
+    text-align: right;
+}
+
 @media (max-width: 768px) {
     .modal-container {
         width: 95%;
@@ -338,5 +386,10 @@
     .tabla-observaciones td {
         padding: 8px;
         font-size: 0.9rem;
+    }
+    
+    .modal-proveedores-large {
+        max-width: 100% !important;
+        width: 98% !important;
     }
 }

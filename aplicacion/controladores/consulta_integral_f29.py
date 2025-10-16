@@ -297,3 +297,52 @@ def exportar_observaciones_excel():
             'exito': False,
             'error': str(error)
         }), 500
+
+
+@consulta_integral_f29_bp.route('/api/proveedores/<rut>/<periodo>')
+def obtener_proveedores_con_observaciones(rut, periodo):
+    """
+    Obtiene los proveedores con observaciones para un RUT y período específico
+    
+    Args:
+        rut (str): RUT de la empresa
+        periodo (str): Período en formato AAAAMM
+        
+    Returns:
+        JSON con lista de proveedores y sus detalles
+    """
+    from flask_login import current_user
+
+    try:
+        # Verificar autenticación
+        if not current_user.is_authenticated:
+            return jsonify({
+                'exito': False,
+                'error': 'Usuario no autenticado'
+            }), 401
+
+        base_datos = current_user.base_datos_mysql
+
+        print(f"INFO: Buscando proveedores para RUT: {rut}, Período: {periodo}, BD: {base_datos}")
+
+        servicio_consulta = ServicioConsultaIntegral(base_datos)
+        proveedores = servicio_consulta.obtener_proveedores_con_observaciones(rut, periodo)
+
+        print(f"OK: Se encontraron {len(proveedores)} proveedores con observaciones")
+
+        return jsonify({
+            'exito': True,
+            'rut': rut,
+            'periodo': periodo,
+            'total': len(proveedores),
+            'proveedores': proveedores
+        })
+
+    except Exception as error:
+        print(f"ERROR: Error obteniendo proveedores: {error}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'exito': False,
+            'error': str(error)
+        }), 500
