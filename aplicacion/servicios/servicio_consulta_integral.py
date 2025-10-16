@@ -609,21 +609,20 @@ class ServicioConsultaIntegral:
             # NO limpiar el RUT - en observaciones_encontradas se guarda CON guión
             # Asegurar que período sea string
             periodo_str = str(periodo)
-            
+
             conexion = self.obtener_conexion_evolve()
 
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Buscar directamente en observaciones_encontradas
                 # La tabla tiene columnas rut y periodo directamente
-                # Convertir fecha_docto a formato string directamente en SQL
                 consulta_proveedores = f"""
-                    SELECT 
+                    SELECT
                         tipo_doc,
                         tipo_compra,
                         rut_proveedor,
                         razon_social,
                         folio,
-                        DATE_FORMAT(fecha_docto, '%Y-%m-%d') as fecha_docto,
+                        fecha_docto,
                         monto_neto,
                         monto_iva_recuperable,
                         monto_total
@@ -634,7 +633,14 @@ class ServicioConsultaIntegral:
 
                 print(f"INFO: Ejecutando consulta con RUT: {rut}, Período: {periodo_str}")
                 cursor.execute(consulta_proveedores, (rut, periodo_str))
+                
+                # Obtener resultados y convertir fechas a string manualmente
                 resultados = cursor.fetchall()
+                
+                # Convertir objetos date a strings
+                for resultado in resultados:
+                    if resultado.get('fecha_docto'):
+                        resultado['fecha_docto'] = resultado['fecha_docto'].strftime('%Y-%m-%d')
 
                 print(f"OK: Se encontraron {len(resultados)} registros de proveedores")
 

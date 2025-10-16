@@ -303,11 +303,11 @@ def exportar_observaciones_excel():
 def obtener_proveedores_con_observaciones(rut, periodo):
     """
     Obtiene los proveedores con observaciones para un RUT y período específico
-    
+
     Args:
         rut (str): RUT de la empresa
         periodo (str): Período en formato AAAAMM
-        
+
     Returns:
         JSON con lista de proveedores y sus detalles
     """

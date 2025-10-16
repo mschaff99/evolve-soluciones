@@ -471,7 +471,7 @@ function mostrarObservaciones(rut, periodo) {
     loading.style.display = 'block';
     content.style.display = 'none';
     error.style.display = 'none';
-    
+
     // Mostrar botón de buscar proveedores
     if (btnBuscarProveedores) {
         btnBuscarProveedores.style.display = 'inline-block';
@@ -714,7 +714,7 @@ function mostrarErrorProveedores(mensaje) {
  */
 function formatearFechaProveedor(fecha) {
     if (!fecha) return '-';
-    
+
     try {
         // Si viene como string YYYY-MM-DD
         const partes = fecha.split('-');
@@ -734,11 +734,11 @@ function formatearFechaProveedor(fecha) {
  */
 function formatearMonto(monto) {
     if (monto === null || monto === undefined || monto === '') return '-';
-    
+
     try {
         const numero = parseFloat(monto);
         if (isNaN(numero)) return '-';
-        
+
         return numero.toLocaleString('es-CL', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0
@@ -937,11 +937,11 @@ document.addEventListener('DOMContentLoaded', function () {
 document.addEventListener('click', function (e) {
     const modalObservaciones = document.getElementById('modalObservaciones');
     const modalProveedores = document.getElementById('modalProveedores');
-    
+
     if (e.target === modalObservaciones) {
         cerrarModalObservaciones();
     }
-    
+
     if (e.target === modalProveedores) {
         cerrarModalProveedores();
     }
@@ -952,7 +952,7 @@ document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
         const modalProveedores = document.getElementById('modalProveedores');
         const modalObservaciones = document.getElementById('modalObservaciones');
-        
+
         // Si el modal de proveedores está visible, cerrarlo primero
         if (modalProveedores && modalProveedores.style.display === 'flex') {
             cerrarModalProveedores();
