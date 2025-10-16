@@ -53,26 +53,26 @@ async function manejarEnvioFormulario(e) {
 
   // Validar RUT
   if (!datos.run_rut) {
-    alert('❌ El RUT es obligatorio');
+    alert('ERROR: El RUT es obligatorio');
     document.getElementById('run_rut').focus();
     return;
   }
 
   if (!validarFormatoRUT(datos.run_rut)) {
-    alert('❌ El formato del RUT no es válido.\n\nFormato correcto: 12345678-9');
+    alert('ERROR: El formato del RUT no es valido.\\n\\nFormato correcto: 12345678-9');
     document.getElementById('run_rut').focus();
     return;
   }
 
   // Validar nombre empresa
   if (!datos.empresa) {
-    alert('❌ El nombre de la empresa es obligatorio');
+    alert('ERROR: El nombre de la empresa es obligatorio');
     document.getElementById('empresa').focus();
     return;
   }
 
   if (datos.empresa.length < 3) {
-    alert('❌ El nombre de la empresa debe tener al menos 3 caracteres');
+    alert('ERROR: El nombre de la empresa debe tener al menos 3 caracteres');
     document.getElementById('empresa').focus();
     return;
   }
@@ -106,8 +106,8 @@ async function manejarEnvioFormulario(e) {
     if (data.exito) {
       // Mostrar mensaje de éxito
       const mensaje = data.mensaje || (esEdicion
-        ? ' Empresa actualizada correctamente'
-        : ' Empresa creada correctamente');
+        ? 'OK: Empresa actualizada correctamente'
+        : 'OK: Empresa creada correctamente');
 
       alert(mensaje);
 
@@ -118,7 +118,7 @@ async function manejarEnvioFormulario(e) {
       window.location.href = `/${baseDatos}/empresas`;
     } else {
       // Mostrar error
-      alert('❌ Error: ' + (data.error || 'No se pudo guardar la empresa'));
+      alert('ERROR: ' + (data.error || 'No se pudo guardar la empresa'));
 
       // Restaurar botón
       btnSubmit.disabled = false;
@@ -126,7 +126,7 @@ async function manejarEnvioFormulario(e) {
     }
   } catch (error) {
     console.error('Error guardando empresa:', error);
-    alert('❌ Error de conexión. Por favor, intente nuevamente.');
+    alert('ERROR: Error de conexion. Por favor, intente nuevamente.');
 
     // Restaurar botón
     btnSubmit.disabled = false;
@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Validar que tenemos el token CSRF
   if (!window.csrfToken) {
-    console.warn('⚠️  Token CSRF no encontrado');
+    console.warn('  Token CSRF no encontrado');
   }
 
   // Vincular evento submit del formulario

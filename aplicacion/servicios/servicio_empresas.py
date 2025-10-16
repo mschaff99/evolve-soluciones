@@ -264,12 +264,12 @@ class ServicioEmpresas:
             conexion = self.obtener_conexion()
 
             # PASO 1: Encriptar la clave con Fernet (reversible)
-            print(f"🔐 Encriptando credencial para {rut} con Fernet...")
+            print(f"INFO: Encriptando credencial para {rut} con Fernet...")
             clave_encriptada = servicio_encriptacion.encriptar(clave)
 
             # Verificar formato Fernet
             if not clave_encriptada.startswith('gAAAAA'):
-                print(f"⚠️  ADVERTENCIA: La encriptación no parece ser Fernet")
+                print(f"ADVERTENCIA: La encriptacion no parece ser Fernet")
                 return False
 
             with conexion.cursor() as cursor:
@@ -286,7 +286,7 @@ class ServicioEmpresas:
                         WHERE rut = %s
                     """
                     cursor.execute(consulta, [clave_encriptada, rut])
-                    print(f"💾 Credencial SII para {rut} actualizada en base de datos")
+                    print(f"INFO: Credencial SII para {rut} actualizada en base de datos")
                 else:
                     # PASO 2: Insertar
                     consulta = """
@@ -294,21 +294,21 @@ class ServicioEmpresas:
                         VALUES (%s, %s)
                     """
                     cursor.execute(consulta, [rut, clave_encriptada])
-                    print(f"💾 Credencial SII para {rut} creada en base de datos")
+                    print(f"INFO: Credencial SII para {rut} creada en base de datos")
 
                 conexion.commit()
 
                 # PASO 3: Verificar que se puede desencriptar
-                print(f"🔍 Verificando que se puede desencriptar...")
+                print(f"INFO: Verificando que se puede desencriptar...")
                 clave_recuperada = servicio_encriptacion.desencriptar(clave_encriptada)
 
                 # PASO 4: Confirmar que coinciden
                 if clave_recuperada == clave:
-                    print(f" Verificación exitosa - La contraseña se puede recuperar correctamente")
-                    print(f" Credencial SII para {rut} lista para automatización (Fernet reversible)")
+                    print(f"OK: Verificacion exitosa - La contrasena se puede recuperar correctamente")
+                    print(f"OK: Credencial SII para {rut} lista para automatizacion (Fernet reversible)")
                     return True
                 else:
-                    print(f"❌ ERROR: La contraseña recuperada NO coincide con la original")
+                    print(f"ERROR: La contrasena recuperada NO coincide con la original")
                     print(f"   Original: {clave[:3]}{'*' * max(0, len(clave) - 3)}")
                     print(f"   Recuperada: {clave_recuperada[:3]}{'*' * max(0, len(clave_recuperada) - 3)}")
                     # Hacer rollback porque la verificación falló
@@ -318,7 +318,7 @@ class ServicioEmpresas:
         except Exception as e:
             if conexion:
                 conexion.rollback()
-            print(f"❌ Error guardando credencial SII para {rut}: {e}")
+            print(f"ERROR: Error guardando credencial SII para {rut}: {e}")
             import traceback
             traceback.print_exc()
             return False

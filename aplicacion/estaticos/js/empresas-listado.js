@@ -125,16 +125,16 @@ async function guardarCredencial() {
       }
 
       // Mostrar mensaje de éxito
-      alert('contraseña ingresada');
+      alert('OK: Credencial guardada exitosamente con encriptacion Fernet (reversible)');
 
       // Recargar la página para mostrar los cambios
       location.reload();
     } else {
-      alert('❌ Error: ' + (data.error || 'No se pudo guardar la credencial'));
+      alert('ERROR: ' + (data.error || 'No se pudo guardar la credencial'));
     }
   } catch (error) {
     console.error('Error guardando credencial:', error);
-    alert('❌ Error de conexión. Por favor, intente nuevamente.');
+    alert('ERROR: Error de conexion. Por favor, intente nuevamente.');
   }
 }
 
@@ -168,16 +168,16 @@ async function eliminarCredencial(rut) {
       }
 
       // Mostrar mensaje de éxito
-      alert(' Credencial eliminada exitosamente');
+      alert('OK: Credencial eliminada exitosamente');
 
       // Recargar la página
       location.reload();
     } else {
-      alert('❌ Error: ' + (data.error || 'No se pudo eliminar la credencial'));
+      alert('ERROR: ' + (data.error || 'No se pudo eliminar la credencial'));
     }
   } catch (error) {
     console.error('Error eliminando credencial:', error);
-    alert('❌ Error de conexión. Por favor, intente nuevamente.');
+    alert('ERROR: Error de conexion. Por favor, intente nuevamente.');
   }
 }
 
@@ -187,6 +187,6 @@ document.addEventListener('DOMContentLoaded', function () {
 
   // Validar que tenemos el token CSRF
   if (!window.csrfToken) {
-    console.warn('⚠️  Token CSRF no encontrado');
+    console.warn('  Token CSRF no encontrado');
   }
 });
