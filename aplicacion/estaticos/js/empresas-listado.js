@@ -125,7 +125,7 @@ async function guardarCredencial() {
       }
 
       // Mostrar mensaje de éxito
-      alert('OK: Credencial guardada exitosamente con encriptacion Fernet (reversible)');
+      alert('OK: Credencial guardada exitosamente');
 
       // Recargar la página para mostrar los cambios
       location.reload();
