@@ -245,37 +245,41 @@ function filtrarEmpresasF29() {
 
         // Filtrar por observaciones
         if (observacionesFiltro && showRow) {
-            // Buscar el badge de observaciones en la celda de estadísticas
-            const celdaEstadisticas = row.querySelector('.resumen-estadisticas');
-            const badgeObservaciones = celdaEstadisticas ? celdaEstadisticas.querySelector('.badge.bg-warning') : null;
-
             // Verificar si es un código específico
             if (observacionesFiltro.startsWith('codigo_')) {
                 // Extraer el código específico (ej: "codigo_102" -> "102")
                 const codigoBuscado = observacionesFiltro.replace('codigo_', '');
 
-                // Obtener los códigos de observaciones de la empresa
+                // Obtener los códigos de observaciones de la empresa desde data-codigos-obs
                 const codigosEmpresa = (row.getAttribute('data-codigos-obs') || '').split(',').filter(c => c);
 
                 // Mostrar solo si la empresa tiene ese código específico
                 showRow = showRow && codigosEmpresa.includes(codigoBuscado);
 
             } else if (observacionesFiltro === 'con_observaciones') {
-                // Mostrar solo empresas con observaciones (badge existe y tiene número > 0)
-                if (badgeObservaciones) {
-                    const numObservaciones = parseInt(badgeObservaciones.textContent.trim()) || 0;
-                    showRow = showRow && numObservaciones > 0;
-                } else {
-                    showRow = false;
+                // Obtener los códigos de observaciones de la empresa
+                const codigosObsStr = row.getAttribute('data-codigos-obs') || '';
+                const tieneObservaciones = codigosObsStr.trim().length > 0;
+
+                // Debug para las primeras 3 filas
+                const rowIndex = Array.from(rows).indexOf(row);
+                if (rowIndex < 3) {
+                    const empresaName = row.querySelector('.empresa-name')?.textContent.trim() || 'N/A';
+                    console.log(`   DEBUG Fila ${rowIndex + 1} (${empresaName}):`);
+                    console.log(`     - data-codigos-obs: "${codigosObsStr}"`);
+                    console.log(`     - tieneObservaciones: ${tieneObservaciones}`);
                 }
+
+                // Mostrar solo empresas con observaciones
+                showRow = showRow && tieneObservaciones;
+
             } else if (observacionesFiltro === 'sin_observaciones') {
-                // Mostrar solo empresas sin observaciones (no tiene badge o tiene 0)
-                if (badgeObservaciones) {
-                    const numObservaciones = parseInt(badgeObservaciones.textContent.trim()) || 0;
-                    showRow = showRow && numObservaciones === 0;
-                } else {
-                    showRow = showRow; // No tiene badge = sin observaciones
-                }
+                // Obtener los códigos de observaciones de la empresa
+                const codigosObsStr = row.getAttribute('data-codigos-obs') || '';
+                const tieneObservaciones = codigosObsStr.trim().length > 0;
+
+                // Mostrar solo empresas SIN observaciones
+                showRow = showRow && !tieneObservaciones;
             }
         }
 
