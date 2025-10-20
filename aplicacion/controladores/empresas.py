@@ -167,7 +167,17 @@ def api_actualizar_empresa(base_datos, rut):
                 'error': 'No se recibieron datos'
             }), 400
 
+        # Validar que la empresa existe
         servicio = ServicioEmpresas(base_datos)
+        empresa_existe = servicio.obtener_empresa_por_rut(rut)
+
+        if not empresa_existe:
+            return jsonify({
+                'exito': False,
+                'error': f'La empresa con RUT {rut} no existe. Use el endpoint /api/crear para crear nuevas empresas.'
+            }), 404
+
+        # Actualizar empresa
         exito = servicio.actualizar_empresa(rut, datos)
 
         if exito:
@@ -178,14 +188,16 @@ def api_actualizar_empresa(base_datos, rut):
         else:
             return jsonify({
                 'exito': False,
-                'error': 'Error al actualizar empresa'
+                'error': 'No se pudo actualizar la empresa. Revise los logs del servidor.'
             }), 500
 
     except Exception as e:
-        print(f"Error en API actualizar empresa: {e}")
+        print(f"ERROR: Error en API actualizar empresa {rut}: {e}")
+        import traceback
+        traceback.print_exc()
         return jsonify({
             'exito': False,
-            'error': str(e)
+            'error': f'Error interno del servidor: {str(e)}'
         }), 500
 
 

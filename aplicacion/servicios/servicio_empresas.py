@@ -156,6 +156,15 @@ class ServicioEmpresas:
             conexion = self.obtener_conexion()
 
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                # Verificar que no exista ya una empresa con ese RUT
+                rut = datos.get('run_rut')
+                cursor.execute("SELECT run_rut FROM empresas WHERE run_rut = %s", [rut])
+                existe = cursor.fetchone()
+
+                if existe:
+                    print(f"ERROR: Ya existe una empresa con RUT {rut}")
+                    return False
+
                 # Obtener el próximo valor de orden (máximo + 1)
                 cursor.execute("SELECT COALESCE(MAX(orden), 0) + 1 as siguiente_orden FROM empresas")
                 resultado = cursor.fetchone()
@@ -173,22 +182,33 @@ class ServicioEmpresas:
                 # El auditor será el del formulario o el usuario actual como fallback
                 parametros = (
                     siguiente_orden,
-                    datos.get('run_rut'),
+                    rut,
                     datos.get('empresa'),
                     datos.get('auditor') or usuario,
                     datos.get('grupo')
                 )
 
                 cursor.execute(consulta, parametros)
+                filas_insertadas = cursor.rowcount
                 conexion.commit()
 
-                print(f"✓ Empresa {datos.get('run_rut')} creada exitosamente con orden {siguiente_orden}")
+                print(f"OK: Empresa {rut} creada exitosamente con orden {siguiente_orden} ({filas_insertadas} fila(s) insertada(s))")
                 return True
 
+        except pymysql.IntegrityError as e:
+            if conexion:
+                conexion.rollback()
+            print(f"ERROR: Error de integridad creando empresa: {e}")
+            print("       Posible RUT duplicado o violación de constraint")
+            import traceback
+            traceback.print_exc()
+            return False
         except Exception as e:
             if conexion:
                 conexion.rollback()
-            print(f"Error creando empresa: {e}")
+            print(f"ERROR: Error creando empresa: {e}")
+            import traceback
+            traceback.print_exc()
             return False
         finally:
             if conexion:
@@ -210,6 +230,15 @@ class ServicioEmpresas:
             conexion = self.obtener_conexion()
 
             with conexion.cursor() as cursor:
+                # Verificar que la empresa existe antes de actualizar
+                cursor.execute("SELECT run_rut FROM empresas WHERE run_rut = %s", [rut])
+                existe = cursor.fetchone()
+
+                if not existe:
+                    print(f"ERROR: No se puede actualizar - La empresa con RUT {rut} no existe")
+                    return False
+
+                # Actualizar empresa
                 consulta = """
                     UPDATE empresas
                     SET empresa = %s,
@@ -226,15 +255,24 @@ class ServicioEmpresas:
                 )
 
                 cursor.execute(consulta, parametros)
+                filas_afectadas = cursor.rowcount
+
+                # Verificar que se actualizó al menos una fila
+                if filas_afectadas == 0:
+                    print(f"ADVERTENCIA: UPDATE no afectó ninguna fila para RUT {rut}")
+                    return False
+
                 conexion.commit()
 
-                print(f"✓ Empresa {rut} actualizada exitosamente")
+                print(f"OK: Empresa {rut} actualizada exitosamente ({filas_afectadas} fila(s) afectada(s))")
                 return True
 
         except Exception as e:
             if conexion:
                 conexion.rollback()
-            print(f"Error actualizando empresa {rut}: {e}")
+            print(f"ERROR: Error actualizando empresa {rut}: {e}")
+            import traceback
+            traceback.print_exc()
             return False
         finally:
             if conexion:
