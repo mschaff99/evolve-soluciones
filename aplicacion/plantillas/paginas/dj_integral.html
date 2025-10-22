@@ -190,13 +190,10 @@
                             </td>
                             {% endfor %}
                             <td class="resumen-estadisticas text-center">
-                                {# Total de DJ de la empresa #}
-                                {% set total_dj = 0 %}
-                                {% for año_key, dj_list in datos_empresa.dj_por_anio.items() %}
-                                    {% set total_dj = total_dj + (dj_list|length) %}
-                                {% endfor %}
-                                {% if total_dj > 0 %}
-                                    <span class="badge bg-success">{{ total_dj }}</span>
+                                {# Muestra el total de DJ 'Observada' pre-calculado desde el servicio #}
+                                {% set total_observadas = datos_empresa.total_observadas | default(0) %}
+                                {% if total_observadas > 0 %}
+                                    <span class="badge bg-warning text-dark" title="{{ total_observadas }} DJ con estado 'Observada'">{{ total_observadas }}</span>
                                 {% else %}
                                     <span class="text-muted">0</span>
                                 {% endif %}

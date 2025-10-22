@@ -125,7 +125,8 @@ class ServicioDJIntegral:
                     'nombre': empresa['nombre'],
                     'usuario': empresa['usuario'],
                     'grupo': empresa['grupo'],
-                    'dj_por_anio': {}
+                    'dj_por_anio': {},
+                    'total_observadas': 0  # Inicializar contador
                 }
 
                 # Organizar DJ por año
@@ -142,6 +143,10 @@ class ServicioDJIntegral:
 
                             if año not in empresas_agrupadas[rut]['dj_por_anio']:
                                 empresas_agrupadas[rut]['dj_por_anio'][año] = []
+
+                            # Contar observadas
+                            if estado == 'Observada':
+                                empresas_agrupadas[rut]['total_observadas'] += 1
 
                             # Verificar si este DJ ya existe en este año
                             dj_existente = False
@@ -349,7 +354,8 @@ class ServicioDJIntegral:
                     FROM {self.base_datos}.dj_integral
                     WHERE estado = 'T'
                 """)
-                total_empresas_con_dj = cursor.fetchone()['total']
+                resultado_total_empresas = cursor.fetchone()
+                total_empresas_con_dj = resultado_total_empresas['total'] if resultado_total_empresas else 0
 
                 # Total de DJ vigentes
                 cursor.execute(f"""
@@ -357,7 +363,8 @@ class ServicioDJIntegral:
                     FROM {self.base_datos}.dj_integral
                     WHERE estado = 'T'
                 """)
-                total_dj = cursor.fetchone()['total']
+                resultado_total_dj = cursor.fetchone()
+                total_dj = resultado_total_dj['total'] if resultado_total_dj else 0
 
                 # DJ por número
                 cursor.execute(f"""
