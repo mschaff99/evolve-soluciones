@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from datetime import datetime
 from aplicacion.utilidades.filtros_empresas import obtener_empresas_usuario
 from aplicacion.servicios.servicio_consulta_integral import ServicioConsultaIntegral
+from aplicacion.servicios.servicio_dj_integral import ServicioDJIntegral
 from aplicacion.utilidades.decoradores import requiere_modulo
 
 # Blueprint para rutas dinámicas
@@ -146,6 +147,98 @@ def consulta_integral_f29_base_datos(base_datos):
         traceback.print_exc()
         from flask import flash
         flash('Error cargando la consulta integral', 'error')
+        return redirect(url_for('rutas_dinamicas.inicio_base_datos', base_datos=base_datos))
+
+
+@rutas_dinamicas_bp.route('/<base_datos>/dj-integral')
+@login_required
+@requiere_modulo('dj_integral')
+def dj_integral_base_datos(base_datos):
+    """
+    DJ Integral para una base de datos específica
+    URL: /<base_datos>/dj-integral
+    """
+    # Validar acceso a la base de datos
+    if not validar_base_datos_usuario(base_datos):
+        from flask import flash
+        flash(f'No tienes acceso a la base de datos "{base_datos}"', 'error')
+        return redirect(url_for('autenticacion.iniciar_sesion'))
+
+    try:
+        # Inicializar servicio con la base de datos del usuario
+        servicio = ServicioDJIntegral(base_datos)
+
+        # Aplicar filtros según el rol del usuario
+        filtros = {}
+
+        # Si NO es administrador, filtrar por su usuario
+        if not current_user.es_administrador():
+            filtros['usuario_filtro'] = current_user.nombre_usuario
+
+        # Obtener datos completos de empresas con DJ usando el servicio
+        datos = servicio.obtener_datos_empresas_con_dj(filtros)
+        resultados = datos['empresas']
+        años_disponibles = datos['años']
+
+        # Obtener lista única de usuarios para el filtro
+        usuarios = servicio.obtener_usuarios_unicos()
+
+        # Obtener grupos únicos para el filtro
+        grupos = servicio.obtener_grupos_unicos()
+
+        # Obtener estados únicos para el filtro
+        estados = servicio.obtener_estados_unicos()
+
+        # Si no hay años, usar rango por defecto
+        if not años_disponibles:
+            años_disponibles = [2025, 2024, 2023, 2022, 2021, 2020]
+
+        # DEBUG: Ver estructura de datos antes de enviar al template
+        print(f"\nDEBUG CONTROLLER: Enviando al template:")
+        print(f"  - años_disponibles: {años_disponibles} (tipo: {type(años_disponibles)})")
+        if resultados:
+            primer_rut = list(resultados.keys())[0]
+            print(f"  - Primer RUT: {primer_rut}")
+            print(f"  - Keys en dj_por_anio: {list(resultados[primer_rut].get('dj_por_anio', {}).keys())}")
+            if resultados[primer_rut].get('dj_por_anio'):
+                primer_anio = list(resultados[primer_rut]['dj_por_anio'].keys())[0]
+                print(f"  - Tipo de key año: {type(primer_anio)}")
+                print(f"  - DJ en año {primer_anio}: {len(resultados[primer_rut]['dj_por_anio'][primer_anio])} registros")
+
+        # Precomputar por empresa un diccionario de DJ (numero -> titulo) y lista ordenada de numeros
+        try:
+            for rut_key, datos_empresa in resultados.items():
+                dj_dict = {}
+                # datos_empresa.dj_por_anio puede venir vacío o ser dict
+                for año_key, dj_list in datos_empresa.get('dj_por_anio', {}).items():
+                    for dj in dj_list:
+                        # Asegurar que la clave sea el número (entero o str)
+                        numero = dj.get('dj_numero')
+                        titulo = dj.get('titulo')
+                        if numero not in dj_dict:
+                            dj_dict[numero] = titulo
+
+                # Guardar en la estructura para uso directo en la plantilla
+                datos_empresa['dj_dict'] = dj_dict
+                datos_empresa['dj_numeros'] = sorted(list(dj_dict.keys()))
+        except Exception as e:
+            print(f"WARN: No se pudieron precomputar dj_dict/dj_numeros: {e}")
+
+        # Renderizar el template con todos los datos necesarios
+        return render_template('paginas/dj_integral.html',
+                             base_datos=base_datos,
+                             resultados=resultados,
+                             usuarios=usuarios,
+                             grupos=grupos,
+                             estados=estados,
+                             años_disponibles=años_disponibles)
+
+    except Exception as e:
+        print(f"ERROR: Error cargando DJ Integral para {base_datos}: {e}")
+        import traceback
+        traceback.print_exc()
+        from flask import flash
+        flash('Error cargando DJ Integral', 'error')
         return redirect(url_for('rutas_dinamicas.inicio_base_datos', base_datos=base_datos))
 
 

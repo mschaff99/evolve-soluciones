@@ -1,0 +1,295 @@
+/**
+ * JavaScript para funcionalidades de DJ Integral
+ * Maneja expansión de tablas y filtros dinámicos
+ */
+
+console.log('Cargando dj-integral.js...');
+
+// Variables globales
+let empresasExpandidas = new Set();
+
+/**
+ * Alterna la expansión de una empresa (mostrar/ocultar DJ)
+ * @param {HTMLElement} boton - El botón que se clickeó
+ */
+function alternarEmpresa(boton) {
+  try {
+    const fila = boton.closest('tr');
+    if (!fila) {
+      console.error('No se pudo encontrar la fila padre del botón');
+      return;
+    }
+
+    const rut = fila.dataset.rut || boton.dataset.empresa;
+    if (!rut) {
+      console.error('No se pudo encontrar el RUT de la empresa');
+      return;
+    }
+
+    // Buscar todas las filas de detalle de DJ de esta empresa
+    const filasDetalle = document.querySelectorAll(`tr.fila-dj-detalle[data-empresa="${rut}"]`);
+
+    if (!filasDetalle || filasDetalle.length === 0) {
+      console.error(`No se encontraron filas de detalle para RUT: ${rut}`);
+      return;
+    }
+
+    if (empresasExpandidas.has(rut)) {
+      // Colapsar todas
+      filasDetalle.forEach(filaDetalle => {
+        filaDetalle.style.display = 'none';
+        filaDetalle.classList.remove('visible');
+      });
+      empresasExpandidas.delete(rut);
+
+      // Cambiar ícono del botón
+      const icono = boton.querySelector('i');
+      if (icono) {
+        icono.className = 'fas fa-plus';
+      }
+      boton.classList.remove('expandido');
+      boton.title = 'Expandir detalles';
+
+      console.log(`Empresa ${rut} colapsada`);
+    } else {
+      // Expandir todas
+      filasDetalle.forEach(filaDetalle => {
+        filaDetalle.style.display = 'table-row';
+        filaDetalle.classList.add('visible');
+      });
+      empresasExpandidas.add(rut);
+
+      // Cambiar ícono del botón
+      const icono = boton.querySelector('i');
+      if (icono) {
+        icono.className = 'fas fa-minus';
+      }
+      boton.classList.add('expandido');
+      boton.title = 'Contraer detalles';
+
+      console.log(`Empresa ${rut} expandida`);
+    }
+  } catch (error) {
+    console.error('Error en alternarEmpresa:', error);
+  }
+}
+
+/**
+ * Expandir todas las empresas
+ */
+function expandirTodas() {
+  try {
+    const botones = document.querySelectorAll('.boton-expandir-empresa');
+
+    botones.forEach(boton => {
+      const rut = boton.dataset.empresa;
+      if (!empresasExpandidas.has(rut)) {
+        alternarEmpresa(boton);
+      }
+    });
+
+    console.log('Todas las empresas expandidas');
+  } catch (error) {
+    console.error('Error expandiendo todas:', error);
+  }
+}
+
+/**
+ * Contraer todas las empresas
+ */
+function contraerTodas() {
+  try {
+    const botones = document.querySelectorAll('.boton-expandir-empresa');
+
+    botones.forEach(boton => {
+      const rut = boton.dataset.empresa;
+      if (empresasExpandidas.has(rut)) {
+        alternarEmpresa(boton);
+      }
+    });
+
+    console.log('Todas las empresas contraídas');
+  } catch (error) {
+    console.error('Error contrayendo todas:', error);
+  }
+}
+
+/**
+ * Helper para obtener valor seguro de input/select
+ */
+function getVal(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.toLowerCase().trim() : '';
+}
+
+/**
+ * Debounce para optimizar el rendimiento de los filtros
+ */
+function debounce(func, wait) {
+  let timeout;
+  return function executedFunction(...args) {
+    const later = () => {
+      clearTimeout(timeout);
+      func(...args);
+    };
+    clearTimeout(timeout);
+    timeout = setTimeout(later, wait);
+  };
+}
+
+/**
+ * Filtra las empresas según los criterios seleccionados
+ */
+function filtrarEmpresas() {
+  try {
+    const usuarioFiltro = getVal('usuarioSelect');
+    const grupoFiltro = getVal('grupoSelect');
+    const empresaFiltro = getVal('empresaInput');
+    const estadoFiltro = getVal('estadoSelect');
+
+    const filasEmpresas = document.querySelectorAll('tr.fila-empresa');
+    let empresasVisibles = 0;
+
+    filasEmpresas.forEach(fila => {
+      const usuario = (fila.dataset.usuario || '').toLowerCase();
+      const grupo = (fila.dataset.grupo || '').toLowerCase();
+      const nombreEmpresa = (fila.querySelector('.nombre-empresa .fw-semibold')?.textContent || '').toLowerCase();
+      const rut = fila.dataset.rut;
+
+      let mostrarFila = true;
+
+      // Filtro de usuario
+      if (usuarioFiltro && usuario !== usuarioFiltro) {
+        mostrarFila = false;
+      }
+
+      // Filtro de grupo
+      if (grupoFiltro && grupo !== grupoFiltro) {
+        mostrarFila = false;
+      }
+
+      // Filtro de empresa
+      if (empresaFiltro && !nombreEmpresa.includes(empresaFiltro)) {
+        mostrarFila = false;
+      }
+
+      // Filtro de estado (buscar en la fila de detalle)
+      if (estadoFiltro) {
+        const filaDetalle = document.querySelector(`tr.fila-dj-detalle[data-empresa="${rut}"]`);
+        if (filaDetalle) {
+          const badges = filaDetalle.querySelectorAll('.badge');
+          let tieneEstado = false;
+
+          badges.forEach(badge => {
+            const textoEstado = badge.textContent.toLowerCase().trim();
+            if (textoEstado.includes(estadoFiltro)) {
+              tieneEstado = true;
+            }
+          });
+
+          if (!tieneEstado) {
+            mostrarFila = false;
+          }
+        } else {
+          mostrarFila = false;
+        }
+      }
+
+      // Mostrar/ocultar fila
+      if (mostrarFila) {
+        fila.style.display = '';
+        empresasVisibles++;
+      } else {
+        fila.style.display = 'none';
+
+        // También ocultar la fila de detalle si estaba expandida
+        const filaDetalle = document.querySelector(`tr.fila-dj-detalle[data-empresa="${rut}"]`);
+        if (filaDetalle) {
+          filaDetalle.style.display = 'none';
+        }
+      }
+    });
+
+    // Actualizar contador de resultados
+    const contador = document.querySelector('.results-count');
+    if (contador) {
+      contador.innerHTML = `<i class="fas fa-building me-2"></i>${empresasVisibles} empresas encontradas`;
+    }
+
+    console.log(`Filtrado completado: ${empresasVisibles} empresas visibles`);
+  } catch (error) {
+    console.error('Error en filtrarEmpresas:', error);
+  }
+}
+
+/**
+ * Limpia todos los filtros
+ */
+function clearAllFilters() {
+  try {
+    // Limpiar selects
+    const usuarioSelect = document.getElementById('usuarioSelect');
+    const grupoSelect = document.getElementById('grupoSelect');
+    const estadoSelect = document.getElementById('estadoSelect');
+
+    if (usuarioSelect) usuarioSelect.value = '';
+    if (grupoSelect) grupoSelect.value = '';
+    if (estadoSelect) estadoSelect.value = '';
+
+    // Limpiar input de empresa
+    const empresaInput = document.getElementById('empresaInput');
+    if (empresaInput) empresaInput.value = '';
+
+    // Aplicar filtros (mostrar todas)
+    filtrarEmpresas();
+
+    console.log('Filtros limpiados');
+  } catch (error) {
+    console.error('Error limpiando filtros:', error);
+  }
+}
+
+/**
+ * Inicialización cuando el DOM está listo
+ */
+document.addEventListener('DOMContentLoaded', function () {
+  console.log('DJ Integral - DOM cargado, inicializando...');
+
+  // Aplicar debounce a filtros
+  const filtrarDebounced = debounce(filtrarEmpresas, 300);
+
+  // Event listeners para filtros
+  const usuarioSelect = document.getElementById('usuarioSelect');
+  const grupoSelect = document.getElementById('grupoSelect');
+  const empresaInput = document.getElementById('empresaInput');
+  const estadoSelect = document.getElementById('estadoSelect');
+
+  if (usuarioSelect) {
+    usuarioSelect.addEventListener('change', filtrarEmpresas);
+  }
+
+  if (grupoSelect) {
+    grupoSelect.addEventListener('change', filtrarEmpresas);
+  }
+
+  if (empresaInput) {
+    empresaInput.addEventListener('input', filtrarDebounced);
+  }
+
+  if (estadoSelect) {
+    estadoSelect.addEventListener('change', filtrarEmpresas);
+  }
+
+  // Inicializar tooltips de Bootstrap si existen
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function (tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
+
+  console.log('DJ Integral - Inicialización completada');
+});
+
+/**
+ * Log de estado al cargar
+ */
+console.log('dj-integral.js cargado correctamente');
