@@ -192,6 +192,29 @@
                             </a>
                         </div>
                         {% endif %}
+
+                        <!-- Declaraciones Juradas -->
+                        {% if 'dj_integral' in modulos_habilitados %}
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/dj-integral" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #7B087E;">
+                                    <i class="fas fa-file-contract"></i>
+                                </div>
+                                <span class="quick-access-text">Declaraciones Juradas</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="col-md-3">
+                            <a href="#" class="quick-access-btn disabled" onclick="return false;" style="pointer-events: none; opacity: 0.5;">
+                                <div class="quick-access-icon" style="background: #7B087E;">
+                                    <i class="fas fa-file-contract"></i>
+                                </div>
+                                <span class="quick-access-text">Declaraciones Juradas</span>
+                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">No disponible</span>
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>
