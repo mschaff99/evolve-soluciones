@@ -63,12 +63,19 @@
                                 <i class="fas fa-user me-1"></i>
                                 Usuario
                             </label>
-                            <select class="form-select" name="usuario" id="usuarioSelect">
-                                <option value="">Todos los usuarios</option>
-                                {% for usuario in usuarios %}
-                                <option value="{{ usuario }}">{{ usuario if usuario else 'VACÍO' }}</option>
-                                {% endfor %}
-                            </select>
+                            {% if current_user.es_administrador() %}
+                                <select class="form-select" name="usuario" id="usuarioSelect">
+                                    <option value="">Todos los usuarios</option>
+                                    {% for usuario in usuarios %}
+                                    <option value="{{ usuario }}">{{ usuario if usuario else 'VACÍO' }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <select class="form-select" name="usuario" id="usuarioSelect" disabled title="Restringido a administradores">
+                                    <option value="{{ current_user.nombre_usuario }}">{{ current_user.nombre_usuario }}</option>
+                                </select>
+                                <input type="hidden" name="usuario" value="{{ current_user.nombre_usuario }}">
+                            {% endif %}
                         </div>
                         {# {% endif %} - Comentado temporalmente #}
 
