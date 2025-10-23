@@ -36,7 +36,7 @@
 
 /* Encabezado */
 .seccion-encabezado {
-  background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+  background: #2268AD;
   color: white;
   padding: 30px;
   text-align: center;
@@ -224,7 +224,7 @@
 .boton-expandir-empresa {
   padding: 6px 10px;
   border: none;
-  background: var(--color-primario);
+  background: #E13278;
   color: white;
   border-radius: 6px;
   cursor: pointer;

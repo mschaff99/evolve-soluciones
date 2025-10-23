@@ -1,0 +1,72 @@
+<!-- Modal para mostrar observaciones específicas de DJ -->
+<div id="modalObservacionesDJ" class="modal-overlay" style="display: none;">
+    <div class="modal-container">
+        <div class="modal-header">
+            <h3 id="modalDJTitle">Observaciones - DJ</h3>
+            <button class="modal-close" onclick="cerrarModalObservacionesDJ()" title="Cerrar modal">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="modal-content">
+            <div id="modalDJLoading" class="loading-container">
+                <div class="spinner"></div>
+                <p>Cargando observaciones DJ...</p>
+            </div>
+
+            <div id="modalDJContent" style="display: none;">
+                <div class="observaciones-info">
+                    <div class="info-item">
+                        <strong>RUT:</strong>
+                        <span id="modalDJRut">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>DJ Número:</strong>
+                        <span id="modalDJNumero">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Período:</strong>
+                        <span id="modalDJPeriodo">-</span>
+                    </div>
+                    <div class="info-item">
+                        <strong>Total Observaciones:</strong>
+                        <span id="modalDJTotal">0</span>
+                    </div>
+                </div>
+
+                <div class="observaciones-list-container">
+                    <!-- Cada observación será renderizada como tarjeta vertical -->
+                    <div id="observacionesDJList" class="observaciones-list">
+                        <!-- Items se agregan dinámicamente -->
+                    </div>
+                </div>
+            </div>
+
+            <div id="modalDJError" style="display: none;">
+                <div class="error-message">
+                    <i class="fas fa-exclamation-triangle"></i>
+                    <p id="modalDJErrorText">Error al cargar las observaciones</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-footer">
+            <button class="btn-secondary" onclick="cerrarModalObservacionesDJ()">Cerrar</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function cerrarModalObservacionesDJ() {
+        const modal = document.getElementById('modalObservacionesDJ');
+        if (modal) {
+            modal.style.display = 'none';
+            modal.classList.remove('modal-visible');
+        }
+        const content = document.getElementById('modalDJContent');
+        const loading = document.getElementById('modalDJLoading');
+        if (content) content.style.display = 'none';
+        if (loading) loading.style.display = 'block';
+        try { document.body.style.overflow = ''; } catch (_) {}
+    }
+</script>

@@ -335,3 +335,47 @@ def validar_parametros(**validadores):
 
         return funcion_decorada
     return decorador
+
+
+def admin_mysql_requerido(f):
+    """
+    Decorador que verifica que el usuario sea administrador en MySQL
+    Valida el campo tipo_usuario en la tabla usuarios_acceso
+
+    Args:
+        f: Función a decorar
+
+    Returns:
+        function: Función decorada
+    """
+    @wraps(f)
+    def funcion_decorada(*args, **kwargs):
+        from flask import session
+
+        if not current_user.is_authenticated:
+            if request.is_json:
+                return jsonify({'error': 'Autenticación requerida'}), 401
+            flash('Debes iniciar sesión para acceder a esta página.', 'warning')
+            return redirect(url_for('autenticacion.iniciar_sesion'))
+
+        # Verificar tipo de usuario desde la sesión (se guarda en login)
+        tipo_usuario_mysql = session.get('tipo_usuario_mysql')
+
+        if tipo_usuario_mysql != 'admin':
+            if request.is_json:
+                return jsonify({
+                    'error': 'Permisos insuficientes',
+                    'mensaje': 'Esta acción requiere permisos de administrador'
+                }), 403
+            flash('No tienes permisos de administrador para realizar esta acción.', 'error')
+
+            # Redirigir a inicio con base de datos
+            base_datos = kwargs.get('base_datos') or current_user.base_datos_mysql
+            if base_datos:
+                return redirect(url_for('inicio.index', base_datos=base_datos))
+            return redirect(url_for('autenticacion.iniciar_sesion'))
+
+        return f(*args, **kwargs)
+
+    return funcion_decorada
+

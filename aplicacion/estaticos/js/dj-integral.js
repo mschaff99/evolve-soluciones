@@ -293,3 +293,88 @@ document.addEventListener('DOMContentLoaded', function () {
  * Log de estado al cargar
  */
 console.log('dj-integral.js cargado correctamente');
+
+/**
+ * Abre el modal de observaciones DJ y solicita las observaciones via API
+ * @param {string} rut
+ * @param {number} dj_numero
+ * @param {number|string} periodo
+ */
+function abrirModalObservacionesDJ(rut, dj_numero, periodo) {
+  try {
+    console.log('abrirModalObservacionesDJ called', rut, dj_numero, periodo);
+    const modal = document.getElementById('modalObservacionesDJ');
+    const loading = document.getElementById('modalDJLoading');
+    const content = document.getElementById('modalDJContent');
+    const body = document.getElementById('observacionesDJBody');
+    const titleRut = document.getElementById('modalDJRut');
+    const titleNum = document.getElementById('modalDJNumero');
+    const titlePer = document.getElementById('modalDJPeriodo');
+    const totalEl = document.getElementById('modalDJTotal');
+
+    if (!modal) return console.error('Modal DJ no encontrado');
+
+    // Mostrar modal y loading (forzar visibilidad)
+    modal.style.display = 'flex';
+    modal.classList.add('modal-visible');
+    // Evitar scroll de fondo
+    try { document.body.style.overflow = 'hidden'; } catch (_) { }
+    if (loading) loading.style.display = 'block';
+    if (content) content.style.display = 'none';
+
+    // Limpieza previa
+    if (body) body.innerHTML = '';
+    if (titleRut) titleRut.textContent = rut;
+    if (titleNum) titleNum.textContent = dj_numero;
+    if (titlePer) titlePer.textContent = periodo;
+    if (totalEl) totalEl.textContent = '0';
+
+    // Llamada a la API (ruta con base_datos desde la URL)
+    const basePath = window.location.pathname.split('/')[1];
+    const url = `/${basePath}/api/dj-observaciones?rut=${encodeURIComponent(rut)}&dj_numero=${encodeURIComponent(dj_numero)}&periodo=${encodeURIComponent(periodo)}`;
+
+    fetch(url)
+      .then(res => res.json())
+      .then(data => {
+        if (!data || !data.exito) {
+          document.getElementById('modalDJErrorText').textContent = data.error || 'Error al cargar observaciones';
+          document.getElementById('modalDJError').style.display = 'block';
+          if (loading) loading.style.display = 'none';
+          return;
+        }
+
+        const obs = data.observaciones || [];
+        // Render vertical cards
+        const listEl = document.getElementById('observacionesDJList');
+        if (listEl) {
+          listEl.innerHTML = '';
+          obs.forEach((o, idx) => {
+            const card = document.createElement('div');
+            card.className = 'observacion-card';
+            const header = document.createElement('div');
+            header.className = 'observacion-card-header';
+            header.textContent = `Observación ${o.observacion_code || ('#' + (idx + 1))}`;
+            const desc = document.createElement('div');
+            desc.className = 'observacion-card-body';
+            desc.innerHTML = `<h6>Descripción</h6><p>${o.descripcion || ''}</p><h6>Orientación</h6><p>${o.orientacion || ''}</p>`;
+            card.appendChild(header);
+            card.appendChild(desc);
+            listEl.appendChild(card);
+          });
+        }
+
+        if (totalEl) totalEl.textContent = obs.length.toString();
+        if (loading) loading.style.display = 'none';
+        if (content) content.style.display = 'block';
+      })
+      .catch(err => {
+        console.error('Error fetching observaciones DJ:', err);
+        document.getElementById('modalDJErrorText').textContent = err.message || String(err);
+        document.getElementById('modalDJError').style.display = 'block';
+        if (loading) loading.style.display = 'none';
+      });
+
+  } catch (e) {
+    console.error('Error abrirModalObservacionesDJ:', e);
+  }
+}

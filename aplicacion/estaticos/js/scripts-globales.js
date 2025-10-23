@@ -5,7 +5,7 @@
  * Funcionalidades JavaScript comunes a toda la aplicación
  */
 
-console.log('🚀 Cargando scripts globales de Evolve Soluciones...');
+console.log('Cargando scripts globales de Evolve Soluciones...');
 
 // ============================================
 // SISTEMA DE TEMAS (CLARO/OSCURO)

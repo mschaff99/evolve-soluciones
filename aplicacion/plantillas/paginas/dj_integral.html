@@ -5,6 +5,8 @@
 {% block estilos %}
 <!-- Estilos específicos para DJ Integral -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dj-integral.css') }}?v=20251022-01">
+<!-- Estilos para modal de observaciones DJ -->
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modal-observaciones.css') }}">
 {% endblock %}
 
 {% block contenido %}
@@ -224,30 +226,33 @@
                                 {% set dj_encontrado = dj_año | selectattr('dj_numero', 'equalto', dj_num) | list %}
                                 <td class="text-center">
                                     {% if dj_encontrado %}
-                                        {% set estado_encontrado = dj_encontrado[0].estado %}
-                                        {% if estado_encontrado == 'No Aplica' %}
-                                            <span class="text-muted">-</span>
-                                        {% elif estado_encontrado == 'Aceptada' %}
-                                            <span class="badge bg-success" title="{{ estado_encontrado }}">
-                                                <i class="fas fa-check"></i>
-                                            </span>
-                                        {% elif estado_encontrado == 'Observada' %}
-                                            <span class="badge bg-warning text-dark" title="{{ estado_encontrado }}">
-                                                <i class="fas fa-exclamation-triangle"></i>
-                                            </span>
-                                        {% elif estado_encontrado == 'Rechazada' %}
-                                            <span class="badge bg-danger" title="{{ estado_encontrado }}">
-                                                <i class="fas fa-times"></i>
-                                            </span>
-                                        {% elif estado_encontrado == 'Pendiente' %}
-                                            <span class="badge bg-info text-dark" title="{{ estado_encontrado }}">
-                                                <i class="fas fa-clock"></i>
-                                            </span>
-                                        {% else %}
-                                            <span class="badge bg-secondary" title="{{ estado_encontrado }}">
-                                                {{ estado_encontrado }}
-                                            </span>
-                                        {% endif %}
+                                            {% set estado_encontrado = dj_encontrado[0].estado %}
+                                            {% if estado_encontrado == 'No Aplica' %}
+                                                <span class="text-muted">-</span>
+                                            {% elif estado_encontrado == 'Aceptada' %}
+                                                <span class="badge bg-success" title="{{ estado_encontrado }}">
+                                                    <i class="fas fa-check"></i>
+                                                </span>
+                                            {% elif estado_encontrado == 'Observada' %}
+                                                {# Convertir en botón que abre modal con observaciones DJ #}
+                                                <button class="btn btn-sm btn-outline-warning boton-observacion"
+                                                        onclick="abrirModalObservacionesDJ('{{ datos_empresa.rut }}', {{ dj_num }}, {{ año_str }})"
+                                                        title="Ver observaciones">
+                                                    <i class="fas fa-exclamation-triangle"></i>
+                                                </button>
+                                            {% elif estado_encontrado == 'Rechazada' %}
+                                                <span class="badge bg-danger" title="{{ estado_encontrado }}">
+                                                    <i class="fas fa-times"></i>
+                                                </span>
+                                            {% elif estado_encontrado == 'Pendiente' %}
+                                                <span class="badge bg-info text-dark" title="{{ estado_encontrado }}">
+                                                    <i class="fas fa-clock"></i>
+                                                </span>
+                                            {% else %}
+                                                <span class="badge bg-secondary" title="{{ estado_encontrado }}">
+                                                    {{ estado_encontrado }}
+                                                </span>
+                                            {% endif %}
                                     {% else %}
                                         <span class="text-muted">-</span>
                                     {% endif %}
@@ -281,4 +286,8 @@
 {% block scripts %}
 <!-- JavaScript específico para DJ Integral -->
 <script src="{{ url_for('static', filename='js/dj-integral.js') }}?v=20251022-01"></script>
+{% endblock %}
+
+{% block modales %}
+{% include 'componentes/modal-observaciones-dj.html' %}
 {% endblock %}

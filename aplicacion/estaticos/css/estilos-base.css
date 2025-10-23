@@ -313,7 +313,7 @@ body {
 }
 
 .table thead th {
-    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    background: var(--bg-tertiary) !important;
     color: white;
     border: none;
     font-weight: 600;

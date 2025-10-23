@@ -242,6 +242,37 @@ def dj_integral_base_datos(base_datos):
         return redirect(url_for('rutas_dinamicas.inicio_base_datos', base_datos=base_datos))
 
 
+@rutas_dinamicas_bp.route('/<base_datos>/api/dj-observaciones')
+@login_required
+@requiere_modulo('dj_integral')
+def api_dj_observaciones(base_datos):
+    """
+    API que devuelve observaciones para una DJ específica:
+    Query params: rut, dj_numero, periodo
+    """
+    from flask import jsonify, request
+
+    if not validar_base_datos_usuario(base_datos):
+        return jsonify({'exito': False, 'error': 'No tienes acceso a esta base de datos'}), 403
+
+    rut = request.args.get('rut')
+    dj_numero = request.args.get('dj_numero')
+    periodo = request.args.get('periodo')
+
+    if not rut or not dj_numero or not periodo:
+        return jsonify({'exito': False, 'error': 'Parámetros incompletos (rut, dj_numero, periodo)'}), 400
+
+    try:
+        servicio = ServicioDJIntegral(base_datos)
+        observaciones = servicio.obtener_observaciones_dj(rut, int(dj_numero), int(periodo))
+        return jsonify({'exito': True, 'observaciones': observaciones})
+    except Exception as e:
+        print(f"ERROR: API dj-observaciones: {e}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({'exito': False, 'error': str(e)}), 500
+
+
 @rutas_dinamicas_bp.route('/<base_datos>/api/exportar-observaciones-excel')
 @login_required
 @requiere_modulo('consulta_f29')

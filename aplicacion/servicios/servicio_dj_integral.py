@@ -392,3 +392,39 @@ class ServicioDJIntegral:
         finally:
             if conexion:
                 conexion.close()
+
+    def obtener_observaciones_dj(self, rut: str, dj_numero: int, periodo: int) -> List[Dict[str, Any]]:
+        """
+        Obtiene observaciones asociadas a una declaración jurada (DJ) específica.
+
+        Args:
+            rut (str): RUT de la empresa
+            dj_numero (int): Número de la DJ
+            periodo (int): Año del período (ej: 2022)
+
+        Returns:
+            List[Dict]: Lista de observaciones (code, descripcion, orientacion)
+        """
+        conexion = None
+        try:
+            conexion = self.obtener_conexion()
+            consulta = f"""
+                SELECT a.observacion_code, a.descripcion, a.orientacion
+                FROM {self.base_datos}.dj_integral_observaciones a
+                WHERE a.rut = %s AND a.dj_numero = %s AND a.periodo = %s
+                ORDER BY a.observacion_code
+            """
+
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                cursor.execute(consulta, (rut, dj_numero, periodo))
+                resultados = cursor.fetchall()
+                return list(resultados) if resultados else []
+
+        except Exception as e:
+            print(f"ERROR: Error obteniendo observaciones DJ [{rut} - {dj_numero} - {periodo}]: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
+        finally:
+            if conexion:
+                conexion.close()

@@ -292,6 +292,45 @@
     padding: 40px 20px;
 }
 
+/* Estilos para lista vertical de observaciones (DJ) */
+.observaciones-list-container {
+    padding: 10px 0 20px 0;
+}
+
+.observaciones-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.observacion-card {
+    border: 1px solid var(--border-color);
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), rgba(0, 0, 0, 0.02));
+    padding: 12px 16px;
+    border-radius: 8px;
+}
+
+.observacion-card-header {
+    font-weight: 700;
+    color: var(--color-primario);
+    margin-bottom: 8px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.observacion-card-body h6 {
+    margin: 6px 0 4px 0;
+    font-size: 0.85rem;
+    color: var(--color-acento-1);
+}
+
+.observacion-card-body p {
+    margin: 0 0 8px 0;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
 .sin-observaciones i {
     font-size: 1.5rem;
     margin-bottom: 10px;
