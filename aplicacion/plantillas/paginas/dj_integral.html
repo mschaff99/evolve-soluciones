@@ -17,7 +17,7 @@
             <div class="contenido-encabezado">
                 <h1 class="titulo-pagina">
                     <i class="fas fa-file-contract me-3"></i>
-                    Declaraciones Juradas Integrales
+                    Declaraciones Juradas
                 </h1>
                 <p class="subtitulo-pagina">
                     Consulta y seguimiento de Declaraciones Juradas por año
@@ -63,12 +63,20 @@
                                 <i class="fas fa-user me-1"></i>
                                 Usuario
                             </label>
-                            <select class="form-select" name="usuario" id="usuarioSelect">
-                                <option value="">Todos los usuarios</option>
-                                {% for usuario in usuarios %}
-                                <option value="{{ usuario }}">{{ usuario if usuario else 'VACÍO' }}</option>
-                                {% endfor %}
-                            </select>
+                            {# Mostrar select solo a administradores; para usuarios normales usar un input oculto con su nombre para mantener el filtro en backend #}
+                            {% if current_user.es_administrador() %}
+                                <select class="form-select" name="usuario" id="usuarioSelect">
+                                    <option value="">Todos los usuarios</option>
+                                    {% for usuario in usuarios %}
+                                    <option value="{{ usuario }}">{{ usuario if usuario else 'VACÍO' }}</option>
+                                    {% endfor %}
+                                </select>
+                            {% else %}
+                                <select class="form-select" name="usuario" id="usuarioSelect" disabled title="Restringido a administradores">
+                                    <option value="{{ current_user.nombre_usuario }}">{{ current_user.nombre_usuario }}</option>
+                                </select>
+                                <input type="hidden" name="usuario" value="{{ current_user.nombre_usuario }}">
+                            {% endif %}
                         </div>
 
                         <!-- Filtro por Grupo -->
@@ -115,6 +123,14 @@
                             <button type="button" class="btn btn-outline-warning w-100" onclick="clearAllFilters()">
                                 <i class="fas fa-times me-1"></i>
                                 Limpiar
+                            </button>
+                        </div>
+                        <!-- Botón exportar a Excel (observaciones DJ) -->
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <button type="button" class="btn btn-success w-100" onclick="exportarObservacionesDJExcel()">
+                                <i class="fas fa-file-excel me-1"></i>
+                                Exportar Excel
                             </button>
                         </div>
                     </div>

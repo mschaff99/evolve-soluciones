@@ -409,7 +409,7 @@ class ServicioDJIntegral:
         try:
             conexion = self.obtener_conexion()
             consulta = f"""
-                SELECT a.observacion_code, a.descripcion, a.orientacion
+                SELECT a.observacion_code, a.glosa_observacion, a.descripcion, a.orientacion
                 FROM {self.base_datos}.dj_integral_observaciones a
                 WHERE a.rut = %s AND a.dj_numero = %s AND a.periodo = %s
                 ORDER BY a.observacion_code
@@ -428,3 +428,99 @@ class ServicioDJIntegral:
         finally:
             if conexion:
                 conexion.close()
+
+    def exportar_observaciones_dj_excel(self, nombre_usuario: str, es_administrador: bool = False):
+        """
+        Exporta observaciones relacionadas con DJ a un archivo Excel en memoria.
+
+        Args:
+            nombre_usuario (str): Nombre del usuario que solicita la exportación
+            es_administrador (bool): Si True, exporta todas las observaciones; si False, solo las del usuario
+
+        Returns:
+            BytesIO: Buffer con el archivo Excel listo para enviar como attachment, o None si no hay datos
+        """
+        try:
+            # Import tardío para no forzar dependencia si no se usa
+            from io import BytesIO
+            from openpyxl import Workbook
+
+            conexion = self.obtener_conexion()
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                # Si no es admin, filtrar por auditor/usuario en la tabla empresas
+                if not es_administrador:
+                    sql = f"""
+                        SELECT b.rut, b.dj_numero, b.periodo, b.observacion_code, b.glosa_observacion, b.descripcion, b.orientacion
+                        FROM {self.base_datos}.dj_integral_observaciones b
+                        INNER JOIN {self.base_datos}.empresas e ON e.run_rut = b.rut
+                        WHERE e.auditor = %s
+                        ORDER BY b.rut, b.dj_numero, b.periodo, b.observacion_code
+                    """
+                    cursor.execute(sql, (nombre_usuario,))
+                else:
+                    sql = f"""
+                        SELECT b.rut, b.dj_numero, b.periodo, b.observacion_code, b.glosa_observacion, b.descripcion, b.orientacion
+                        FROM {self.base_datos}.dj_integral_observaciones b
+                        ORDER BY b.rut, b.dj_numero, b.periodo, b.observacion_code
+                    """
+                    cursor.execute(sql)
+
+                filas = cursor.fetchall()
+
+            if not filas:
+                return None
+
+
+            # Importes para openpyxl y typing (locales para evitar import global innecesario)
+            from openpyxl import Workbook
+            from openpyxl.utils import get_column_letter
+            from openpyxl.worksheet.worksheet import Worksheet
+            from typing import cast
+
+            wb = Workbook()
+            # Forzar tipo para que Pylance reconozca métodos y atributos
+            ws = cast(Worksheet, wb.active)
+            ws.title = 'Observaciones DJ'
+
+            # Encabezados (agregamos Glosa_Observacion después de Observacion_Code)
+            headers = ['RUT', 'DJ_Numero', 'Periodo', 'Observacion', 'Glosa_Observacion', 'Descripcion', 'Orientacion']
+            ws.append(headers)
+
+            for fila in filas:
+                ws.append([
+                    fila.get('rut'),
+                    fila.get('dj_numero'),
+                    fila.get('periodo'),
+                    fila.get('observacion_code'),
+                    fila.get('glosa_observacion'),
+                    fila.get('descripcion'),
+                    fila.get('orientacion')
+                ])
+
+            # Autoajustar anchos (simple) usando get_column_letter para evitar problemas con MergedCell
+            for idx, column_cells in enumerate(ws.columns, start=1):
+                # Calcular largo máximo en la columna
+                length = 0
+                for cell in column_cells:
+                    try:
+                        val = cell.value
+                        l = len(str(val)) if val is not None else 0
+                    except Exception:
+                        l = 0
+                    if l > length:
+                        length = l
+
+                adjusted_width = length + 2
+                col_letter = get_column_letter(idx)
+                ws.column_dimensions[col_letter].width = adjusted_width
+
+            buffer = BytesIO()
+            wb.save(buffer)
+            buffer.seek(0)
+            return buffer
+
+        except Exception as e:
+            print(f"ERROR: exportar_observaciones_dj_excel: {e}")
+            import traceback
+            traceback.print_exc()
+            return None

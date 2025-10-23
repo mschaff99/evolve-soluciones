@@ -249,6 +249,124 @@ function clearAllFilters() {
   }
 }
 
+
+/**
+ * Exportar observaciones DJ a Excel
+ */
+function exportarObservacionesDJExcel() {
+  console.log('Iniciando exportación de observaciones DJ a Excel...');
+
+  try {
+    const boton = event ? (event.target.closest ? event.target.closest('button') : null) : null;
+    const textoOriginal = boton ? boton.innerHTML : '';
+    if (boton) {
+      boton.disabled = true;
+      boton.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i>Exportando...';
+    }
+
+    // Obtener base de datos desde la URL
+    const pathParts = window.location.pathname.split('/');
+    const baseDatos = pathParts[1] || '';
+    const url = `/${baseDatos}/api/exportar-dj-observaciones-excel`;
+    console.log('🔗 URL de exportación DJ:', url);
+
+    // Intentar con base de datos en la URL; si no existe, haremos un intento sin base
+    // Añadimos `credentials: 'same-origin'` para enviar cookies de sesión cuando corresponda
+    const fetchWithUrl = (u) => fetch(u, {
+      method: 'GET',
+      credentials: 'same-origin',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' }
+    });
+
+    fetchWithUrl(url)
+      .then(response => {
+        // Detectar redirecciones al login (cuando el servidor responde con redirect a /auth/iniciar-sesion)
+        if (response.redirected || (response.url && response.url.includes('/auth/iniciar-sesion'))) {
+          throw new Error('Sesión expirada o no autenticado. Por favor inicia sesión nuevamente.');
+        }
+
+        const contentType = response.headers.get('content-type') || '';
+        if (!response.ok) {
+          // Intentar parsear JSON si viene como tal
+          if (contentType.includes('application/json')) {
+            return response.json().then(data => {
+              throw new Error(data.error || JSON.stringify(data));
+            });
+          }
+          // Si viene HTML o texto, leer como texto y mostrar
+          return response.text().then(text => {
+            // Si recibimos HTML del login, avisar de sesión expirada
+            if (text && text.toLowerCase().includes('redirecting') || text.toLowerCase().includes('iniciar-sesion')) {
+              throw new Error('Sesión expirada o no autenticado. Por favor inicia sesión.');
+            }
+            throw new Error(text || 'Error al exportar DJ');
+          });
+        }
+
+        // Si viene un JSON (posible error) pero response.ok, manejarlo
+        if (contentType.includes('application/json')) {
+          return response.json().then(data => {
+            // Si hay campo error en JSON, lanzar
+            if (data && data.error) throw new Error(data.error);
+            throw new Error('Respuesta inesperada del servidor');
+          });
+        }
+
+        // Si viene un blob (archivo), devolver el blob
+        return response.blob();
+      })
+      .catch(err => {
+        // Si fue 404 por URL con base, intentar sin base (ruta raíz)
+        console.warn('Primera petición de exportación falló, intentando sin base en la URL...', err.message);
+        const urlSinBase = `/api/exportar-dj-observaciones-excel`;
+        return fetchWithUrl(urlSinBase).then(response => {
+          const contentType = response.headers.get('content-type') || '';
+          if (!response.ok) {
+            if (contentType.includes('application/json')) {
+              return response.json().then(data => { throw new Error(data.error || JSON.stringify(data)); });
+            }
+            return response.text().then(text => { throw new Error(text || 'Error al exportar DJ (sin base)'); });
+          }
+          if (contentType.includes('application/json')) {
+            return response.json().then(data => { if (data && data.error) throw new Error(data.error); throw new Error('Respuesta inesperada del servidor'); });
+          }
+          return response.blob();
+        });
+      })
+      .then(blob => {
+        // Si 'blob' es un objeto JSON (error) habrá lanzado antes; asumimos blob
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.style.display = 'none';
+        a.href = url;
+        const fecha = new Date().toISOString().slice(0, 19).replace(/[:T]/g, '_');
+        a.download = `Observaciones_DJ_${fecha}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        alert('Excel de observaciones DJ descargado exitosamente');
+      })
+      .catch(error => {
+        console.error('Error exportando observaciones DJ:', error);
+        alert('Error al exportar DJ: ' + error.message);
+      })
+      .finally(() => {
+        if (boton) {
+          boton.disabled = false;
+          boton.innerHTML = textoOriginal;
+        }
+      });
+
+  } catch (error) {
+    console.error('Error en exportarObservacionesDJExcel:', error);
+    alert('Error al iniciar exportación DJ');
+  }
+}
+
+// Exponer globalmente para uso en onclick
+window.exportarObservacionesDJExcel = exportarObservacionesDJExcel;
+
 /**
  * Inicialización cuando el DOM está listo
  */

@@ -341,6 +341,74 @@ def exportar_observaciones_excel_base_datos(base_datos):
         }), 500
 
 
+@rutas_dinamicas_bp.route('/<base_datos>/api/exportar-dj-observaciones-excel')
+@login_required
+@requiere_modulo('dj_integral')
+def exportar_observaciones_dj_excel_base_datos(base_datos):
+    """
+    Exporta las observaciones relacionadas con las DJ a Excel
+    URL: /<base_datos>/api/exportar-dj-observaciones-excel
+    """
+    from flask import send_file
+    from datetime import datetime
+
+    # Validar acceso a la base de datos
+    if not validar_base_datos_usuario(base_datos):
+        return jsonify({
+            'exito': False,
+            'error': 'No tienes acceso a esta base de datos'
+        }), 403
+
+    try:
+        # Determinar si es administrador para exportar todas las observaciones
+        es_admin = current_user.es_administrador()
+        nombre_usuario = current_user.nombre_usuario
+
+        if es_admin:
+            print(f"[EXPORT DJ] Administrador exportando TODAS las observaciones DJ en BD: {base_datos}")
+        else:
+            print(f"[EXPORT DJ] Exportando observaciones DJ para usuario: {nombre_usuario} en BD: {base_datos}")
+
+        # Generar Excel con la base de datos del usuario
+        servicio = ServicioDJIntegral(base_datos)
+        buffer_excel = servicio.exportar_observaciones_dj_excel(
+            nombre_usuario=nombre_usuario,
+            es_administrador=es_admin
+        )
+
+        if not buffer_excel:
+            return jsonify({
+                'exito': False,
+                'error': 'No se encontraron observaciones DJ para exportar'
+            }), 404
+
+        # Generar nombre del archivo
+        fecha_actual = datetime.now().strftime('%Y%m%d_%H%M%S')
+        if es_admin:
+            nombre_archivo = f'Observaciones_DJ_TODAS_{fecha_actual}.xlsx'
+        else:
+            nombre_archivo = f'Observaciones_DJ_{nombre_usuario}_{fecha_actual}.xlsx'
+
+        print(f"[OK] Excel DJ generado exitosamente: {nombre_archivo}")
+
+        # Enviar archivo
+        return send_file(
+            buffer_excel,
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+            as_attachment=True,
+            download_name=nombre_archivo
+        )
+
+    except Exception as error:
+        print(f"[ERROR] Error exportando observaciones DJ: {error}")
+        import traceback
+        traceback.print_exc()
+        return jsonify({
+            'exito': False,
+            'error': str(error)
+        }), 500
+
+
 @rutas_dinamicas_bp.route('/<base_datos>/consolidado')
 @login_required
 @requiere_modulo('consolidado')
