@@ -21,6 +21,8 @@ class ConfiguracionBase:
     SECRET_KEY = os.getenv('SECRET_KEY') or 'clave-secreta-desarrollo-2024'
 
     # Configuración de sesiones y cookies
+    SERVER_NAME = os.getenv('SERVER_NAME') or None
+    SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') or (f".{SERVER_NAME.split(':')[0]}" if SERVER_NAME else None)
     REMEMBER_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_DURATION = int(os.getenv('REMEMBER_COOKIE_DURATION', 86400))  # 24 horas
