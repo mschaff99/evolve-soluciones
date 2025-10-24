@@ -153,6 +153,32 @@ def registrar_middleware(aplicacion):
     )
 
     @aplicacion.before_request
+    def detectar_y_forzar_limpieza_cookies_duplicadas():
+        """
+        Detecta cookies de sesión duplicadas y fuerza su limpieza.
+        Soluciona un problema común en Chrome detrás de un reverse proxy.
+        """
+        # Solo actuar si la cabecera Cookie está presente
+        if 'Cookie' in request.headers:
+            cookie_header = request.headers['Cookie']
+            # Contar cuántas veces aparece el nombre de nuestra cookie de sesión
+            if cookie_header.count(aplicacion.config['SESSION_COOKIE_NAME'] + '=') > 1:
+                print("[AUTO-FIX] Detectadas cookies de sesión duplicadas. Forzando limpieza.")
+
+                # Crear una respuesta de redirección a la misma URL
+                response = make_response(redirect(request.url))
+                domain = aplicacion.config.get('SESSION_COOKIE_DOMAIN')
+                path = aplicacion.config.get('SESSION_COOKIE_PATH', '/')
+
+                # Forzar la eliminación de todas las cookies problemáticas
+                response.set_cookie(aplicacion.config['SESSION_COOKIE_NAME'], '', expires=0, domain=domain, path=path)
+                response.set_cookie('session', '', expires=0, domain=domain, path=path) # Nombre por defecto de Flask
+
+                # Abortar la petición actual y enviar la respuesta de limpieza
+                from flask import abort
+                abort(response)
+
+    @aplicacion.before_request
     def detectar_y_reparar_cookies_chrome():
         """
         Detecta automáticamente problemas de cookies en Chrome y los repara
