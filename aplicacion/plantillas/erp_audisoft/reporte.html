@@ -1,0 +1,103 @@
+{% extends "diseños/base.html" %}
+
+{% block titulo %}ERP Audisoft - {{ base_datos|upper }}{% endblock %}
+
+{% block estilos %}
+<!-- Incluir estilos específicos del módulo -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='erp_audisoft/styles.css') }}">
+{% endblock %}
+
+{% block contenido %}
+<div class="container">
+  <header class="header">
+    <div class="header-content">
+      <h1><i class="fas fa-chart-line"></i>Procesos Automatizados Vicat</h1>
+    </div>
+  </header>
+
+  <main class="main-content">
+    <div class="controls-section">
+      <div class="form-group">
+        <label for="periodo">
+          <i class="fas fa-calendar-check"></i>
+          Período de Análisis (YYYYMM):
+        </label>
+        <input
+          type="text"
+          id="periodo"
+          placeholder="202505"
+          maxlength="6"
+          pattern="[0-9]{6}"
+          title="Ingrese el período en formato YYYYMM para análisis gerencial"
+        >
+        <button id="generateReport" class="btn-primary">
+          <i class="fas fa-analytics"></i>
+          GENERAR ANÁLISIS
+        </button>
+        <button id="assignData" class="btn-secondary" title="Ejecutar asignación de datos en la base de datos">
+          <i class="fas fa-database"></i>
+          Asignación de Datos Compras
+        </button>
+        <button id="assignPayments" class="btn-secondary" title="Ejecutar asignación de datos de pagos en la base de datos">
+          <i class="fas fa-money-bill-transfer"></i>
+          Asignar datos de pagos
+        </button>
+      </div>
+    </div>
+
+    <div class="loading" id="loading" style="display: none;">
+      <div class="loader"></div>
+      <p> Procesando análisis avanzado...</p>
+    </div>
+
+    <div class="error-message" id="errorMessage" style="display: none;">
+      <i class="fas fa-exclamation-triangle"></i>
+      <span id="errorText"></span>
+    </div>
+
+    <div class="results-section" id="resultsSection" style="display: none;">
+      <div class="results-header">
+        <h2><i class="fas fa-chart-bar"></i> Procesos Automatizados Vicat</h2>
+        <div class="results-info">
+          <span id="periodoInfo"></span>
+          <span id="fechaGeneracion"></span>
+        </div>
+      </div>
+
+      <div class="table-container">
+        <table id="reportTable" class="report-table">
+          <thead id="tableHead">
+            <!-- Se generará dinámicamente -->
+          </thead>
+          <tbody id="tableBody">
+            <!-- Se generará dinámicamente -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Modal de mantenimiento -->
+  <div id="maintenanceModal" class="modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.6); align-items:center; justify-content:center; z-index:2000;">
+    <div class="modal-content" style="background:#111; color:#fff; padding:24px; border-radius:8px; width:360px; max-width:90%; box-shadow:0 10px 30px rgba(0,0,0,0.5); text-align:center;">
+      <h3 style="margin-top:0;">En mantenimiento</h3>
+      <p>La funcionalidad de generación de análisis está en mantenimiento. Por favor inténtalo más tarde.</p>
+      <div style="margin-top:18px; text-align:center;">
+        <button id="closeMaintenance" class="btn-primary" style="padding:8px 16px;">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>🏢 &copy; 2025 Evolve SPA</p>
+  </footer>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='erp_audisoft/script.js') }}"></script>
+{% endblock %}
