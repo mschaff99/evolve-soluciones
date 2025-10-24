@@ -81,8 +81,10 @@ def registrar_blueprints(aplicacion):
     # Importar blueprints existentes
     from aplicacion.controladores.autenticacion import autenticacion_bp
     from aplicacion.controladores.consulta_integral_f29 import consulta_integral_f29_bp
+    from aplicacion.controladores.dj_integral import dj_integral_bp
     from aplicacion.controladores.rutas_dinamicas import rutas_dinamicas_bp
     from aplicacion.controladores.empresas import empresas_bp
+    from aplicacion.controladores.erp_audisoft import erp_audisoft_bp
 
     # Importaciones comentadas - controladores pendientes de crear
     # from aplicacion.controladores.consolidado import consolidado_bp
@@ -95,8 +97,10 @@ def registrar_blueprints(aplicacion):
     # Registrar blueprints existentes
     aplicacion.register_blueprint(autenticacion_bp)
     aplicacion.register_blueprint(consulta_integral_f29_bp)
+    aplicacion.register_blueprint(dj_integral_bp)
     aplicacion.register_blueprint(rutas_dinamicas_bp)
     aplicacion.register_blueprint(empresas_bp)
+    aplicacion.register_blueprint(erp_audisoft_bp)
 
     # Registros comentados - blueprints pendientes de crear
     # aplicacion.register_blueprint(consolidado_bp)
