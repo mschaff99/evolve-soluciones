@@ -56,6 +56,7 @@ class ServicioEmpresas:
                         b.clave as clave_sii,
                         b.fecha_actualizacion as fecha_actualizacion_clave,
                         CASE
+                            WHEN b.estado = 'F' THEN 'Sin configurar'
                             WHEN b.clave IS NOT NULL THEN 'Configurada'
                             ELSE 'Sin configurar'
                         END as estado_credencial
