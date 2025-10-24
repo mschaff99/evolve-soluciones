@@ -267,10 +267,31 @@ def limpiar_sesion():
     response = redirect(url_for('autenticacion.iniciar_sesion'))
     domain = current_app.config.get('SESSION_COOKIE_DOMAIN')
 
-    # Eliminar cookies explícitamente, especificando el dominio
-    response.set_cookie('evolve_session', '', expires=0, path='/', domain=domain)
-    response.set_cookie('session', '', expires=0, path='/', domain=domain)
-    response.set_cookie('csrf_token', '', expires=0, path='/', domain=domain)
+    # Preparar variantes de dominio para eliminar cookies tanto si fueron creadas
+    # como host-only, como con o sin prefijo '.' (varía según cómo el proxy/cliente las haya guardado)
+    domain_variants = []
+    if domain:
+        # Si el dominio empieza con punto, añadir la versión sin punto también
+        if domain.startswith('.'):
+            domain_variants.append(domain)
+            domain_variants.append(domain.lstrip('.'))
+        else:
+            domain_variants.append(domain)
+            domain_variants.append('.' + domain)
+
+    # Intentar eliminar cookies para cada variante de dominio
+    cookie_names = ['evolve_session', 'session', 'csrf_token']
+    for d in domain_variants:
+        for cname in cookie_names:
+            try:
+                response.set_cookie(cname, '', expires=0, path='/', domain=d)
+            except Exception:
+                # No detener el flujo por errores al fijar cookies; seguir con otras variantes
+                pass
+
+    # Además, eliminar sin especificar domain (host-only cookie)
+    for cname in cookie_names:
+        response.set_cookie(cname, '', expires=0, path='/')
 
     # Headers para prevenir caché
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
