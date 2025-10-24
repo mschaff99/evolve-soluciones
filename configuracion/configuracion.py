@@ -20,17 +20,18 @@ class ConfiguracionBase:
     # Configuración básica de Flask
     SECRET_KEY = os.getenv('SECRET_KEY') or 'clave-secreta-desarrollo-2024'
 
-    # Configuración de sesiones y cookies
-    SERVER_NAME = os.getenv('SERVER_NAME') or None
-    SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') or (f".{SERVER_NAME.split(':')[0]}" if SERVER_NAME else None)
-    # Si SERVER_NAME está definido, asumimos que estamos detrás de un proxy con HTTPS
-    # y las cookies deben ser seguras.
-    is_proxied_https = True if SERVER_NAME else False
-    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', str(is_proxied_https)).lower() == 'true'
-    REMEMBER_COOKIE_SECURE = os.getenv('REMEMBER_COOKIE_SECURE', str(is_proxied_https)).lower() == 'true'
+    # Nota: No activamos SERVER_NAME por defecto en la configuración base.
+    # Flask usa SERVER_NAME para hacer binding por host y rutas con subdominios;
+    # si se define y el host de la petición no coincide, Flask puede devolver 404.
+    # Por eso lo definimos sólo en producción (cuando haya un proxy/host estable).
+    SERVER_NAME = None
+    SESSION_COOKIE_DOMAIN = None
+
+    # Configuración de sesiones y cookies (valores por defecto para desarrollo)
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_DURATION = int(os.getenv('REMEMBER_COOKIE_DURATION', 86400))  # 24 horas
     SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    REMEMBER_COOKIE_SECURE = os.getenv('REMEMBER_COOKIE_SECURE', 'False').lower() == 'true'
     SESSION_COOKIE_HTTPONLY = True
     SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', 'Lax')
     SESSION_COOKIE_PATH = '/'
@@ -119,6 +120,11 @@ class ConfiguracionProduccion(ConfiguracionBase):
     TESTING = False
 
     # Configuración estricta de seguridad
+    # SERVER_NAME se define en producción sólo si la variable de entorno está presente.
+    # Esto evita problemas locales de host mismatch al desarrollar.
+    SERVER_NAME = os.getenv('SERVER_NAME') or None
+    SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') or (f".{SERVER_NAME.split(':')[0]}" if SERVER_NAME else None)
+
     SESSION_COOKIE_SECURE = True
     REMEMBER_COOKIE_SECURE = True
     WTF_CSRF_SSL_STRICT = True

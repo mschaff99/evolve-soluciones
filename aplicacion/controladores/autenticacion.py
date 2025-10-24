@@ -310,6 +310,56 @@ def ayuda_navegador():
     return render_template('paginas/ayuda_navegador.html')
 
 
+@autenticacion_bp.route('/forzar-cookies-prueba')
+def forzar_cookies_prueba():
+    """
+    Endpoint temporal de prueba que fuerza el envío de Set-Cookie
+    para varias variantes de dominio (con y sin punto) y host-only.
+    Útil para diagnosticar si el navegador acepta cookies con el dominio
+    configurado por la aplicación / proxy.
+    """
+    # Valor de ejemplo para las cookies (no sensible)
+    prueba_valor = 'test_cookie_val_' + (current_app.config.get('ENV', 'dev'))
+
+    # Construir respuesta simple que indique al usuario qué hacer
+    from flask import make_response
+
+    response = make_response(render_template('paginas/ayuda_navegador.html'))
+    domain = current_app.config.get('SESSION_COOKIE_DOMAIN')
+
+    cookie_names = {
+        'evolve_session': prueba_valor,
+        'csrf_token': prueba_valor + '_csrf_test'
+    }
+
+    domain_variants = []
+    if domain:
+        if domain.startswith('.'):
+            domain_variants.append(domain)
+            domain_variants.append(domain.lstrip('.'))
+        else:
+            domain_variants.append(domain)
+            domain_variants.append('.' + domain)
+
+    # Set-Cookie para cada variante de dominio
+    for d in domain_variants:
+        for cname, cval in cookie_names.items():
+            try:
+                # Usar SameSite=None y Secure para simular producción
+                response.set_cookie(cname, cval, path='/', domain=d, secure=True, samesite='None')
+            except Exception:
+                pass
+
+    # También setear host-only cookies (sin domain)
+    for cname, cval in cookie_names.items():
+        response.set_cookie(cname, cval + '_host', path='/', secure=True, samesite='None')
+
+    # Añadir header informativo
+    response.headers['X-Debug-Note'] = 'Cookies set for domain variants and host-only (temporary diagnostic)'
+
+    return response
+
+
 @autenticacion_bp.route('/registrar', methods=['GET', 'POST'])
 def registrar():
     """Maneja el registro de nuevos usuarios (solo administradores)"""
