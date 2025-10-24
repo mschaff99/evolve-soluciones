@@ -40,9 +40,25 @@ def iniciar_sesion():
         # Registrar diagnóstico de cookies para usuarios con problemas
         diagnostico = detectar_problema_cookies_chrome()
 
+        # Si el detector especializado identifica un problema típico de Chrome,
+        # redirigimos automáticamente al endpoint de limpieza que borra cookies
+        # y regresa al login. Esto evita que el usuario deba limpiar cookies manualmente.
         if diagnostico['problema_detectado']:
             log_diagnostico_cookies()
-            # No mostrar mensajes al usuario, será automático
+            return redirect(url_for('autenticacion.limpiar_sesion'))
+
+        # Medida adicional: si existe una cookie de sesión enviada por el navegador
+        # pero no existe cookie CSRF ni hay sesión válida en servidor, entonces
+        # asumimos que hay cookies corruptas/duplicadas y forzamos limpieza.
+        # Esto cubre escenarios donde el detector específico no haya marcado el problema.
+        has_evolve = 'evolve_session' in request.cookies
+        has_csrf_cookie = 'csrf_token' in request.cookies
+        has_server_session = bool(session.get('session_token'))
+
+        if has_evolve and (not has_csrf_cookie or not has_server_session):
+            # Registrar diagnóstico ligero y limpiar automáticamente
+            log_diagnostico_cookies()
+            return redirect(url_for('autenticacion.limpiar_sesion'))
 
     if request.method == 'POST':
         nombre_usuario = request.form.get('nombre_usuario', '').strip()
