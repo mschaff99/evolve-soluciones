@@ -321,11 +321,38 @@ def forzar_cookies_prueba():
     # Valor de ejemplo para las cookies (no sensible)
     prueba_valor = 'test_cookie_val_' + (current_app.config.get('ENV', 'dev'))
 
-    # Construir respuesta simple que indique al usuario qué hacer
+    # Construir respuesta simple HTML (no depender de plantillas que pueden faltar)
     from flask import make_response
 
-    response = make_response(render_template('paginas/ayuda_navegador.html'))
+    # Preparar variantes de dominio antes de construir la información diagnóstica
     domain = current_app.config.get('SESSION_COOKIE_DOMAIN')
+    domain_variants = []
+    if domain:
+        if domain.startswith('.'):
+            domain_variants.append(domain)
+            domain_variants.append(domain.lstrip('.'))
+        else:
+            domain_variants.append(domain)
+            domain_variants.append('.' + domain)
+
+    # Información diagnóstica que mostraremos en la página
+    info = {
+        'session_cookie_domain_config': domain,
+        'domain_variants': domain_variants,
+        'request_cookies': dict(request.cookies)
+    }
+
+    html = [
+        '<!doctype html><html><head><meta charset="utf-8"><title>Prueba cookies</title></head><body>',
+        '<h2>Prueba de cookies (temporal)</h2>',
+        '<p>Este endpoint intenta fijar cookies de prueba para diagnosticar aceptación por el navegador.</p>',
+        '<h3>Información detectada por el servidor</h3>',
+        f"<pre>{info}</pre>",
+        '<p>Revisa DevTools → Application → Cookies para ver las cookies seteadas.</p>',
+        '</body></html>'
+    ]
+
+    response = make_response('\n'.join(html))
 
     cookie_names = {
         'evolve_session': prueba_valor,
