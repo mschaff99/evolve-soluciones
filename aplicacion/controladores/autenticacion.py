@@ -6,7 +6,7 @@ Maneja todas las rutas relacionadas con autenticación de usuarios:
 inicio de sesión, cierre de sesión y registro.
 """
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash, session, jsonify
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session, jsonify, current_app
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
 
@@ -92,15 +92,40 @@ def iniciar_sesion():
             flash('Credenciales inválidas.', 'error')
             return render_template('paginas/iniciar_sesion.html')
 
-        # Verificar que el usuario esté activo
+        # Verificar que el usuario esté activo en PostgreSQL
         if not usuario.es_activo():
             # Registrar acceso bloqueado
             log_acceso_bloqueado(
                 usuario=nombre_usuario,
-                razon="Cuenta desactivada"
+                razon="Cuenta desactivada en PostgreSQL"
             )
             flash('Tu cuenta está desactivada. Contacta al administrador.', 'error')
             return render_template('paginas/iniciar_sesion.html')
+
+        # NUEVA VALIDACIÓN: Verificar acceso en MySQL (usuarios_acceso)
+        tiene_acceso, auditor, tipo_usuario, mensaje = usuario.validar_acceso_mysql()
+
+        if not tiene_acceso:
+            # Registrar acceso bloqueado por MySQL
+            log_acceso_bloqueado(
+                usuario=nombre_usuario,
+                razon=f"Acceso denegado en MySQL: {mensaje}"
+            )
+            SesionUsuario.registrar_intento_login(
+                nombre_usuario=nombre_usuario,
+                direccion_ip=obtener_ip_real_cliente(),
+                exitoso=False,
+                mensaje=mensaje
+            )
+            flash(f'Acceso denegado: {mensaje}', 'error')
+            return render_template('paginas/iniciar_sesion.html')
+
+        # Si llegamos aquí, el usuario está autorizado en ambos sistemas
+        print(f"INFO: Usuario {nombre_usuario} autorizado - Auditor: {auditor} - Tipo: {tipo_usuario}")
+
+        # Guardar información adicional en la sesión de Flask
+        session['auditor_mysql'] = auditor
+        session['tipo_usuario_mysql'] = tipo_usuario
 
         try:
             # Crear sesión única en la base de datos (cierra sesiones previas)
@@ -240,10 +265,12 @@ def limpiar_sesion():
 
     # Crear respuesta con headers para forzar limpieza de cookies
     response = redirect(url_for('autenticacion.iniciar_sesion'))
+    domain = current_app.config.get('SESSION_COOKIE_DOMAIN')
 
-    # Eliminar cookies explícitamente
-    response.set_cookie('session', '', expires=0, path='/')
-    response.set_cookie('csrf_token', '', expires=0, path='/')
+    # Eliminar cookies explícitamente, especificando el dominio
+    response.set_cookie('evolve_session', '', expires=0, path='/', domain=domain)
+    response.set_cookie('session', '', expires=0, path='/', domain=domain)
+    response.set_cookie('csrf_token', '', expires=0, path='/', domain=domain)
 
     # Headers para prevenir caché
     response.headers['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'

@@ -63,6 +63,77 @@ class Usuario(UserMixin):
         """
         return self.activo
 
+    def validar_acceso_mysql(self):
+        """
+        Valida que el usuario tenga acceso vigente en la base de datos MySQL asignada
+        Verifica la tabla usuarios_acceso: usuario:auditor:tipo_usuario:estado
+
+        Returns:
+            tuple: (tiene_acceso: bool, auditor: str|None, tipo_usuario: str|None, mensaje: str)
+        """
+        try:
+            if not self.base_datos_mysql:
+                return (False, None, None, 'Usuario sin base de datos MySQL asignada')
+
+            from aplicacion.modelos.base_datos import obtener_conexion_local
+            import pymysql
+
+            conexion = obtener_conexion_local(self.base_datos_mysql)
+
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                # Primero verificar si la columna tipo_usuario existe
+                cursor.execute("""
+                    SELECT COLUMN_NAME
+                    FROM INFORMATION_SCHEMA.COLUMNS
+                    WHERE TABLE_SCHEMA = %s
+                    AND TABLE_NAME = 'usuarios_acceso'
+                    AND COLUMN_NAME = 'tipo_usuario'
+                """, (self.base_datos_mysql,))
+
+                tiene_columna_tipo = cursor.fetchone() is not None
+
+                # Construir consulta según disponibilidad de columna
+                if tiene_columna_tipo:
+                    consulta = """
+                        SELECT usuario, auditor, tipo_usuario, estado
+                        FROM usuarios_acceso
+                        WHERE usuario = %s
+                    """
+                else:
+                    consulta = """
+                        SELECT usuario, auditor, estado
+                        FROM usuarios_acceso
+                        WHERE usuario = %s
+                    """
+
+                cursor.execute(consulta, (self.nombre_usuario,))
+                resultado = cursor.fetchone()
+
+            conexion.close()
+
+            if not resultado:
+                return (False, None, None, f'Usuario {self.nombre_usuario} no registrado en base de datos {self.base_datos_mysql}')
+
+            if resultado['estado'] != 'V':
+                tipo_usuario_val = resultado.get('tipo_usuario') if tiene_columna_tipo else None
+                return (False, resultado['auditor'], tipo_usuario_val,
+                       f'Usuario {self.nombre_usuario} no vigente (estado: {resultado["estado"]})')
+
+            # Usuario vigente - retornar información completa
+            tipo_usuario = resultado.get('tipo_usuario', 'usuario') if tiene_columna_tipo else 'usuario'
+            auditor = resultado['auditor']
+
+            if tiene_columna_tipo:
+                mensaje = f'Acceso autorizado - Auditor: {auditor} - Tipo: {tipo_usuario.upper()}'
+            else:
+                mensaje = f'Acceso autorizado - Auditor: {auditor}'
+
+            return (True, auditor, tipo_usuario, mensaje)
+
+        except Exception as e:
+            print(f"ERROR: Error validando acceso MySQL para {self.nombre_usuario}: {e}")
+            return (False, None, None, f'Error validando acceso: {str(e)}')
+
     def actualizar_ultimo_acceso(self):
         """Actualiza la fecha de último acceso del usuario"""
         try:

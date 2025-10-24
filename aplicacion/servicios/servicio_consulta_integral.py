@@ -633,10 +633,10 @@ class ServicioConsultaIntegral:
 
                 print(f"INFO: Ejecutando consulta con RUT: {rut}, Período: {periodo_str}")
                 cursor.execute(consulta_proveedores, (rut, periodo_str))
-                
+
                 # Obtener resultados y convertir fechas a string manualmente
                 resultados = cursor.fetchall()
-                
+
                 # Convertir objetos date a strings
                 for resultado in resultados:
                     if resultado.get('fecha_docto'):
