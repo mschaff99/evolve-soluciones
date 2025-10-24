@@ -23,7 +23,11 @@ class ConfiguracionBase:
     # Configuración de sesiones y cookies
     SERVER_NAME = os.getenv('SERVER_NAME') or None
     SESSION_COOKIE_DOMAIN = os.getenv('SESSION_COOKIE_DOMAIN') or (f".{SERVER_NAME.split(':')[0]}" if SERVER_NAME else None)
-    REMEMBER_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
+    # Si SERVER_NAME está definido, asumimos que estamos detrás de un proxy con HTTPS
+    # y las cookies deben ser seguras.
+    is_proxied_https = True if SERVER_NAME else False
+    SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', str(is_proxied_https)).lower() == 'true'
+    REMEMBER_COOKIE_SECURE = os.getenv('REMEMBER_COOKIE_SECURE', str(is_proxied_https)).lower() == 'true'
     REMEMBER_COOKIE_HTTPONLY = True
     REMEMBER_COOKIE_DURATION = int(os.getenv('REMEMBER_COOKIE_DURATION', 86400))  # 24 horas
     SESSION_COOKIE_SECURE = os.getenv('SESSION_COOKIE_SECURE', 'False').lower() == 'true'
