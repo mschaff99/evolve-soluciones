@@ -6,7 +6,7 @@ Maneja todas las rutas relacionadas con autenticación de usuarios:
 inicio de sesión, cierre de sesión y registro.
 """
 
-from flask import Blueprint, request, render_template, redirect, url_for, flash, session, jsonify, current_app
+from flask import Blueprint, request, render_template, redirect, url_for, flash, session, jsonify, current_app, make_response
 from flask_login import login_user, logout_user, login_required, current_user
 from werkzeug.security import check_password_hash
 
@@ -279,8 +279,9 @@ def limpiar_sesion():
         session.clear()
         flash('Sesión limpiada. Intenta iniciar sesión nuevamente.', 'info')
 
-    # Crear respuesta con headers para forzar limpieza de cookies
-    response = redirect(url_for('autenticacion.iniciar_sesion'))
+    # Crear respuesta renderizando la plantilla de login y adjuntando
+    # los headers para forzar la limpieza de cookies. Esto rompe el bucle de redirección.
+    response = make_response(render_template('paginas/iniciar_sesion.html'))
 
     # Construir lista de variantes de dominio para borrar cookies.
     # Incluimos, en orden de preferencia:
@@ -360,7 +361,6 @@ def forzar_cookies_prueba():
     prueba_valor = 'test_cookie_val_' + (current_app.config.get('ENV', 'dev'))
 
     # Construir respuesta simple HTML (no depender de plantillas que pueden faltar)
-    from flask import make_response
 
     # Preparar variantes de dominio antes de construir la información diagnóstica
     domain = current_app.config.get('SESSION_COOKIE_DOMAIN')
