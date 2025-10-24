@@ -45,7 +45,7 @@ def iniciar_sesion():
         # y regresa al login. Esto evita que el usuario deba limpiar cookies manualmente.
         if diagnostico['problema_detectado']:
             log_diagnostico_cookies()
-            return redirect(url_for('autenticacion.limpiar_sesion'))
+            return redirect(url_for('autenticacion.sesion'))
 
         # Medida adicional: si existe una cookie de sesión enviada por el navegador
         # pero no existe cookie CSRF ni hay sesión válida en servidor, entonces
@@ -58,7 +58,7 @@ def iniciar_sesion():
         if has_evolve and (not has_csrf_cookie or not has_server_session):
             # Registrar diagnóstico ligero y limpiar automáticamente
             log_diagnostico_cookies()
-            return redirect(url_for('autenticacion.limpiar_sesion'))
+            return redirect(url_for('autenticacion.sesion'))
 
     if request.method == 'POST':
         nombre_usuario = request.form.get('nombre_usuario', '').strip()
@@ -240,8 +240,8 @@ def cerrar_sesion():
     return redirect(url_for('autenticacion.iniciar_sesion'))
 
 
-@autenticacion_bp.route('/limpiar-sesion')
-def limpiar_sesion():
+@autenticacion_bp.route('/sesion')
+def sesion():
     """
     Limpia completamente la sesión del navegador
     Útil cuando hay cookies corruptas o problemas de CSRF
