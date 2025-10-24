@@ -281,23 +281,45 @@ def limpiar_sesion():
 
     # Crear respuesta con headers para forzar limpieza de cookies
     response = redirect(url_for('autenticacion.iniciar_sesion'))
-    domain = current_app.config.get('SESSION_COOKIE_DOMAIN')
 
-    # Preparar variantes de dominio para eliminar cookies tanto si fueron creadas
-    # como host-only, como con o sin prefijo '.' (varía según cómo el proxy/cliente las haya guardado)
+    # Construir lista de variantes de dominio para borrar cookies.
+    # Incluimos, en orden de preferencia:
+    #  - SESSION_COOKIE_DOMAIN configurado (con y sin punto)
+    #  - el host actual (request.host sin puerto) y su variante con '.'
     domain_variants = []
-    if domain:
-        # Si el dominio empieza con punto, añadir la versión sin punto también
-        if domain.startswith('.'):
-            domain_variants.append(domain)
-            domain_variants.append(domain.lstrip('.'))
-        else:
-            domain_variants.append(domain)
-            domain_variants.append('.' + domain)
 
-    # Intentar eliminar cookies para cada variante de dominio
-    cookie_names = ['evolve_session', 'session', 'csrf_token']
+    configured_domain = current_app.config.get('SESSION_COOKIE_DOMAIN')
+    if configured_domain:
+        if configured_domain.startswith('.'):
+            domain_variants.extend([configured_domain, configured_domain.lstrip('.')])
+        else:
+            domain_variants.extend([configured_domain, '.' + configured_domain])
+
+    # Añadir host actual (por ejemplo portal.evolveasesores.cl)
+    try:
+        host = request.host.split(':')[0]
+    except Exception:
+        host = None
+
+    if host:
+        # Evitar duplicados
+        if host not in domain_variants:
+            domain_variants.append(host)
+        if ('.' + host) not in domain_variants:
+            domain_variants.append('.' + host)
+
+    # Asegurar unicidad y orden consistente
+    seen = set()
+    domain_variants_unique = []
     for d in domain_variants:
+        if d and d not in seen:
+            seen.add(d)
+            domain_variants_unique.append(d)
+
+    cookie_names = ['evolve_session', 'session', 'csrf_token']
+
+    # Intentar eliminar cookies para cada variante de dominio (si existe)
+    for d in domain_variants_unique:
         for cname in cookie_names:
             try:
                 response.set_cookie(cname, '', expires=0, path='/', domain=d)
