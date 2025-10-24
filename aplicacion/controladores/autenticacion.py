@@ -263,21 +263,13 @@ def limpiar_sesion():
         # Limpiar toda la sesión de Flask
         session.clear()
 
-        # Mensajes específicos según el diagnóstico
-        if diagnostico['problema_detectado']:
-            flash(' Problema detectado: Cookies corruptas en Chrome/Edge.', 'warning')
-            flash('Sesión limpiada exitosamente. Intenta iniciar sesión nuevamente.', 'success')
-            flash(' Si el problema persiste:', 'info')
-            flash('1. Presiona Ctrl+Shift+Delete → Eliminar cookies del sitio', 'info')
-            flash('2. O usa modo incógnito temporalmente', 'info')
-        else:
-            flash('Tu sesión ha sido limpiada exitosamente. Ahora puedes iniciar sesión nuevamente.', 'success')
+        # No se muestran mensajes flash para que la limpieza sea transparente para el usuario.
+        pass
 
     except Exception as e:
         print(f"Error limpiando sesión: {e}")
         # Limpiar de todas formas
         session.clear()
-        flash('Sesión limpiada. Intenta iniciar sesión nuevamente.', 'info')
 
     # Crear respuesta renderizando la plantilla de login y adjuntando
     # los headers para forzar la limpieza de cookies. Esto rompe el bucle de redirección.
