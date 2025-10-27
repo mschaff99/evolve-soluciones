@@ -68,10 +68,14 @@ def nueva_empresa(base_datos):
 
     URL: /<base_datos>/empresas/nueva
     """
+    servicio = ServicioEmpresas(base_datos)
+    auditores = servicio.obtener_auditores_activos()
+
     return render_template(
         'paginas/empresas/formulario.html',
         base_datos=base_datos,
         empresa=None,
+        auditores=auditores,
         accion='crear'
     )
 
@@ -88,6 +92,7 @@ def editar_empresa(base_datos, rut):
     try:
         servicio = ServicioEmpresas(base_datos)
         empresa = servicio.obtener_empresa_por_rut(rut)
+        auditores = servicio.obtener_auditores_activos()
 
         if not empresa:
             flash(f'Empresa con RUT {rut} no encontrada', 'error')
@@ -97,6 +102,7 @@ def editar_empresa(base_datos, rut):
             'paginas/empresas/formulario.html',
             base_datos=base_datos,
             empresa=empresa,
+            auditores=auditores,
             accion='editar'
         )
 

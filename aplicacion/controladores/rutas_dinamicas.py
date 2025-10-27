@@ -4,10 +4,12 @@ from datetime import datetime
 from aplicacion.utilidades.filtros_empresas import obtener_empresas_usuario
 from aplicacion.servicios.servicio_consulta_integral import ServicioConsultaIntegral
 from aplicacion.servicios.servicio_dj_integral import ServicioDJIntegral
+from aplicacion.servicios.servicio_empresas import ServicioEmpresas
 from aplicacion.utilidades.decoradores import requiere_modulo
 
 # Blueprint para rutas dinámicas
 rutas_dinamicas_bp = Blueprint('rutas_dinamicas', __name__)
+
 
 
 def validar_base_datos_usuario(base_datos):
@@ -62,12 +64,21 @@ def inicio_base_datos(base_datos):
             auditor = empresa.get('auditor', 'Sin asignar')
             empresas_por_auditor[auditor] = empresas_por_auditor.get(auditor, 0) + 1
 
+        # Obtener resumen de observaciones F29
+        servicio_empresas = ServicioEmpresas(base_datos)
+        resumen_obs_f29 = servicio_empresas.obtener_resumen_observaciones_por_auditor(current_user)
+
+        # Obtener resumen de observaciones DJ
+        resumen_obs_dj = servicio_empresas.obtener_resumen_observaciones_dj_por_auditor(current_user)
+
         return render_template('paginas/inicio.html',
                              base_datos=base_datos,
                              total_empresas=total_empresas,
                              empresas_por_auditor=empresas_por_auditor,
                              empresas=empresas[:10],  # Mostrar solo las primeras 10
-                             modulos_habilitados=modulos_dict)  # Pasar módulos al template
+                             modulos_habilitados=modulos_dict,
+                             resumen_obs_f29=resumen_obs_f29,
+                             resumen_obs_dj=resumen_obs_dj)
 
     except Exception as e:
         print(f"Error cargando página de inicio para base {base_datos}: {e}")

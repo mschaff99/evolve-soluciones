@@ -287,16 +287,136 @@
         </div>
 
         <div class="col-md-6">
-            <div class="dashboard-card">
-                <div class="dashboard-card-header">
-                    <h5 class="dashboard-card-title">
-                        <i class="fas fa-chart-pie me-2"></i>
-                        Resumen
-                    </h5>
+            <div id="dashboardCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="10000">
+                <div class="carousel-inner">
+                    <!-- Slide 1: Resumen Observaciones F29 -->
+                    <div class="carousel-item active">
+                        <div class="dashboard-card">
+                            <div class="dashboard-card-header">
+                                <h5 class="dashboard-card-title">
+                                    <i class="fas fa-chart-pie me-2"></i>
+                                    Resumen Observaciones F29
+                                </h5>
+                            </div>
+                            <div class="dashboard-card-body">
+                                {% if resumen_obs_f29 and resumen_obs_f29.rows %}
+                                    <div class="table-responsive">
+                                        <table class="dashboard-table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    {% for header in resumen_obs_f29.headers %}
+                                                        <th class="text-center">
+                                                            {% if not loop.first %}<i class="fas fa-user-circle me-2" style="color: #7A007B;"></i>{% endif %}
+                                                            {{ header }}
+                                                        </th>
+                                                    {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for row in resumen_obs_f29.rows %}
+                                                <tr>
+                                                    {% for header in resumen_obs_f29.headers %}
+                                                        {% if loop.first %}
+                                                            <td class="text-center">{{ row[header] if header in row else row['codigo'] }}</td>
+                                                        {% else %}
+                                                            {% set value = row.get(header, row.get('`' + header + '`', 0)) %}
+                                                            <td class="text-center">{{ '-' if value == 0 else value }}</td>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr style="border-top: 2px solid var(--border-color); font-weight: bold;">
+                                                    {% for header in resumen_obs_f29.headers %}
+                                                        <td class="text-center">
+                                                            {% set total_value = resumen_obs_f29.totals.get(header, 0) %}
+                                                            {% if header == 'Código' %}
+                                                                {{ total_value }}
+                                                            {% else %}
+                                                                <span class="table-badge">{{ '-' if total_value == 0 else total_value }}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted-custom">No hay datos de observaciones F29 para mostrar.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Slide 2: Resumen Observaciones DJ -->
+                    <div class="carousel-item">
+                        <div class="dashboard-card">
+                            <div class="dashboard-card-header">
+                                <h5 class="dashboard-card-title">
+                                    <i class="fas fa-file-contract me-2"></i>
+                                    Resumen Observaciones DJ
+                                </h5>
+                            </div>
+                            <div class="dashboard-card-body">
+                                {% if resumen_obs_dj and resumen_obs_dj.rows %}
+                                    <div class="table-responsive">
+                                        <table class="dashboard-table table-sm">
+                                            <thead>
+                                                <tr>
+                                                    {% for header in resumen_obs_dj.headers %}
+                                                        <th class="text-center">
+                                                            {% if not loop.first %}<i class="fas fa-user-circle me-2" style="color: #7A007B;"></i>{% endif %}
+                                                            {{ header }}
+                                                        </th>
+                                                    {% endfor %}
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                {% for row in resumen_obs_dj.rows %}
+                                                <tr>
+                                                    {% for header in resumen_obs_dj.headers %}
+                                                        {% if loop.first %}
+                                                            <td class="text-center">{{ row[header] if header in row else row['codigo'] }}</td>
+                                                        {% else %}
+                                                            {% set value = row.get(header, row.get('`' + header + '`', 0)) %}
+                                                            <td class="text-center">{{ '-' if value == 0 else value }}</td>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </tr>
+                                                {% endfor %}
+                                            </tbody>
+                                            <tfoot>
+                                                <tr style="border-top: 2px solid var(--border-color); font-weight: bold;">
+                                                    {% for header in resumen_obs_dj.headers %}
+                                                        <td class="text-center">
+                                                            {% set total_value = resumen_obs_dj.totals.get(header, 0) %}
+                                                            {% if header == 'Código' %}
+                                                                {{ total_value }}
+                                                            {% else %}
+                                                                <span class="table-badge">{{ '-' if total_value == 0 else total_value }}</span>
+                                                            {% endif %}
+                                                        </td>
+                                                    {% endfor %}
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted-custom">No hay datos de observaciones DJ para mostrar.</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="dashboard-card-body">
-                    <p class="text-muted-custom">Espacio disponible para futuras funcionalidades</p>
-                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#dashboardCarousel" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#dashboardCarousel" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
             </div>
         </div>
     </div>

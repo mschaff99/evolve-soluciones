@@ -535,3 +535,232 @@ class ServicioEmpresas:
         finally:
             if conexion:
                 conexion.close()
+
+    def obtener_auditores_activos(self) -> List[str]:
+        """
+        Obtiene una lista de auditores únicos con estado 'V' (Vigente)
+        desde la tabla de usuarios_acceso en la BD MySQL principal.
+
+        Returns:
+            List[str]: Lista de nombres de auditores activos.
+        """
+        conexion = None
+        try:
+            # La tabla usuarios_acceso está en la BD principal de la app (MySQL)
+            conexion = self.obtener_conexion()
+
+            with conexion.cursor() as cursor:
+                # Usar la tabla y columna correctas según tu CREATE TABLE
+                consulta = """
+                    SELECT DISTINCT auditor
+                    FROM usuarios_acceso
+                    WHERE estado = 'V'
+                    ORDER BY auditor ASC
+                """
+                cursor.execute(consulta)
+                resultados = cursor.fetchall()
+
+                # DEBUG: Imprimir cuántos auditores se encontraron
+                print(f"DEBUG: Se encontraron {len(resultados)} auditores activos.")
+
+                # Devolver una lista de nombres de auditores
+                return [fila[0] for fila in resultados if fila[0]]
+
+        except Exception as e:
+            print(f"Error obteniendo auditores activos desde MySQL: {e}")
+            import traceback
+            traceback.print_exc()
+            return []
+        finally:
+            if conexion:
+                conexion.close()
+
+    def obtener_resumen_observaciones_por_auditor(self, usuario_actual) -> Dict[str, Any]:
+        """
+        Obtiene un resumen de observaciones por código, pivotando por auditor.
+        - Los administradores ven todos los auditores.
+        - Los usuarios no administradores solo ven sus propios datos.
+
+        Args:
+            usuario_actual: Objeto del usuario que realiza la solicitud.
+
+        Returns:
+            Dict: Un diccionario con 'headers', 'rows' y 'totals'.
+        """
+        conexion = None
+        try:
+            conexion = self.obtener_conexion()
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                headers = []
+                rows = []
+                totals = {}
+
+                if usuario_actual.es_administrador():
+                    # Lógica para administradores: pivot dinámico
+                    # 1. Obtener lista de auditores para las columnas
+                    cursor.execute("""
+                        SELECT DISTINCT COALESCE(c.auditor, '(Sin Asignar)') as auditor
+                        FROM observaciones a
+                        LEFT JOIN consulta_integral b ON a.consulta_id = b.id
+                        LEFT JOIN empresas c ON b.rut = c.run_rut
+                        ORDER BY 1
+                    """)
+                    auditores = [row['auditor'] for row in cursor.fetchall()]
+                    headers = ['Código'] + auditores
+
+                    # 2. Construir la parte dinámica de la consulta
+                    columnas_pivot = ", ".join([
+                        f"SUM(CASE WHEN COALESCE(c.auditor, '(Sin Asignar)') = '{auditor}' THEN 1 ELSE 0 END) AS `{auditor}`"
+                        for auditor in auditores
+                    ])
+
+                    # 3. Construir y ejecutar la consulta final
+                    consulta_final = f"""
+                        SELECT
+                            a.codigo,
+                            {columnas_pivot}
+                        FROM observaciones a
+                        LEFT JOIN consulta_integral b ON a.consulta_id = b.id
+                        LEFT JOIN empresas c ON b.rut = c.run_rut
+                        GROUP BY a.codigo
+                        ORDER BY a.codigo
+                    """
+                    cursor.execute(consulta_final)
+                    rows = cursor.fetchall()
+
+                else:
+                    # Lógica para no administradores: solo sus datos
+                    auditor_actual = usuario_actual.nombre_usuario
+                    headers = ['Código', auditor_actual]
+
+                    consulta = """
+                        SELECT
+                            a.codigo,
+                            COUNT(a.id) as total_auditor
+                        FROM observaciones a
+                        LEFT JOIN consulta_integral b ON a.consulta_id = b.id
+                        LEFT JOIN empresas c ON b.rut = c.run_rut
+                        WHERE c.auditor = %s
+                        GROUP BY a.codigo
+                        ORDER BY a.codigo
+                    """
+                    cursor.execute(consulta, (auditor_actual,))
+                    resultados = cursor.fetchall()
+                    # Adaptar el formato para que coincida con la estructura de la plantilla
+                    for row in resultados:
+                        rows.append({
+                            'codigo': row['codigo'],
+                            f'`{auditor_actual}`': row['total_auditor']
+                        })
+
+                # Calcular la fila de totales
+                if rows:
+                    totals['Código'] = 'Total'
+                    for header in headers:
+                        if header != 'Código':
+                            col_name_in_dict = header
+                            if f'`{header}`' in rows[0]:
+                                col_name_in_dict = f'`{header}`'
+
+                            total_col = sum(row.get(col_name_in_dict, 0) for row in rows)
+                            totals[header] = total_col
+
+                return {'headers': headers, 'rows': rows, 'totals': totals}
+
+        except Exception as e:
+            print(f"Error obteniendo resumen de observaciones: {e}")
+            import traceback
+            traceback.print_exc()
+            return {'headers': [], 'rows': [], 'totals': {}}
+        finally:
+            if conexion:
+                conexion.close()
+
+    def obtener_resumen_observaciones_dj_por_auditor(self, usuario_actual) -> Dict[str, Any]:
+        """
+        Obtiene un resumen de observaciones de DJ por código, pivotando por auditor.
+        - Los administradores ven todos los auditores.
+        - Los usuarios no administradores solo ven sus propios datos.
+
+        Args:
+            usuario_actual: Objeto del usuario que realiza la solicitud.
+
+        Returns:
+            Dict: Un diccionario con 'headers', 'rows' y 'totals'.
+        """
+        conexion = None
+        try:
+            conexion = self.obtener_conexion()
+            with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                headers = []
+                rows = []
+                totals = {}
+
+                if usuario_actual.es_administrador():
+                    # Lógica para administradores: pivot dinámico
+                    cursor.execute("""
+                        SELECT DISTINCT COALESCE(c.auditor, '(Sin Asignar)') as auditor
+                        FROM dj_integral_observaciones a
+                        LEFT JOIN empresas c ON a.rut = c.run_rut
+                        ORDER BY 1
+                    """)
+                    auditores = [row['auditor'] for row in cursor.fetchall()]
+                    headers = ['Código'] + auditores
+
+                    columnas_pivot = ", ".join([
+                        f"COUNT(CASE WHEN COALESCE(c.auditor, '(Sin Asignar)') = '{auditor}' THEN a.observacion_code END) AS `{auditor}`"
+                        for auditor in auditores
+                    ])
+
+                    consulta_final = f"""
+                        SELECT
+                            a.observacion_code as codigo,
+                            {columnas_pivot}
+                        FROM dj_integral_observaciones a
+                        LEFT JOIN empresas c ON a.rut = c.run_rut
+                        GROUP BY a.observacion_code
+                        ORDER BY a.observacion_code
+                    """
+                    cursor.execute(consulta_final)
+                    rows = cursor.fetchall()
+
+                else:
+                    # Lógica para no administradores
+                    auditor_actual = usuario_actual.nombre_usuario
+                    headers = ['Código', auditor_actual]
+
+                    consulta = """
+                        SELECT
+                            a.observacion_code as codigo,
+                            COUNT(a.observacion_code) as total_auditor
+                        FROM dj_integral_observaciones a
+                        LEFT JOIN empresas c ON a.rut = c.run_rut
+                        WHERE c.auditor = %s
+                        GROUP BY a.observacion_code
+                        ORDER BY a.observacion_code
+                    """
+                    cursor.execute(consulta, (auditor_actual,))
+                    resultados = cursor.fetchall()
+                    for row in resultados:
+                        rows.append({
+                            'codigo': row['codigo'],
+                            f'`{auditor_actual}`': row['total_auditor']
+                        })
+
+                # Calcular totales
+                if rows:
+                    totals['Código'] = 'Total'
+                    for header in headers:
+                        if header != 'Código':
+                            col_name_in_dict = f'`{header}`' if f'`{header}`' in rows[0] else header
+                            total_col = sum(row.get(col_name_in_dict, 0) for row in rows)
+                            totals[header] = total_col
+
+                return {'headers': headers, 'rows': rows, 'totals': totals}
+
+        except Exception as e:
+            print(f"Error obteniendo resumen de observaciones DJ: {e}")
+            return {'headers': [], 'rows': [], 'totals': {}}
+        finally:
+            if conexion:
+                conexion.close()
