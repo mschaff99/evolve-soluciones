@@ -32,7 +32,7 @@
 
     <!-- Estadísticas Rápidas -->
     <div class="row g-4 mb-4">
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -47,7 +47,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -62,7 +62,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
+        <div class="col-md-3">
             <div class="stat-card">
                 <div class="stat-card-body">
                     <div class="d-flex justify-content-between align-items-center">
@@ -77,9 +77,22 @@
                 </div>
             </div>
         </div>
-    </div>
-
-    <!-- Buscador y Filtros -->
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-card-body">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div class="stat-info">
+                            <div class="stat-value">{{ estadisticas.no_configuradas }}</div>
+                            <div class="stat-label">No Configurada</div>
+                        </div>
+                        <div class="stat-icon" style="background: #F59E0B;">
+                            <i class="fas fa-cogs"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>    <!-- Buscador y Filtros -->
     <div class="dashboard-card mb-4">
         <div class="dashboard-card-body">
             <form method="GET" action="/{{ base_datos }}/empresas" class="row g-3 align-items-center">

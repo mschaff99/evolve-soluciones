@@ -230,6 +230,10 @@
                                     {% if datos_empresa.usuario %}
                                     <small class="text-muted">
                                         <i class="fas fa-user me-1"></i>{{ datos_empresa.usuario }}
+                                        {% if datos_empresa.ultima_fecha_proceso %}
+                                            <span class="mx-2">|</span>
+                                            <i class="fas fa-calendar-check me-1"></i>{{ datos_empresa.ultima_fecha_proceso.strftime('%d-%m-%Y') }}
+                                        {% endif %}
                                     </small>
                                     {% endif %}
                                 </div>

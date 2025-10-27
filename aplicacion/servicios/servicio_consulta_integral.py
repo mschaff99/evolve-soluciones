@@ -80,6 +80,7 @@ class ServicioConsultaIntegral:
                     e.empresa as nombre,
                     e.auditor as usuario,
                     e.grupo as grupo,
+                    fp.ultima_fecha_proceso,
                     ci.id as consulta_id,
                     ci.periodo,
                     ci.tabla_resultados,
@@ -89,6 +90,12 @@ class ServicioConsultaIntegral:
                     GROUP_CONCAT(DISTINCT CONCAT(obs_codigos.codigo, ':', COALESCE(obs_codigos.descripcion, '')) ORDER BY obs_codigos.codigo SEPARATOR '|') as observaciones_detalle
                 FROM empresas e
                 LEFT JOIN {self.base_datos}.consulta_integral ci ON e.run_rut = ci.rut
+                LEFT JOIN (
+                    SELECT rut, MAX(fechaproceso) as ultima_fecha_proceso
+                    FROM {self.base_datos}.consulta_integral
+                    WHERE estado = 'V'
+                    GROUP BY rut
+                ) fp ON e.run_rut = fp.rut
                 LEFT JOIN (
                     SELECT consulta_id, COUNT(*) as total_observaciones
                     FROM {self.base_datos}.observaciones
@@ -127,7 +134,7 @@ class ServicioConsultaIntegral:
                 consulta_base += " AND YEAR(STR_TO_DATE(CONCAT(ci.periodo, '01'), '%Y%m%d')) <= %s"
                 parametros.append(filtros['año_hasta'])
 
-            consulta_base += " GROUP BY e.run_rut, e.empresa, e.auditor, e.grupo, ci.id, ci.periodo, ci.tabla_resultados, ci.estado, obs_count.total_observaciones"
+            consulta_base += " GROUP BY e.run_rut, e.empresa, e.auditor, e.grupo, fp.ultima_fecha_proceso, ci.id, ci.periodo, ci.tabla_resultados, ci.estado, obs_count.total_observaciones"
             consulta_base += " ORDER BY e.empresa, ci.periodo"
 
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -146,6 +153,7 @@ class ServicioConsultaIntegral:
                         'nombre': fila['nombre'],
                         'usuario': fila['usuario'],
                         'grupo': fila['grupo'],
+                        'ultima_fecha_proceso': fila['ultima_fecha_proceso'],
                         'periodos': {}
                     }
 

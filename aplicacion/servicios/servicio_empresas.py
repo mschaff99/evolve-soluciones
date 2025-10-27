@@ -497,6 +497,15 @@ class ServicioEmpresas:
                 # Empresas sin credenciales
                 sin_credenciales = total_empresas - con_credenciales
 
+                # Empresas no configuradas (estado = 'F' o sin credencial)
+                cursor.execute("""
+                    SELECT COUNT(a.run_rut) as total
+                    FROM empresas a
+                    LEFT JOIN credenciales_sii b ON a.run_rut = b.rut
+                    WHERE b.estado = 'F' OR b.rut IS NULL
+                """)
+                no_configuradas = cursor.fetchone()['total']  # type: ignore
+
                 # Empresas por auditor
                 cursor.execute("""
                     SELECT auditor, COUNT(*) as cantidad
@@ -510,6 +519,7 @@ class ServicioEmpresas:
                     'total_empresas': total_empresas,
                     'con_credenciales': con_credenciales,
                     'sin_credenciales': sin_credenciales,
+                    'no_configuradas': no_configuradas,
                     'por_auditor': por_auditor
                 }
 
@@ -519,6 +529,7 @@ class ServicioEmpresas:
                 'total_empresas': 0,
                 'con_credenciales': 0,
                 'sin_credenciales': 0,
+                'no_configuradas': 0,
                 'por_auditor': []
             }
         finally:
