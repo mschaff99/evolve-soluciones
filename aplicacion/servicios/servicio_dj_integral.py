@@ -108,6 +108,24 @@ class ServicioDJIntegral:
                 cursor.execute(consulta_base, parametros)
                 empresas = cursor.fetchall()
 
+            # Subconsulta para obtener la última fecha de consulta por RUT
+            ruts_empresas = [e['rut'] for e in empresas]
+            fechas_consulta = {}
+            if ruts_empresas:
+                # Usamos un placeholder %s para cada RUT para seguridad
+                placeholders = ', '.join(['%s'] * len(ruts_empresas))
+                consulta_fechas = f"""
+                    SELECT rut, MAX(DATE(fecha_consulta)) as ultima_fecha
+                    FROM dj_integral
+                    WHERE rut IN ({placeholders}) AND estado = 'T'
+                    GROUP BY rut
+                """
+                with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
+                    cursor.execute(consulta_fechas, ruts_empresas)
+                    resultados_fechas = cursor.fetchall()
+                    for fila in resultados_fechas:
+                        fechas_consulta[fila['rut']] = fila['ultima_fecha']
+
             # Agrupar resultados por empresa con DJ por año
             empresas_agrupadas = {}
             años_disponibles = set()
@@ -125,6 +143,7 @@ class ServicioDJIntegral:
                     'nombre': empresa['nombre'],
                     'usuario': empresa['usuario'],
                     'grupo': empresa['grupo'],
+                    'ultima_fecha_consulta': fechas_consulta.get(rut),  # Añadir fecha aquí
                     'dj_por_anio': {},
                     'total_observadas': 0  # Inicializar contador
                 }

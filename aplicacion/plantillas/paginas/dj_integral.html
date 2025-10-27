@@ -186,6 +186,12 @@
                                     {% if datos_empresa.usuario %}
                                     <small class="text-muted">
                                         <i class="fas fa-user me-1"></i>{{ datos_empresa.usuario }}
+                                        {% if datos_empresa.ultima_fecha_consulta %}
+                                            <span class="ms-2" title="Última consulta">
+                                                <i class="fas fa-calendar-alt me-1 text-primary"></i>
+                                                {{ datos_empresa.ultima_fecha_consulta.strftime('%d-%m-%Y') }}
+                                            </span>
+                                        {% endif %}
                                     </small>
                                     {% endif %}
                                 </div>
