@@ -85,6 +85,7 @@ def registrar_blueprints(aplicacion):
     from aplicacion.controladores.rutas_dinamicas import rutas_dinamicas_bp
     from aplicacion.controladores.empresas import empresas_bp
     from aplicacion.controladores.erp_audisoft import erp_audisoft_bp
+    from aplicacion.controladores.situacion_tributaria import situacion_tributaria_bp
 
     # Importaciones comentadas - controladores pendientes de crear
     # from aplicacion.controladores.consolidado import consolidado_bp
@@ -101,6 +102,7 @@ def registrar_blueprints(aplicacion):
     aplicacion.register_blueprint(rutas_dinamicas_bp)
     aplicacion.register_blueprint(empresas_bp)
     aplicacion.register_blueprint(erp_audisoft_bp)
+    aplicacion.register_blueprint(situacion_tributaria_bp)
 
     # Registros comentados - blueprints pendientes de crear
     # aplicacion.register_blueprint(consolidado_bp)

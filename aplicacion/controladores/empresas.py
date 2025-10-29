@@ -9,6 +9,7 @@ from flask import Blueprint, render_template, request, jsonify, redirect, url_fo
 from flask_login import login_required, current_user
 from aplicacion.servicios.servicio_empresas import ServicioEmpresas
 from aplicacion.utilidades.decoradores import requiere_modulo
+from aplicacion.servicios.servicio_integracion_gci import ejecutar_automatico_opciones_1_y_3
 
 # Crear blueprint sin url_prefix (se manejará en cada ruta)
 empresas_bp = Blueprint('empresas', __name__)
@@ -231,9 +232,16 @@ def api_guardar_credencial(base_datos, rut):
         exito = servicio.guardar_credencial_sii(rut, clave)
 
         if exito:
+            try:
+                # Disparar en segundo plano las opciones 1 y 3 (no bloquear respuesta)
+                ejecutar_automatico_opciones_1_y_3(rut, base_datos)
+            except Exception:
+                # No interrumpir la respuesta al cliente por errores en el disparo
+                pass
+
             return jsonify({
                 'exito': True,
-                'mensaje': 'Credencial SII guardada exitosamente'
+                'mensaje': 'Credencial SII guardada. Opciones 1 y 3 ejecutándose en segundo plano.'
             })
         else:
             return jsonify({

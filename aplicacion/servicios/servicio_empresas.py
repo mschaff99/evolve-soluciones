@@ -321,6 +321,7 @@ class ServicioEmpresas:
                     consulta = """
                         UPDATE credenciales_sii
                         SET clave = %s,
+                            estado = 'V',
                             fecha_actualizacion = CURRENT_TIMESTAMP
                         WHERE rut = %s
                     """
@@ -329,8 +330,8 @@ class ServicioEmpresas:
                 else:
                     # PASO 2: Insertar
                     consulta = """
-                        INSERT INTO credenciales_sii (rut, clave)
-                        VALUES (%s, %s)
+                        INSERT INTO credenciales_sii (rut, clave, estado)
+                        VALUES (%s, %s, 'V')
                     """
                     cursor.execute(consulta, [rut, clave_encriptada])
                     print(f"INFO: Credencial SII para {rut} creada en base de datos")

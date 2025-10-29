@@ -124,6 +124,19 @@
                         </div>
                         {% endif %}
 
+                        {# Situación Tributaria #}
+                        {% if 'situacion_tributaria' in modulos_habilitados %}
+                        <div class="col-md-3">
+                            <a href="/{{ base_datos }}/situacion-tributaria" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: #0D6EFD;">
+                                    <i class="fas fa-balance-scale"></i>
+                                </div>
+                                <span class="quick-access-text">Situación Tributaria</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        {% endif %}
+
                         <!-- Consolidado -->
                         {% if 'consolidado' in modulos_habilitados %}
                         <div class="col-md-3">

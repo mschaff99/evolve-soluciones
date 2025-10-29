@@ -1,0 +1,94 @@
+{% extends 'diseños/base.html' %}
+
+{% block titulo %}Situación Tributaria{% endblock %}
+
+{% block contenido %}
+<div class="container mt-3">
+  <h1 class="h4 mb-3">Situación Tributaria</h1>
+
+  <form id="formBusqueda" class="row g-2 mb-3" method="get">
+    <div class="col-sm-4">
+      <label for="rut" class="form-label">RUT Empresa</label>
+      <input type="text" class="form-control" id="rut" name="rut" value="{{ rut_busqueda or '' }}" placeholder="12.345.678-9" required>
+    </div>
+    <div class="col-sm-3 align-self-end">
+      <button type="submit" class="btn btn-primary">Buscar</button>
+    </div>
+  </form>
+
+  {% if datos %}
+  <div class="card mb-3">
+    <div class="card-body">
+      <h5 class="card-title mb-2">{{ datos.empresa.nombre if datos.empresa else 'Empresa' }} ({{ datos.rut }})</h5>
+      <div class="text-muted small">BD: {{ base_datos }}</div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-6">
+      <div class="card mb-3">
+        <div class="card-header">F29 (Consulta Integral)</div>
+        <div class="card-body">
+          <div class="mb-2 small text-muted">Última fecha proceso: {{ datos.f29.ultima_fecha_proceso or '-' }}</div>
+          <div class="mb-2">Total observaciones: <strong>{{ datos.f29.total_observaciones }}</strong></div>
+          <div class="table-responsive">
+            <table class="table table-sm table-striped align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Período</th>
+                  <th>Resultado</th>
+                  <th>Estado</th>
+                  <th>Obs.</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for p in datos.f29.periodos %}
+                <tr>
+                  <td>{{ p.periodo }}</td>
+                  <td>{{ p.resultado }}</td>
+                  <td>{{ p.estado }}</td>
+                  <td>{{ p.observaciones }}</td>
+                </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-6">
+      <div class="card mb-3">
+        <div class="card-header">DJ Integral</div>
+        <div class="card-body">
+          <div class="mb-2 small text-muted">Última consulta: {{ datos.dj.ultima_fecha_consulta or '-' }}</div>
+          <div class="mb-2">Total DJ observadas: <strong>{{ datos.dj.total_observadas }}</strong></div>
+          {% if datos.dj.resumen_anual %}
+          {% for anio, lista in datos.dj.resumen_anual.items() %}
+          <div class="mb-2">
+            <div class="fw-semibold">{{ anio }}</div>
+            <ul class="mb-2">
+              {% for dj in lista %}
+              <li>DJ {{ dj.dj_numero }} - {{ dj.titulo }} - <span class="badge bg-secondary">{{ dj.estado }}</span></li>
+              {% endfor %}
+            </ul>
+          </div>
+          {% endfor %}
+          {% else %}
+          <div class="text-muted">Sin datos de DJ</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="alert alert-info">Ingrese un RUT y presione Buscar.</div>
+  {% endif %}
+</div>
+
+<script src="/static/js/situacion-tributaria.js"></script>
+<link rel="stylesheet" href="/static/css/estilos-base.css">
+<link rel="stylesheet" href="/static/css/situacion-tributaria.css">
+{% endblock %}
+
+
