@@ -33,12 +33,44 @@ def obtener_python_actual() -> str:
 def obtener_ruta_gci() -> Tuple[str, str]:
     """Obtiene la ruta del directorio y del main.py del proyecto GCI.
 
+    Busca en múltiples ubicaciones posibles:
+    1. C:\\Users\\Administrator\\Desktop\\Gestion-Consulta-Integral (prioritario)
+    2. c:\\Users\\mscha\\Desktop\\Gestion-Consulta-Integral (fallback)
+    3. Variable de entorno GCI_PATH si está definida
+
     Returns:
         Tuple[str, str]: (ruta_directorio_gci, ruta_main_py)
+
+    Raises:
+        FileNotFoundError: Si no encuentra el directorio GCI en ninguna ruta.
     """
-    dir_gci = r"c:\\Users\\mscha\\Desktop\\Gestion-Consulta-Integral"
-    ruta_main = os.path.join(dir_gci, "main.py")
-    return dir_gci, ruta_main
+    # Rutas posibles en orden de prioridad
+    rutas_posibles = [
+        r"C:\Users\Administrator\Desktop\Gestion-Consulta-Integral",
+        r"c:\Users\mscha\Desktop\Gestion-Consulta-Integral",
+        os.environ.get("GCI_PATH", ""),  # Variable de entorno como fallback
+    ]
+
+    # Filtrar rutas vacías
+    rutas_posibles = [r for r in rutas_posibles if r]
+
+    # Buscar la primera ruta que exista
+    for dir_gci in rutas_posibles:
+        if os.path.isdir(dir_gci):
+            ruta_main = os.path.join(dir_gci, "main.py")
+            if os.path.isfile(ruta_main):
+                print(f"DEBUG: GCI encontrado en: {dir_gci}")
+                return dir_gci, ruta_main
+
+    # Si no encuentra en ninguna ruta, mostrar error informativo
+    print(f"ERROR: No se encontró Gestion-Consulta-Integral en ninguna de estas rutas:")
+    for ruta in rutas_posibles:
+        print(f"  - {ruta}")
+    print(f"Considera definir la variable de entorno GCI_PATH con la ruta correcta.")
+
+    raise FileNotFoundError(
+        f"No se encontró el directorio GCI. Rutas buscadas: {', '.join(rutas_posibles)}"
+    )
 
 
 def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) -> None:
