@@ -122,7 +122,7 @@
                                 <i class="fas fa-times"></i>
                                 Cancelar
                             </a>
-                            <button type="submit" class="btn btn-action btn-action-primary">
+                            <button type="button" id="btnAbrirCredencial" class="btn btn-action btn-action-primary">
                                 <i class="fas fa-save"></i>
                                 {{ 'Actualizar Empresa' if empresa else 'Crear Empresa' }}
                             </button>
@@ -165,4 +165,12 @@
     window.esEdicion = {{ 'true' if empresa else 'false' }};
 </script>
 <script src="{{ url_for('static', filename='js/empresas-formulario.js') }}"></script>
+<script src="{{ url_for('static', filename='js/empresas-listado.js') }}"></script>
+{% endblock %}
+
+{% block modales %}
+    {# Incluir modal reutilizable de credencial SII desde componentes #}
+    {% include 'componentes/modal-credencial.html' %}
+    {# Modal de progreso para integración GCI (F29 y DJ) #}
+    {% include 'componentes/modal-progreso.html' %}
 {% endblock %}

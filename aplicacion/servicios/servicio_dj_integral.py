@@ -120,11 +120,16 @@ class ServicioDJIntegral:
                     WHERE rut IN ({placeholders}) AND estado = 'T'
                     GROUP BY rut
                 """
+                print(f"DEBUG DJ FECHAS: Consultando fechas para RUTs: {ruts_empresas}")
+                print(f"DEBUG DJ FECHAS: Query: {consulta_fechas}")
                 with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
                     cursor.execute(consulta_fechas, ruts_empresas)
                     resultados_fechas = cursor.fetchall()
+                    print(f"DEBUG DJ FECHAS: Resultados: {resultados_fechas}")
                     for fila in resultados_fechas:
                         fechas_consulta[fila['rut']] = fila['ultima_fecha']
+                        print(f"DEBUG DJ FECHAS: RUT {fila['rut']} -> Fecha {fila['ultima_fecha']}")
+                print(f"DEBUG DJ FECHAS: Dict final fechas_consulta: {fechas_consulta}")
 
             # Agrupar resultados por empresa con DJ por año
             empresas_agrupadas = {}

@@ -2,8 +2,373 @@
   font-weight: 600;
 }
 
-.table th, .table td {
+.table th,
+.table td {
   vertical-align: middle;
 }
 
+/* Estilos específicos para la card F29 (consulta integral) */
+.f29-card {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 20px rgba(122, 0, 123, 0.08);
+}
 
+.f29-card .card-header {
+  background: linear-gradient(90deg, #7A007B 0%, #E13278 100%);
+  color: white;
+  font-weight: 700;
+  padding: 12px 18px;
+}
+
+.f29-card .card-body {
+  background: #ffffff;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.contenedor-meses {
+  flex: 1;
+  overflow: auto;
+  min-height: 400px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.contenedor-meses .envoltorio-tabla-meses {
+  flex: 1;
+  overflow: auto;
+}
+
+.f29-card .envoltorio-tabla-meses {
+  overflow-x: auto;
+  overflow-y: visible;
+  padding-top: 6px;
+  margin: 0 -18px;
+  padding-left: 18px;
+  padding-right: 18px;
+  width: calc(100% + 36px);
+  box-sizing: border-box;
+}
+
+.f29-card .tabla-periodos-integrada {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 8px 6px;
+  min-width: max-content;
+}
+
+.f29-card .tabla-periodos-integrada thead th {
+  background: transparent;
+  color: #0f172a;
+  font-weight: 800;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
+.f29-card .tabla-periodos-integrada td {
+  padding: 8px 6px;
+  vertical-align: middle;
+}
+
+.f29-card .nombre-mes {
+  width: 220px;
+  color: #111827;
+  font-weight: 700;
+}
+
+/* Alineación de columnas en tabla DJ detalle */
+.detalle-dj-contenedor {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 8px 6px;
+  display: table;
+}
+
+.detalle-dj-contenedor thead th {
+  background: transparent;
+  color: #0f172a;
+  font-weight: 800;
+  padding: 6px 10px;
+  font-size: 0.95rem;
+}
+
+.detalle-dj-contenedor .nombre-mes-integrado {
+  width: auto;
+  min-width: 60px;
+  padding: 8px 6px;
+}
+
+.detalle-dj-contenedor .nombre-mes {
+  width: auto;
+  min-width: 200px;
+  padding: 8px 6px;
+}
+
+/* Mostrar columnas de años en la tabla detalle */
+.detalle-dj-contenedor .columna-año {
+  display: table-cell !important;
+  width: auto;
+  min-width: 80px;
+  text-align: center;
+  padding: 6px 10px;
+}
+
+.detalle-dj-contenedor td.celda-año {
+  display: table-cell !important;
+  width: auto;
+  min-width: 80px;
+  text-align: center;
+  padding: 8px 6px;
+}
+
+/* Asegurar que la última columna vacía tenga ancho mínimo */
+.detalle-dj-contenedor td:last-child {
+  width: auto;
+  min-width: 20px;
+  padding: 8px 6px;
+}
+
+/* Contenedor detalle que ocupa todo el ancho */
+.detalle-calendario .card-body {
+  padding: 18px;
+}
+
+.detalle-calendario .contenedor-meses {
+  width: 100%;
+  flex: 1;
+  overflow: auto;
+}
+
+/* Badges y botones */
+.f29-card .badge.bg-success {
+  background: #16A39A !important;
+  color: white !important;
+  border-radius: 10px;
+  padding: 6px 8px;
+  min-width: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Badges DJ - mismo estilo que F29 */
+.detalle-dj-contenedor .badge.bg-success {
+  background: #16A39A !important;
+  color: white !important;
+  border-radius: 10px;
+  padding: 6px 8px;
+  min-width: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botones de observaciones DJ - mismo estilo que F29 */
+.detalle-dj-contenedor .btn-outline-warning.boton-observacion {
+  background: #E13278 !important;
+  color: white !important;
+  border: none !important;
+  border-radius: 10px;
+  padding: 6px 8px;
+  min-width: 30px;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(225, 50, 120, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detalle-dj-contenedor .btn-outline-warning.boton-observacion:hover {
+  background: #c42a6b !important;
+  transform: translateY(-1px);
+}
+
+.f29-card .btn-observaciones {
+  background: #E13278 !important;
+  color: white !important;
+  border: none;
+  border-radius: 10px;
+  padding: 6px 8px;
+  min-width: 30px;
+  position: relative;
+  box-shadow: 0 2px 6px rgba(225, 50, 120, 0.12);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f29-card .btn-observaciones:hover {
+  background: #c42a6b !important;
+  transform: translateY(-1px);
+}
+
+.f29-card .btn-observaciones .badge-count {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: white;
+  color: #E13278;
+  font-size: 11px;
+  font-weight: 800;
+  padding: 0 6px;
+  border-radius: 12px;
+  border: 2px solid #E13278;
+  min-width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f29-card .badge.bg-warning.badge-sin-procesar {
+  background: #FFA500 !important;
+  color: #000 !important;
+}
+
+.f29-card .text-muted {
+  color: #6b7280 !important;
+}
+
+/* Responsividad */
+@media (max-width: 768px) {
+  .f29-card .nombre-mes {
+    width: 140px;
+  }
+
+  .f29-card .tabla-periodos-integrada thead th {
+    font-size: 0.85rem;
+  }
+}
+
+/* Layout principal */
+#formBusqueda {
+  margin-bottom: 1rem;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.card-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.row.g-2 {
+  margin-bottom: 0;
+}
+
+.row.g-2>[class*="col-"] {
+  padding-bottom: 0;
+}
+
+/* Asegurar que las tablas se expandan */
+.table-responsive {
+  flex: 1;
+  overflow-y: auto;
+}
+
+/* Tabla DJ: hacer que se expanda al máximo ancho */
+.modern-table {
+  width: 100% !important;
+}
+
+.modern-table .fila-empresa {
+  width: 100%;
+}
+
+.modern-table .fila-empresa td {
+  vertical-align: middle;
+}
+
+/* Última columna de estadísticas debe alinearse a la derecha */
+.resumen-estadisticas {
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* Estilos para Modales - Prioridad máxima */
+
+.modal.fade {
+  z-index: 1050 !important;
+}
+
+.modal.show {
+  z-index: 1050 !important;
+  display: block !important;
+}
+
+/* Desactivar backdrop de Bootstrap si se crea */
+.modal-backdrop.fade,
+.modal-backdrop.show {
+  display: none !important;
+}
+
+#modalConsultaNueva,
+#modalProgresoConsulta {
+  z-index: 1050 !important;
+}
+
+.modal-dialog {
+  position: relative;
+  z-index: 1051 !important;
+}
+
+.modal-dialog-centered {
+  display: flex;
+  align-items: center;
+  min-height: calc(100% - 1rem);
+}
+
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+  position: relative;
+  background-color: white;
+  z-index: 1052 !important;
+  pointer-events: auto !important;
+}
+
+.modal-header {
+  background: linear-gradient(90deg, #16A39A 0%, #0891B2 100%);
+  color: white;
+  border-top-left-radius: 12px;
+  border-top-right-radius: 12px;
+  border-bottom: none;
+}
+
+.modal-header .modal-title {
+  font-weight: 700;
+}
+
+.modal-header .btn-close {
+  filter: brightness(0) invert(1);
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-footer {
+  border-top: 1px solid #e5e7eb;
+  padding: 1rem 1.5rem;
+}
+
+/* Progress bar en modal de progreso */
+.progress {
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.progress-bar {
+  background: linear-gradient(90deg, #16A39A 0%, #0891B2 100%);
+  font-weight: 600;
+}

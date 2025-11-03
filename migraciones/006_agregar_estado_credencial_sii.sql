@@ -1,0 +1,25 @@
+-- Migración: Verificar columna de estado en credenciales_sii
+-- Descripción: Asegura que la columna estado existe con tipo ENUM para trackear estado de credenciales
+-- Fecha: 2025-11-03
+-- Nota: Esta migración es informativa, la columna ya existe en la BD actual
+-- Estados posibles: V=Vigente, F=Fallido, E=Error, A=Activo
+-- La tabla ya tiene esta estructura en stratex y estratex:
+-- CREATE TABLE `credenciales_sii` (
+-- 	`id` INT(11) NOT NULL AUTO_INCREMENT,
+-- 	`rut` VARCHAR(20) NOT NULL COLLATE 'utf8_unicode_ci',
+-- 	`clave` VARCHAR(255) NOT NULL COLLATE 'utf8_unicode_ci',
+-- 	`estado` ENUM('V','F') NOT NULL DEFAULT 'V' COLLATE 'utf8_unicode_ci',
+-- 	`fecha_creacion` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+-- 	`fecha_actualizacion` DATETIME NULL DEFAULT NULL,
+-- 	PRIMARY KEY (`id`) USING BTREE,
+-- 	UNIQUE INDEX `rut` (`rut`) USING BTREE,
+-- 	INDEX `idx_rut` (`rut`) USING BTREE,
+-- 	INDEX `idx_fecha_creacion` (`fecha_creacion`) USING BTREE,
+-- 	INDEX `idx_estado` (`estado`) USING BTREE
+-- ) COLLATE='utf8_unicode_ci' ENGINE=InnoDB;
+-- Si necesita agregar más estados (E=Error, A=Activo), ejecutar:
+-- ALTER TABLE `stratex`.`credenciales_sii` MODIFY COLUMN `estado` ENUM('V','F','E','A') NOT NULL DEFAULT 'V';
+-- ALTER TABLE `estratex`.`credenciales_sii` MODIFY COLUMN `estado` ENUM('V','F','E','A') NOT NULL DEFAULT 'V';
+-- Verificar que la columna existe:
+-- SELECT COLUMN_NAME, COLUMN_TYPE FROM INFORMATION_SCHEMA.COLUMNS
+-- WHERE TABLE_NAME='credenciales_sii' AND TABLE_SCHEMA='stratex';

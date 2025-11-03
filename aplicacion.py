@@ -108,7 +108,7 @@ def registrar_blueprints(aplicacion):
     # aplicacion.register_blueprint(consolidado_bp)
     # aplicacion.register_blueprint(sesiones_bp)
     # aplicacion.register_blueprint(tareas_bp)
-    # aplicacion.register_blueprint(email_bp)
+    # aplicacion.register_blueprint(email_bp)R
     # aplicacion.register_blueprint(ia_bp)
     # aplicacion.register_blueprint(proveedores_bp)
 

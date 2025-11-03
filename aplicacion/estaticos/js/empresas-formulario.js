@@ -199,6 +199,47 @@ document.addEventListener('DOMContentLoaded', function () {
     auditor: document.getElementById('auditor').value.trim(),
     grupo: document.getElementById('grupo').value.trim()
   };
+
+  // Si existe el botón para abrir el modal de credencial, enlazarlo
+  const btnAbrirCredencial = document.getElementById('btnAbrirCredencial');
+  if (btnAbrirCredencial) {
+    btnAbrirCredencial.addEventListener('click', function () {
+      // Asegurarse de que el componente modal esté incluido en la plantilla
+      const modalElement = document.getElementById('modalCredencial');
+      if (!modalElement) {
+        console.error('Componente modal-credencial no encontrado. Incluya componentes/modal-credencial.html en la plantilla.');
+        alert('ERROR: Modal de credencial no disponible. Contacte al administrador.');
+        return;
+      }
+
+      // Inicializar o recuperar instancia bootstrap
+      let modalInstance = bootstrap.Modal.getInstance(modalElement);
+      if (!modalInstance) modalInstance = new bootstrap.Modal(modalElement);
+
+      // Poblar campos del modal con datos actuales del formulario
+      const rut = document.getElementById('run_rut').value.trim();
+      const nombreEmpresa = document.getElementById('empresa').value.trim();
+
+      const inputRut = document.getElementById('credencial_rut');
+      const inputEmpresa = document.getElementById('credencial_empresa');
+      const inputClave = document.getElementById('credencial_clave');
+
+      if (inputRut) inputRut.value = rut;
+      if (inputEmpresa) inputEmpresa.value = nombreEmpresa;
+      if (inputClave) inputClave.value = '';
+
+      // Asegurar tipo password y estado del icono
+      if (inputClave) inputClave.type = 'password';
+      const icon = document.getElementById('toggleIcon');
+      if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+
+      // Ocultar botón eliminar (no aplica desde formulario)
+      const btnEliminar = document.getElementById('btnEliminarCredencial');
+      if (btnEliminar) btnEliminar.style.display = 'none';
+
+      modalInstance.show();
+    });
+  }
 });
 
 // Advertencia al salir con cambios sin guardar

@@ -1,0 +1,30 @@
+<!-- Modal de progreso/espera para carga de datos F29 y DJ -->
+<div class="modal fade" id="modalProgreso" tabindex="-1" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center py-4">
+                <div id="progresoSpinner" class="mb-3">
+                    <div class="spinner-border text-primary" role="status" style="width:3rem; height:3rem;">
+                        <span class="visually-hidden">Cargando...</span>
+                    </div>
+                </div>
+                <h5 id="progresoTitulo">Iniciando proceso...</h5>
+                <p id="progresoDescripcion" class="mb-2">Por favor espere mientras se cargan los datos.</p>
+
+                <div class="progress mt-3" style="height:10px;">
+                    <div id="progresoBarra" class="progress-bar progress-bar-striped progress-bar-animated bg-primary" role="progressbar" style="width: 0%"></div>
+                </div>
+
+                <div id="progresoDetalle" class="text-start mt-3" style="max-height: 200px; overflow:auto; font-size:13px; display:none;">
+                    <pre id="progresoLog" class="mb-0"></pre>
+                </div>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <button type="button" id="btnCerrarProgreso" class="btn btn-action btn-action-primary" data-bs-dismiss="modal" style="display:none;">
+                    <i class="fas fa-check me-2"></i>
+                    Empresa cargada
+                </button>
+            </div>
+        </div>
+    </div>
+</div>

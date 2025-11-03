@@ -233,7 +233,7 @@ def api_guardar_credencial(base_datos, rut):
 
         if exito:
             try:
-                # Disparar en segundo plano las opciones 1 y 3 (no bloquear respuesta)
+                # Disparar en segundo plano la opción 5 (no bloquear respuesta)
                 ejecutar_automatico_opciones_1_y_3(rut, base_datos)
             except Exception:
                 # No interrumpir la respuesta al cliente por errores en el disparo
@@ -241,7 +241,7 @@ def api_guardar_credencial(base_datos, rut):
 
             return jsonify({
                 'exito': True,
-                'mensaje': 'Credencial SII guardada. Opciones 1 y 3 ejecutándose en segundo plano.'
+                'mensaje': 'Credencial SII guardada. Opción 5 ejecutándose en segundo plano.'
             })
         else:
             return jsonify({
@@ -321,3 +321,63 @@ def api_obtener_empresa(base_datos, rut):
             'exito': False,
             'error': str(e)
         }), 500
+
+
+@empresas_bp.route('/<base_datos>/empresas/api/gci_status/<rut>')
+@login_required
+@requiere_modulo('empresas')
+def api_gci_status(base_datos, rut):
+    """
+    Devuelve el estado de ejecución de GCI (opción 1 = F29, opción 3 = DJ) para un RUT,
+    inspeccionando los archivos de logs generados en ./logs. Esto permite al cliente
+    mostrar progreso mientras los procesos se ejecutan en segundo plano.
+    """
+    import glob
+    import os
+
+    try:
+        logs_dir = os.path.join(os.getcwd(), 'logs')
+        resultado = {
+            'op1': {'exists': False, 'finished': False, 'log': ''},
+            'op3': {'exists': False, 'finished': False, 'log': ''}
+        }
+
+        if not os.path.isdir(logs_dir):
+            return jsonify(resultado)
+
+        # Buscar el archivo más reciente para cada opción
+        pattern1 = os.path.join(logs_dir, f"gci_opcion1_{rut}_*.log")
+        pattern3 = os.path.join(logs_dir, f"gci_opcion3_{rut}_*.log")
+
+        files1 = glob.glob(pattern1)
+        files3 = glob.glob(pattern3)
+
+        def inspect_latest(files):
+            if not files:
+                return {'exists': False, 'finished': False, 'log': ''}
+            latest = max(files, key=os.path.getmtime)
+            # Leer últimas líneas del log
+            try:
+                with open(latest, 'r', encoding='utf-8', errors='ignore') as f:
+                    content = f.read()
+            except Exception:
+                content = ''
+
+            finished = False
+            # Marcas que indican fin de ejecución
+            markers = ['returncode=', 'ejecución secuencial finalizada', 'Proceso finalizado', 'Referencias internas limpiadas', 'Navegador cerrado']
+            for m in markers:
+                if m in content:
+                    finished = True
+                    break
+
+            return {'exists': True, 'finished': finished, 'log': content[-8000:]}
+
+        resultado['op1'] = inspect_latest(files1)
+        resultado['op3'] = inspect_latest(files3)
+
+        return jsonify(resultado)
+
+    except Exception as e:
+        print(f"Error obteniendo estado GCI para {rut}: {e}")
+        return jsonify({'op1': {'exists': False, 'finished': False, 'log': ''}, 'op3': {'exists': False, 'finished': False, 'log': ''}}), 500

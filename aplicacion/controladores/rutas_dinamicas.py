@@ -470,8 +470,8 @@ def observaciones_base_datos(base_datos):
         flash(f'No tienes acceso a la base de datos "{base_datos}"', 'error')
         return redirect(url_for('autenticacion.iniciar_sesion'))
 
-    # Redirigir al controlador original pero con contexto de base de datos
-    return redirect(url_for('observaciones.dashboard'))
+    # Redirigir a situación tributaria (donde están las observaciones integradas)
+    return redirect(f'/{base_datos}/situacion-tributaria')
 
 
 @rutas_dinamicas_bp.before_request

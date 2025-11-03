@@ -91,20 +91,45 @@ async function guardarCredencial() {
   const clave = document.getElementById('credencial_clave').value.trim();
   const baseDatos = window.baseDatos || 'stratex';
 
-  // Validar que la clave no esté vacía
+  // Validaciones básicas
   if (!clave) {
     alert('Por favor ingrese la clave SII');
     document.getElementById('credencial_clave').focus();
     return;
   }
-
-  // Validar longitud mínima (opcional pero recomendado)
   if (clave.length < 4) {
     alert('La clave debe tener al menos 4 caracteres');
     return;
   }
 
+  const enEdicion = typeof window.esEdicion !== 'undefined' ? !!window.esEdicion : true;
+
   try {
+    // Si no estamos en edición, crear la empresa primero
+    if (!enEdicion) {
+      const run_rut = document.getElementById('run_rut') ? document.getElementById('run_rut').value : '';
+      const empresaNombre = document.getElementById('empresa') ? document.getElementById('empresa').value : '';
+      const auditor = document.getElementById('auditor') ? document.getElementById('auditor').value : '';
+      const grupo = document.getElementById('grupo') ? document.getElementById('grupo').value : '';
+
+      const payload = { run_rut: run_rut, empresa: empresaNombre, auditor: auditor, grupo: grupo };
+      const crearResp = await fetch(`/${baseDatos}/empresas/api/crear`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': window.csrfToken
+        },
+        body: JSON.stringify(payload)
+      });
+
+      const crearJson = await crearResp.json();
+      if (!crearResp.ok || !crearJson.exito) {
+        alert('ERROR al crear la empresa: ' + (crearJson.error || crearJson.mensaje || crearResp.status));
+        return;
+      }
+    }
+
+    // Guardar credencial (dispara GCI en backend)
     const response = await fetch(`/${baseDatos}/empresas/api/credencial/${rut}`, {
       method: 'POST',
       headers: {
@@ -115,23 +140,117 @@ async function guardarCredencial() {
     });
 
     const data = await response.json();
+    if (!data.exito) {
+      alert('ERROR: ' + (data.error || 'No se pudo guardar la credencial'));
+      return;
+    }
 
-    if (data.exito) {
-      // Cerrar el modal
-      const modalElement = document.getElementById('modalCredencial');
-      const modalInstance = bootstrap.Modal.getInstance(modalElement);
-      if (modalInstance) {
-        modalInstance.hide();
+    // Mostrar modal de progreso
+    const modalCred = document.getElementById('modalCredencial');
+    const modalCredInst = modalCred ? (bootstrap.Modal.getInstance(modalCred) || new bootstrap.Modal(modalCred)) : null;
+    if (modalCredInst) modalCredInst.hide();
+
+    const modalPro = document.getElementById('modalProgreso');
+    if (!modalPro) {
+      alert('OK: Credencial guardada. (Modal de progreso no disponible)');
+      location.reload();
+      return;
+    }
+
+    const modalProInst = bootstrap.Modal.getOrCreateInstance ? bootstrap.Modal.getOrCreateInstance(modalPro) : new bootstrap.Modal(modalPro);
+    document.getElementById('progresoTitulo').innerText = 'Cargando datos de F29...';
+    document.getElementById('progresoDescripcion').innerText = 'Por favor espere mientras se descargan los datos desde el SII (F29).';
+    const barra = document.getElementById('progresoBarra'); if (barra) barra.style.width = '10%';
+    const detalle = document.getElementById('progresoDetalle'); if (detalle) detalle.style.display = 'none';
+    const btnCerrar = document.getElementById('btnCerrarProgreso'); if (btnCerrar) btnCerrar.style.display = 'none';
+    modalProInst.show();
+
+    // Polling para estado GCI
+    const rutPol = rut;
+    const base = baseDatos;
+    let esperadoOp1 = true;
+    let esperadoOp3 = true;
+    const maxTimeoutMs = 5 * 60 * 1000; // 5 minutos
+    const startTime = Date.now();
+    let pollingTimer = null;
+
+    async function checkStatus() {
+      try {
+        const resp = await fetch(`/${base}/empresas/api/gci_status/${rutPol}`);
+        if (resp.status === 404) {
+          clearTimeout(pollingTimer);
+          console.warn('[guardarCredencial] endpoint /api/gci_status no encontrado (404)');
+          document.getElementById('progresoTitulo').innerText = 'Servicio no disponible';
+          document.getElementById('progresoDescripcion').innerText = 'El servidor no tiene disponible el endpoint de estado GCI. Reinicie la aplicación backend.';
+          const btnCerrar = document.getElementById('btnCerrarProgreso'); if (btnCerrar) btnCerrar.style.display = 'inline-block';
+          return;
+        }
+        if (!resp.ok) {
+          clearTimeout(pollingTimer);
+          console.error('[guardarCredencial] error en respuesta de gci_status:', resp.status);
+          document.getElementById('progresoTitulo').innerText = 'Error consultando estado';
+          document.getElementById('progresoDescripcion').innerText = `Error ${resp.status} al consultar el estado. Revise el servidor.`;
+          const btnCerrar2 = document.getElementById('btnCerrarProgreso'); if (btnCerrar2) btnCerrar2.style.display = 'inline-block';
+          return;
+        }
+
+        const st = await resp.json();
+
+        if (st.op1 && st.op1.exists && !st.op1.finished) {
+          if (barra) barra.style.width = '30%';
+          document.getElementById('progresoTitulo').innerText = 'Cargando datos de F29...';
+        }
+
+        if (st.op1 && st.op1.finished && esperadoOp1) {
+          esperadoOp1 = false;
+          if (barra) barra.style.width = '60%';
+          document.getElementById('progresoTitulo').innerText = 'F29 cargado. Iniciando DJ...';
+          document.getElementById('progresoDescripcion').innerText = 'Ahora se están cargando los datos DJ. Espere por favor.';
+        }
+
+        if (st.op3 && st.op3.exists && !st.op3.finished && !esperadoOp1) {
+          if (barra) barra.style.width = '80%';
+        }
+
+        if (st.op3 && st.op3.finished && esperadoOp3 && !esperadoOp1) {
+          clearTimeout(pollingTimer);
+          esperadoOp3 = false;
+          if (barra) barra.style.width = '100%';
+          document.getElementById('progresoTitulo').innerText = 'Procesos finalizados';
+          document.getElementById('progresoDescripcion').innerText = 'F29 y DJ cargados correctamente.';
+          if (detalle) detalle.style.display = 'none';
+          const btnCerrar3 = document.getElementById('btnCerrarProgreso'); if (btnCerrar3) btnCerrar3.style.display = 'inline-block';
+          setTimeout(() => {
+            modalProInst.hide();
+            alert('Empresa cargada');
+            location.reload();
+          }, 800);
+          return;
+        }
+
+        if (st.op1 && st.op1.log && detalle) {
+          detalle.style.display = 'block';
+          document.getElementById('progresoLog').innerText = st.op1.log.slice(-2000);
+        }
+
+        if (Date.now() - startTime > maxTimeoutMs) {
+          clearTimeout(pollingTimer);
+          document.getElementById('progresoTitulo').innerText = 'Tiempo de espera excedido';
+          document.getElementById('progresoDescripcion').innerText = 'El procesamiento está tomando demasiado tiempo. Revise los logs del servidor.';
+          const btnCerrar4 = document.getElementById('btnCerrarProgreso'); if (btnCerrar4) btnCerrar4.style.display = 'inline-block';
+          return;
+        }
+
+      } catch (e) {
+        clearTimeout(pollingTimer);
+        console.error('Error consultando estado GCI:', e);
       }
 
-      // Mostrar mensaje de éxito
-      alert('OK: Credencial guardada exitosamente');
-
-      // Recargar la página para mostrar los cambios
-      location.reload();
-    } else {
-      alert('ERROR: ' + (data.error || 'No se pudo guardar la credencial'));
+      pollingTimer = setTimeout(checkStatus, 2000);
     }
+
+    pollingTimer = setTimeout(checkStatus, 1000);
+
   } catch (error) {
     console.error('Error guardando credencial:', error);
     alert('ERROR: Error de conexion. Por favor, intente nuevamente.');
@@ -143,7 +262,7 @@ async function guardarCredencial() {
  * @param {string} rut - RUT de la empresa
  */
 async function eliminarCredencial(rut) {
-  if (!confirm('¿Está seguro de eliminar la credencial SII de esta empresa?\n\nEsta acción no se puede deshacer.')) {
+  if (!confirm('¿Está seguro de eliminar la credencial SII de esta empresa?\\n\\nEsta acción no se puede deshacer.')) {
     return;
   }
 

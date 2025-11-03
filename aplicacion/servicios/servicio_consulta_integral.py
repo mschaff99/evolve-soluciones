@@ -87,9 +87,11 @@ class ServicioConsultaIntegral:
                     ci.estado,
                     COALESCE(obs_count.total_observaciones, 0) as total_observaciones,
                     GROUP_CONCAT(DISTINCT obs_codigos.codigo ORDER BY obs_codigos.codigo SEPARATOR ',') as codigos_observaciones,
-                    GROUP_CONCAT(DISTINCT CONCAT(obs_codigos.codigo, ':', COALESCE(obs_codigos.descripcion, '')) ORDER BY obs_codigos.codigo SEPARATOR '|') as observaciones_detalle
+                    GROUP_CONCAT(DISTINCT CONCAT(obs_codigos.codigo, ':', COALESCE(obs_codigos.descripcion, '')) ORDER BY obs_codigos.codigo SEPARATOR '|') as observaciones_detalle,
+                    CAST(COALESCE(cred.estado, 'V') AS CHAR) as estado_credencial_sii
                 FROM empresas e
                 LEFT JOIN {self.base_datos}.consulta_integral ci ON e.run_rut = ci.rut
+                LEFT JOIN {self.base_datos}.credenciales_sii cred ON e.run_rut = cred.rut
                 LEFT JOIN (
                     SELECT rut, MAX(fechaproceso) as ultima_fecha_proceso
                     FROM {self.base_datos}.consulta_integral
@@ -134,7 +136,7 @@ class ServicioConsultaIntegral:
                 consulta_base += " AND YEAR(STR_TO_DATE(CONCAT(ci.periodo, '01'), '%Y%m%d')) <= %s"
                 parametros.append(filtros['año_hasta'])
 
-            consulta_base += " GROUP BY e.run_rut, e.empresa, e.auditor, e.grupo, fp.ultima_fecha_proceso, ci.id, ci.periodo, ci.tabla_resultados, ci.estado, obs_count.total_observaciones"
+            consulta_base += " GROUP BY e.run_rut, e.empresa, e.auditor, e.grupo, fp.ultima_fecha_proceso, ci.id, ci.periodo, ci.tabla_resultados, ci.estado, obs_count.total_observaciones, cred.estado"
             consulta_base += " ORDER BY e.empresa, ci.periodo"
 
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
@@ -154,6 +156,7 @@ class ServicioConsultaIntegral:
                         'usuario': fila['usuario'],
                         'grupo': fila['grupo'],
                         'ultima_fecha_proceso': fila['ultima_fecha_proceso'],
+                        'estado_credencial_sii': fila.get('estado_credencial_sii', 'V'),
                         'periodos': {}
                     }
 
@@ -201,9 +204,7 @@ class ServicioConsultaIntegral:
                     run_rut as rut,
                     empresa as nombre,
                     auditor as usuario,
-                    grupo,
-                    fecha_registro,
-                    activo
+                    grupo
                 FROM empresas
                 WHERE run_rut = %s
             """
@@ -218,8 +219,6 @@ class ServicioConsultaIntegral:
                     'nombre': resultado['nombre'],
                     'usuario': resultado['usuario'],
                     'grupo': resultado['grupo'],
-                    'fecha_registro': resultado['fecha_registro'].isoformat() if resultado['fecha_registro'] else None,
-                    'activo': resultado['activo']
                 }
             else:
                 return None

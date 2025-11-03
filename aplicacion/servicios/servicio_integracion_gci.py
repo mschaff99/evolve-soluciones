@@ -2,9 +2,8 @@
 Servicio de integración con Gestion-Consulta-Integral (GCI)
 ===========================================================
 
-Dispara en segundo plano (background) las opciones individuales 1 y 3 de
-Gestion-Consulta-Integral para un RUT específico, utilizando la credencial SII
-almacenada en este sistema (desencriptada mediante Fernet).
+Dispara en segundo plano (background) la opción 5 (Salir)
+de Gestion-Consulta-Integral para un RUT específico.
 
 Seguridad:
 - Nunca se escribe la contraseña en los logs.
@@ -152,25 +151,24 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
 
 
 def ejecutar_automatico_opciones_1_y_3(rut: str, base_datos: str) -> bool:
-    """Dispara en background las opciones 1 y 3 de GCI para un RUT de forma secuencial."""
+    """Dispara en background la opción 5 (Salir) de GCI para un RUT."""
     servicio_empresas = ServicioEmpresas(base_datos)
     password: Optional[str] = servicio_empresas.obtener_credencial_sii_desencriptada(rut)
 
     if not password:
         return False
 
-    def _ejecutar_secuencial():
+    def _ejecutar_opcion_5():
         try:
-            print(f"Integración GCI: iniciando ejecución secuencial para {rut}")
-            _ejecutar_gci_opcion(1, rut, password, base_datos)
-            _ejecutar_gci_opcion(3, rut, password, base_datos)
-            print(f"Integración GCI: ejecución secuencial finalizada para {rut}")
+            print(f"Integración GCI: iniciando ejecución de opción 5 (Salir) para {rut}")
+            _ejecutar_gci_opcion(5, rut, password, base_datos)
+            print(f"Integración GCI: ejecución de opción 5 finalizada para {rut}")
         except Exception as e:
-            print(f"Integración GCI: error en ejecución secuencial para {rut}: {e}")
+            print(f"Integración GCI: error en ejecución de opción 5 para {rut}: {e}")
 
-    hilo = threading.Thread(target=_ejecutar_secuencial, daemon=True)
+    hilo = threading.Thread(target=_ejecutar_opcion_5, daemon=True)
     hilo.start()
-    print(f"Integración GCI: hilo lanzado (secuencial 1→3) para {rut} | logs en ./logs")
+    print(f"Integración GCI: hilo lanzado (opción 5 - Salir) para {rut} | logs en ./logs")
     return True
 
 

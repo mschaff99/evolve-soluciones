@@ -65,14 +65,22 @@ class ServicioSituacionTributaria:
                 cursor.execute(sql, (rut,))
                 periodos = cursor.fetchall()
 
-                # Contar observaciones por periodo
+                # Contar observaciones por periodo (usar una sola consulta agrupada para evitar N+1)
+                consulta_ids = [p['id'] for p in periodos if p.get('id')]
+                conteos_por_consulta = {}
+                if consulta_ids:
+                    placeholders = ','.join(['%s'] * len(consulta_ids))
+                    sql_obs_agg = f"SELECT consulta_id, COUNT(*) as total FROM {self.base_datos}.observaciones WHERE consulta_id IN ({placeholders}) GROUP BY consulta_id"
+                    cursor.execute(sql_obs_agg, tuple(consulta_ids))
+                    filas_conteo = cursor.fetchall()
+                    for fila_c in filas_conteo:
+                        conteos_por_consulta[fila_c['consulta_id']] = fila_c.get('total', 0)
+
                 for p in periodos:
-                    p_id = p['id']
-                    sql_obs = f"SELECT COUNT(*) as total FROM {self.base_datos}.observaciones WHERE consulta_id = %s"
-                    cursor.execute(sql_obs, (p_id,))
-                    total_obs = cursor.fetchone()['total'] if cursor.rowcount is not None else 0
+                    p_id = p.get('id')
+                    total_obs = conteos_por_consulta.get(p_id, 0)
                     resultado['f29']['periodos'].append({
-                        'periodo': p['periodo'],
+                        'periodo': p.get('periodo'),
                         'resultado': p.get('tabla_resultados') or '',
                         'estado': p.get('estado') or '',
                         'observaciones': total_obs,
@@ -119,14 +127,52 @@ class ServicioSituacionTributaria:
             resultado['dj']['resumen_anual'] = resumen_anual
             resultado['dj']['total_observadas'] = total_observadas
 
-            # Última fecha de consulta DJ (si está disponible via obtener_datos_empresas_con_dj)
-            datos_empresas = self.servicio_dj.obtener_datos_empresas_con_dj({'rut_filtro': rut})
-            ultima = None
-            if datos_empresas and rut in datos_empresas.get('empresas', {}):
-                ultima = datos_empresas['empresas'][rut].get('ultima_fecha_consulta')
-            resultado['dj']['ultima_fecha_consulta'] = (
-                ultima.isoformat() if hasattr(ultima, 'isoformat') and ultima else ultima
-            )
+            # Obtener última fecha de consulta directamente desde dj_integral
+            try:
+                conexion_dj = self.servicio_dj.obtener_conexion()
+                with conexion_dj.cursor(pymysql.cursors.DictCursor) as cursor:
+                    # Consulta simplificada - dj_integral NO tiene campo auditor
+                    consulta_fecha = f"""
+                        SELECT
+                            MAX(fecha_consulta) as ultima_fecha
+                        FROM {self.base_datos}.dj_integral
+                        WHERE rut = %s AND estado = 'T'
+                    """
+                    print(f"DEBUG: Consultando fecha para RUT: {rut}")
+                    cursor.execute(consulta_fecha, (rut,))
+                    resultado_fecha = cursor.fetchone()
+                    print(f"DEBUG: Resultado consulta fecha: {resultado_fecha}")
+
+                    if resultado_fecha and resultado_fecha.get('ultima_fecha'):
+                        ultima_fecha = resultado_fecha.get('ultima_fecha')
+
+                        # Formatear fecha para mostrar solo la fecha (sin hora)
+                        if hasattr(ultima_fecha, 'date'):
+                            fecha_formateada = ultima_fecha.date().isoformat()
+                        elif hasattr(ultima_fecha, 'isoformat'):
+                            fecha_formateada = ultima_fecha.isoformat()
+                        else:
+                            fecha_formateada = str(ultima_fecha)
+
+                        resultado['dj']['ultima_fecha_consulta'] = fecha_formateada
+                        # Usuario viene de la tabla empresas, no de dj_integral
+                        resultado['dj']['usuario'] = None  # No disponible en dj_integral
+
+                        print(f"DEBUG: Fecha guardada: {fecha_formateada}")
+                    else:
+                        print(f"WARNING: No se encontró fecha de consulta para RUT {rut}")
+
+            except Exception as e_fecha:
+                print(f"ERROR obteniendo fecha de consulta DJ: {e_fecha}")
+                import traceback
+                traceback.print_exc()
+            finally:
+                try:
+                    if 'conexion_dj' in locals() and conexion_dj:
+                        conexion_dj.close()
+                except Exception:
+                    pass
+
         except Exception as e:
             print(f"ERROR: Situación Tributaria - obteniendo DJ: {e}")
 

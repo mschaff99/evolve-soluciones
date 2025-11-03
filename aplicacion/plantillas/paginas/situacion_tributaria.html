@@ -11,71 +11,196 @@
       <label for="rut" class="form-label">RUT Empresa</label>
       <input type="text" class="form-control" id="rut" name="rut" value="{{ rut_busqueda or '' }}" placeholder="12.345.678-9" required>
     </div>
-    <div class="col-sm-3 align-self-end">
-      <button type="submit" class="btn btn-primary">Buscar</button>
+    <div class="col-sm-5 align-self-end d-flex gap-2 flex-wrap">
+      <button type="submit" class="btn btn-primary flex-grow-1">
+        <i class="fas fa-search me-2"></i>Buscar
+      </button>
+      <button type="button" class="btn btn-success flex-grow-1" onclick="abrirModalConsultaNueva()">
+        <i class="fas fa-search-plus me-2"></i>Consultar Nueva
+      </button>
+      <a href="/stratex/empresas/nueva" class="btn btn-action btn-action-primary flex-grow-1">
+        <i class="fas fa-plus me-2"></i>Nueva Empresa
+      </a>
     </div>
   </form>
 
   {% if datos %}
-  <div class="card mb-3">
+  <div class="card mb-2">
     <div class="card-body">
       <h5 class="card-title mb-2">{{ datos.empresa.nombre if datos.empresa else 'Empresa' }} ({{ datos.rut }})</h5>
       <div class="text-muted small">BD: {{ base_datos }}</div>
     </div>
   </div>
 
-  <div class="row">
-    <div class="col-lg-6">
-      <div class="card mb-3">
+  <div class="row g-2">
+    <div class="col-12">
+      <div class="card f29-card mb-2">
         <div class="card-header">F29 (Consulta Integral)</div>
         <div class="card-body">
           <div class="mb-2 small text-muted">Última fecha proceso: {{ datos.f29.ultima_fecha_proceso or '-' }}</div>
           <div class="mb-2">Total observaciones: <strong>{{ datos.f29.total_observaciones }}</strong></div>
-          <div class="table-responsive">
-            <table class="table table-sm table-striped align-middle mb-0">
-              <thead>
-                <tr>
-                  <th>Período</th>
-                  <th>Resultado</th>
-                  <th>Estado</th>
-                  <th>Obs.</th>
-                </tr>
-              </thead>
-              <tbody>
-                {% for p in datos.f29.periodos %}
-                <tr>
-                  <td>{{ p.periodo }}</td>
-                  <td>{{ p.resultado }}</td>
-                  <td>{{ p.estado }}</td>
-                  <td>{{ p.observaciones }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
+          <div class="contenedor-meses">
+            <div class="envoltorio-tabla-meses">
+              {# Calcular años disponibles a partir de datos.f29.periodos (lista de objetos con p.periodo 'YYYYMM') #}
+              {% set años_unicos = [] %}
+              {% for p in datos.f29.periodos %}
+                {% set anio = p.periodo[:4] if p.periodo else none %}
+                {% if anio and anio not in años_unicos %}
+                  {% set _ = años_unicos.append(anio) %}
+                {% endif %}
+              {% endfor %}
+              {% set años_unicos = años_unicos | sort(reverse=true) %}
+
+              <table class="tabla-periodos-integrada tabla-periodos mb-0">
+                <thead>
+                  <tr>
+                    <th class="nombre-mes-integrado">Mes</th>
+                    {% for anio in años_unicos %}
+                      <th class="encabezado-año text-center">{{ anio }}</th>
+                    {% endfor %}
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% set meses = ['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'] %}
+                  {% for mes_num in range(1,13) %}
+                    <tr class="fila-periodo-integrada">
+                      <td class="nombre-mes ps-4">
+                        <i class="fas fa-calendar-alt me-2 text-primary"></i>
+                        <strong>{{ meses[mes_num-1] }}</strong>
+                      </td>
+
+                      {% for anio in años_unicos %}
+                        {% set code = anio + ('%02d' % mes_num) %}
+                        {% set encontrados = datos.f29.periodos | selectattr('periodo','equalto', code) | list %}
+                        <td class="celda-año text-center">
+                          {% if encontrados and encontrados|length > 0 %}
+                            {% set per = encontrados[0] %}
+                            {# Mostrar según per.resultado/tabla_resultados #}
+                            {% set res = (per.tabla_resultados if per.tabla_resultados is defined else (per.resultado if per.resultado is defined else '')) %}
+                            {% if res == '✓' %}
+                              <span class="badge bg-success" title="OK, sin observaciones"><i class="fas fa-check"></i></span>
+                            {% elif res == 'X' %}
+                              {# Botón rosa con contador si tiene observaciones #}
+                              {% set total_obs = per.total_observaciones if per.total_observaciones is defined else (per.observaciones if per.observaciones is defined else 0) %}
+                              <button class="btn btn-sm btn-danger btn-observaciones" onclick="mostrarObservaciones('{{ datos.rut }}', '{{ per.periodo }}')" title="Ver observaciones">
+                                <i class="fas fa-times"></i>
+                                {% if total_obs and total_obs|int > 0 %}
+                                  <span class="badge badge-count">{{ total_obs }}</span>
+                                {% endif %}
+                              </button>
+                            {% elif res == '⚠️' %}
+                              <span class="badge bg-warning badge-sin-procesar" title="Sin procesar por SII"><i class="fas fa-exclamation-triangle"></i></span>
+                            {% elif res == '-' or res == '' %}
+                              <span class="text-muted">-</span>
+                            {% else %}
+                              <span class="badge bg-secondary">{{ res }}</span>
+                            {% endif %}
+                          {% else %}
+                            <span class="text-muted">•</span>
+                          {% endif %}
+                        </td>
+                      {% endfor %}
+
+                      <td></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
     </div>
-
-    <div class="col-lg-6">
-      <div class="card mb-3">
+    <div class="col-12">
+      <div class="card mb-2">
         <div class="card-header">DJ Integral</div>
         <div class="card-body">
-          <div class="mb-2 small text-muted">Última consulta: {{ datos.dj.ultima_fecha_consulta or '-' }}</div>
-          <div class="mb-2">Total DJ observadas: <strong>{{ datos.dj.total_observadas }}</strong></div>
-          {% if datos.dj.resumen_anual %}
-          {% for anio, lista in datos.dj.resumen_anual.items() %}
-          <div class="mb-2">
-            <div class="fw-semibold">{{ anio }}</div>
-            <ul class="mb-2">
-              {% for dj in lista %}
-              <li>DJ {{ dj.dj_numero }} - {{ dj.titulo }} - <span class="badge bg-secondary">{{ dj.estado }}</span></li>
-              {% endfor %}
-            </ul>
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <div class="small text-muted">Última consulta: {{ datos.dj.ultima_fecha_consulta if datos.dj.ultima_fecha_consulta else '-' }}</div>
+            <div>Total DJ observadas: <strong>{{ datos.dj.total_observadas | default(0) }}</strong></div>
           </div>
-          {% endfor %}
+          {% if datos.dj.resumen_anual %}
+            {# Mostrar directamente el contenido sin tabla de resumen #}
+            <div class="contenedor-meses">
+              <div class="envoltorio-tabla-meses">
+                <table class="tabla-periodos-integrada tabla-periodos detalle-dj-contenedor mb-0">
+                  <thead>
+                    <tr>
+                      <th class="nombre-mes-integrado">DJ</th>
+                      <th>Descripción</th>
+                      {% for anio in datos.dj.resumen_anual.keys()|sort(reverse=true) %}
+                        <th class="encabezado-año text-center columna-año">{{ anio }}</th>
+                      {% endfor %}
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                  {# Construir lista de DJ únicos en plantilla #}
+                  {% set ns = namespace(dj_numeros=[]) %}
+                  {% for anio in datos.dj.resumen_anual.keys()|sort(reverse=true) %}
+                    {% for dj in datos.dj.resumen_anual[anio] %}
+                      {% if dj.dj_numero not in ns.dj_numeros %}
+                        {% set _ = ns.dj_numeros.append(dj.dj_numero) %}
+                      {% endif %}
+                    {% endfor %}
+                  {% endfor %}
+
+                  {% for dj_num in ns.dj_numeros %}
+                    {# Buscar título/descripcion del DJ por si aparece en cualquier año #}
+                    {% set encontrado = none %}
+                    {% for anio in datos.dj.resumen_anual.keys()|sort(reverse=true) %}
+                      {% for dj in datos.dj.resumen_anual[anio] %}
+                        {% if dj.dj_numero == dj_num %}
+                          {% set encontrado = dj %}
+                        {% endif %}
+                      {% endfor %}
+                      {# continuar al siguiente año si ya encontramos el DJ (no usamos break por compatibilidad Jinja) #}
+                    {% endfor %}
+
+                    <tr class="fila-periodo-integrada">
+                      <td class="nombre-mes-integrado text-center fw-bold">{{ dj_num }}</td>
+                      <td class="ps-4 nombre-mes">
+                        <i class="fas fa-file-contract me-2 text-primary"></i>
+                        <strong>{{ encontrado.titulo | default(encontrado.descripcion | default('Sin descripción')) }}</strong>
+                      </td>
+
+                      {% for anio in datos.dj.resumen_anual.keys()|sort(reverse=true) %}
+                        {% set dj_año = datos.dj.resumen_anual[anio] %}
+                        {% set dj_encontrado = dj_año | selectattr('dj_numero', 'equalto', dj_num) | list %}
+                        <td class="celda-año text-center">
+                          {% if dj_encontrado %}
+                            {% set estado_encontrado = dj_encontrado[0].estado %}
+                            {% if estado_encontrado == 'No Aplica' %}
+                              <span class="text-muted">-</span>
+                            {% elif estado_encontrado == 'Aceptada' %}
+                              <span class="badge bg-success"><i class="fas fa-check"></i></span>
+                            {% elif estado_encontrado == 'Observada' %}
+                              <button class="btn btn-sm btn-outline-warning boton-observacion" onclick="abrirModalObservacionesDJ('{{ datos.rut }}', {{ dj_num }}, {{ anio }})" title="Ver observaciones">
+                                <i class="fas fa-exclamation-triangle"></i>
+                              </button>
+                            {% elif estado_encontrado == 'Rechazada' %}
+                              <span class="badge bg-danger" title="{{ estado_encontrado }}"><i class="fas fa-times"></i></span>
+                            {% elif estado_encontrado == 'Pendiente' %}
+                              <span class="badge bg-info text-dark" title="{{ estado_encontrado }}"><i class="fas fa-clock"></i></span>
+                            {% else %}
+                              <span class="badge bg-secondary" title="{{ estado_encontrado }}">{{ estado_encontrado }}</span>
+                            {% endif %}
+                          {% else %}
+                            <span class="text-muted">-</span>
+                          {% endif %}
+                        </td>
+                      {% endfor %}
+
+                      <td></td>
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
           {% else %}
-          <div class="text-muted">Sin datos de DJ</div>
+            <div class="text-muted">Sin datos de DJ</div>
           {% endif %}
         </div>
       </div>
@@ -86,9 +211,108 @@
   {% endif %}
 </div>
 
-<script src="/static/js/situacion-tributaria.js"></script>
+<!-- Modal: Consultar Nueva Empresa -->
+<div class="modal fade" id="modalConsultaNueva" tabindex="-1" aria-labelledby="modalConsultaNuevaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modalConsultaNuevaLabel">
+          <i class="fas fa-search-plus me-2"></i>
+          Consultar Nueva Empresa
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+      </div>
+      <div class="modal-body">
+        <form id="formConsultaNueva" onsubmit="return false;">
+          <div class="mb-3">
+            <label for="consulta_rut" class="form-label">
+              <i class="fas fa-id-card me-2"></i>
+              RUT de la Empresa *
+            </label>
+            <input type="text" class="form-control" id="consulta_rut" name="rut" placeholder="12.345.678-9" required>
+            <small class="text-muted">Formato: 12345678-9 o 12.345.678-9</small>
+          </div>
+
+          <div class="mb-3">
+            <label for="consulta_clave" class="form-label">
+              <i class="fas fa-key me-2"></i>
+              Clave SII *
+            </label>
+            <div class="input-group">
+              <input type="password" class="form-control" id="consulta_clave" name="clave" placeholder="Ingrese la clave SII" required>
+              <button class="btn btn-outline-secondary" type="button" onclick="togglePasswordConsulta()">
+                <i class="fas fa-eye" id="toggleIconConsulta"></i>
+              </button>
+            </div>
+            <small class="text-muted">Clave para acceder al SII</small>
+          </div>
+
+          <div class="alert alert-info small mb-0">
+            <i class="fas fa-info-circle me-2"></i>
+            Se consultarán automáticamente los datos de F29 y DJ desde el SII.
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times me-2"></i>
+          Cancelar
+        </button>
+        <button type="button" class="btn btn-success" onclick="ejecutarConsultaNueva()">
+          <i class="fas fa-search me-2"></i>
+          Consultar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal: Progreso de Consulta -->
+<div class="modal fade" id="modalProgresoConsulta" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="modalProgresoConsultaLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header border-0">
+        <h5 class="modal-title" id="progresoConsultaTitulo">
+          <i class="fas fa-spinner fa-spin me-2"></i>
+          Consultando datos...
+        </h5>
+      </div>
+      <div class="modal-body">
+        <p id="progresoConsultaDescripcion">Por favor espere mientras se descargan los datos desde el SII.</p>
+
+        <div class="progress mb-3" style="height: 25px;">
+          <div class="progress-bar progress-bar-striped progress-bar-animated"
+               role="progressbar"
+               id="progresoConsultaBarra"
+               style="width: 10%;">
+            10%
+          </div>
+        </div>
+
+        <div id="progresoConsultaDetalle" style="display: none;">
+          <div class="alert alert-secondary">
+            <small class="font-monospace" id="progresoConsultaLog" style="white-space: pre-wrap; max-height: 200px; overflow-y: auto; display: block;"></small>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-primary" id="btnCerrarProgresoConsulta" style="display: none;" onclick="cerrarModalYRecargar()">
+          <i class="fas fa-check me-2"></i>
+          Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{# Reutilizar estilos de DJ Integral para mantener diseño consistente #}
+<link rel="stylesheet" href="{{ url_for('static', filename='css/dj-integral.css') }}">
 <link rel="stylesheet" href="/static/css/estilos-base.css">
 <link rel="stylesheet" href="/static/css/situacion-tributaria.css">
+
+<!-- Scripts: cargar situacion-tributaria.js PRIMERO para evitar conflictos -->
+<script src="/static/js/situacion-tributaria.js"></script>
+<script src="/static/js/dj-integral.js"></script>
 {% endblock %}
 
 

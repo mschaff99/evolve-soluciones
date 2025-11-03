@@ -218,65 +218,10 @@
 {% endblock %}
 
 {% block modales %}
-<!-- Modal de Credencial SII -->
-<div class="modal fade" id="modalCredencial" tabindex="-1">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fas fa-key me-2"></i>
-                    Gestionar Credencial SII
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <form id="formCredencial">
-                    <input type="hidden" id="credencial_rut">
-
-                    <div class="mb-3">
-                        <label class="form-label">Empresa</label>
-                        <input type="text" class="form-control" id="credencial_empresa" readonly>
-                    </div>
-
-                    <div class="mb-3">
-                        <label class="form-label">Clave SII *</label>
-                        <div class="position-relative">
-                            <input type="password"
-                                   class="form-control"
-                                   id="credencial_clave"
-                                   placeholder="Ingrese la clave del SII"
-                                   required
-                                   style="padding-right: 45px;">
-                            <button class="password-toggle"
-                                    type="button"
-                                    onclick="togglePassword()">
-                                <i class="fas fa-eye" id="toggleIcon"></i>
-                            </button>
-                        </div>
-                        <small style="color: var(--text-tertiary); font-size: 12px;">
-                            Esta clave se almacenará de forma segura en la base de datos
-                        </small>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-action btn-action-secondary" data-bs-dismiss="modal">
-                    <i class="fas fa-times"></i>
-                    Cancelar
-                </button>
-                <button type="button" class="btn btn-danger" id="btnEliminarCredencial" style="display: none;">
-                    <i class="fas fa-trash"></i>
-                    Eliminar
-                </button>
-                <button type="button" class="btn btn-action btn-action-primary" onclick="guardarCredencial()">
-                    <i class="fas fa-save"></i>
-                    Guardar
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
+    {# Incluir modal reutilizable de credencial SII desde componentes #}
+    {% include 'componentes/modal-credencial.html' %}
+    {# Modal de progreso para integración GCI (F29 y DJ) #}
+    {% include 'componentes/modal-progreso.html' %}
 {% endblock %}
 
 {% block scripts %}

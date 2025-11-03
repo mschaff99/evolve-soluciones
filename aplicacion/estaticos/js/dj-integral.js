@@ -35,36 +35,38 @@ function alternarEmpresa(boton) {
     }
 
     if (empresasExpandidas.has(rut)) {
-      // Colapsar todas
+      // Colapsar todas: ocultar con display none y remover clase visible
       filasDetalle.forEach(filaDetalle => {
-        filaDetalle.style.display = 'none';
         filaDetalle.classList.remove('visible');
+        filaDetalle.style.display = 'none'; // Forzar display none inline
       });
       empresasExpandidas.delete(rut);
 
-      // Cambiar ícono del botón
+      // Cambiar ícono del botón y aria
       const icono = boton.querySelector('i');
       if (icono) {
         icono.className = 'fas fa-plus';
       }
       boton.classList.remove('expandido');
+      boton.setAttribute('aria-expanded', 'false');
       boton.title = 'Expandir detalles';
 
       console.log(`Empresa ${rut} colapsada`);
     } else {
-      // Expandir todas
+      // Expandir todas: mostrar con display table-row y agregar clase visible
       filasDetalle.forEach(filaDetalle => {
-        filaDetalle.style.display = 'table-row';
         filaDetalle.classList.add('visible');
+        filaDetalle.style.display = 'table-row'; // Forzar display table-row inline
       });
       empresasExpandidas.add(rut);
 
-      // Cambiar ícono del botón
+      // Cambiar ícono del botón y aria
       const icono = boton.querySelector('i');
       if (icono) {
         icono.className = 'fas fa-minus';
       }
       boton.classList.add('expandido');
+      boton.setAttribute('aria-expanded', 'true');
       boton.title = 'Contraer detalles';
 
       console.log(`Empresa ${rut} expandida`);
@@ -83,8 +85,23 @@ function expandirTodas() {
 
     botones.forEach(boton => {
       const rut = boton.dataset.empresa;
+      // Si no está expandida, expandir mediante alternarEmpresa
       if (!empresasExpandidas.has(rut)) {
         alternarEmpresa(boton);
+      } else {
+        // Asegurar que el botón y el aria-expanded estén sincronizados
+        boton.classList.add('expandido');
+        boton.setAttribute('aria-expanded', 'true');
+        boton.title = 'Contraer detalles';
+        const icono = boton.querySelector('i');
+        if (icono) icono.className = 'fas fa-minus';
+
+        // Asegurar que las filas de detalle estén visibles
+        const filasDetalle = document.querySelectorAll(`tr.fila-dj-detalle[data-empresa="${rut}"]`);
+        filasDetalle.forEach(fd => {
+          fd.classList.add('visible');
+          fd.style.display = 'table-row';
+        });
       }
     });
 
@@ -105,6 +122,20 @@ function contraerTodas() {
       const rut = boton.dataset.empresa;
       if (empresasExpandidas.has(rut)) {
         alternarEmpresa(boton);
+      } else {
+        // Asegurar estado visual de botón
+        boton.classList.remove('expandido');
+        boton.setAttribute('aria-expanded', 'false');
+        boton.title = 'Expandir detalles';
+        const icono = boton.querySelector('i');
+        if (icono) icono.className = 'fas fa-plus';
+
+        // Asegurar que las filas de detalle estén ocultas
+        const filasDetalle = document.querySelectorAll(`tr.fila-dj-detalle[data-empresa="${rut}"]`);
+        filasDetalle.forEach(fd => {
+          fd.classList.remove('visible');
+          fd.style.display = 'none';
+        });
       }
     });
 
@@ -195,18 +226,21 @@ function filtrarEmpresas() {
         }
       }
 
-      // Mostrar/ocultar fila
+      // Mostrar/ocultar fila principal
       if (mostrarFila) {
         fila.style.display = '';
         empresasVisibles++;
       } else {
         fila.style.display = 'none';
 
-        // También ocultar la fila de detalle si estaba expandida
-        const filaDetalle = document.querySelector(`tr.fila-dj-detalle[data-empresa="${rut}"]`);
-        if (filaDetalle) {
-          filaDetalle.style.display = 'none';
-        }
+        // También ocultar la(s) fila(s) de detalle si estaban expandida(s)
+        const filasDetalleLocal = document.querySelectorAll(`tr.fila-dj-detalle[data-empresa="${rut}"]`);
+        filasDetalleLocal.forEach(fd => {
+          fd.classList.remove('visible');
+          fd.style.display = 'none'; // Forzar display none inline
+        });
+        // Asegurar que el estado interno refleja que la empresa no está expandida
+        if (empresasExpandidas.has(rut)) empresasExpandidas.delete(rut);
       }
     });
 
