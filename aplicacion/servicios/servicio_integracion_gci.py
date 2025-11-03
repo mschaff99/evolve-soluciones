@@ -73,6 +73,34 @@ def obtener_ruta_gci() -> Tuple[str, str]:
     )
 
 
+def obtener_python_gci(dir_gci: str) -> str:
+    """Obtiene el ejecutable de Python del entorno virtual de GCI.
+
+    Args:
+        dir_gci: Ruta del directorio GCI
+
+    Returns:
+        str: Ruta del python.exe del venv de GCI o python por defecto
+    """
+    # Posibles ubicaciones del venv en GCI
+    venv_paths = [
+        os.path.join(dir_gci, ".venv", "Scripts", "python.exe"),
+        os.path.join(dir_gci, "venv", "Scripts", "python.exe"),
+        os.path.join(dir_gci, ".venv", "bin", "python"),
+        os.path.join(dir_gci, "venv", "bin", "python"),
+    ]
+
+    # Usar el primer venv que exista
+    for venv_python in venv_paths:
+        if os.path.isfile(venv_python):
+            print(f"DEBUG: Usando Python de GCI: {venv_python}")
+            return venv_python
+
+    # Fallback: usar python del sistema
+    print(f"WARNING: No se encontró venv de GCI, usando python del sistema")
+    return "python"
+
+
 def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) -> None:
     """Ejecuta una opción de GCI en un subproceso interactivo y guarda logs en archivo.
 
@@ -90,19 +118,19 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
     os.makedirs(logs_dir, exist_ok=True)
     log_path = os.path.join(logs_dir, f"gci_opcion{opcion}_{rut}_{ahora}.log")
 
-    python_exe = obtener_python_actual()
     dir_gci, ruta_main = obtener_ruta_gci()
+    python_gci = obtener_python_gci(dir_gci)
 
     # El script es interactivo, no acepta argumentos en línea de comandos
-    cmd = [python_exe, ruta_main]
+    cmd = [python_gci, ruta_main]
 
     with open(log_path, "w", encoding="utf-8") as logf:
         logf.write(f"[{ahora}] Ejecutando opcion {opcion} para {rut} en {base_datos}\n")
         logf.write(f"Logs dir: {logs_dir}\n")
-        logf.write(f"Python: {python_exe}\n")
+        logf.write(f"Python GCI: {python_gci}\n")
         logf.write(f"Directorio GCI: {dir_gci}\n")
         logf.write(f"Script: {ruta_main} (existe={os.path.isfile(ruta_main)})\n")
-        logf.write(f"Comando: {python_exe} {os.path.basename(ruta_main)}\n")
+        logf.write(f"Comando: {python_gci} {os.path.basename(ruta_main)}\n")
         logf.write(f"Interacción automática: opción={opcion}, rut={rut}\n\n")
         try:
             if not os.path.isdir(dir_gci):
@@ -119,62 +147,91 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
             env["PYTHONIOENCODING"] = "utf-8"
 
             # Ejecutar con stdin para enviar respuestas interactivas
-            proceso = subprocess.Popen(
-                cmd,
-                stdin=subprocess.PIPE,
-                stdout=logf,
-                stderr=logf,
-                cwd=dir_gci,
-                env=env,
-                text=True,
-                bufsize=1  # Line buffered
-            )
-
-            # Enviar respuestas al proceso interactivo:
-            # 1. Primero esperar un poco para que muestre el menú
-            time.sleep(1)
-            # 2. Enviar la opción (1 o 3) seguida de Enter
-            proceso.stdin.write(f"{opcion}\n")
-            proceso.stdin.flush()
-            logf.write(f"\n[Auto] Enviado: {opcion}\n")
-
-            # 3. Esperar un poco antes de enviar el RUT
-            time.sleep(1)
-            # 4. Enviar el RUT cuando lo pida
-            proceso.stdin.write(f"{rut}\n")
-            proceso.stdin.flush()
-            logf.write(f"[Auto] Enviado RUT: {rut}\n")
-
-            # 5. Enviar la contraseña del SII si el script la solicita
-            #    (se envía en todo caso; el script la ignorará si no la necesita)
-            time.sleep(1)
             try:
-                proceso.stdin.write("\n")  # asegurar línea si quedó input pendiente
+                proceso = subprocess.Popen(
+                    cmd,
+                    stdin=subprocess.PIPE,
+                    stdout=logf,
+                    stderr=subprocess.STDOUT,
+                    cwd=dir_gci,
+                    env=env,
+                    text=True,
+                    bufsize=1  # Line buffered
+                )
+                logf.write("[GCI] Proceso iniciado correctamente\n")
+            except Exception as e_popen:
+                logf.write(f"ERROR al iniciar proceso GCI: {e_popen}\n")
+                print(f"ERROR al iniciar GCI: {e_popen}")
+                return
+
+            # Enviar respuestas al proceso interactivo
+            try:
+                # 1. Esperar a que muestre el menú
+                time.sleep(1)
+                logf.write("[Auto] Enviando opción...\n")
+
+                # 2. Enviar la opción (1 o 3) seguida de Enter
+                proceso.stdin.write(f"{opcion}\n")
                 proceso.stdin.flush()
-            except Exception:
-                pass
-            proceso.stdin.write("\n")  # salto de línea por si el prompt requiere enter previo
-            proceso.stdin.flush()
-            # Enviar password (no registrar en logs)
-            proceso.stdin.write(f"{password}\n")
-            proceso.stdin.flush()
-            logf.write("[Auto] Enviada contraseña (oculta en log)\n")
+                logf.write(f"[Auto] Enviado: {opcion}\n")
 
-            # 6. Dar tiempo a que el proceso arranque la tarea y vuelva al menú
-            time.sleep(2)
-            # 7. Enviar '5' para salir del menú y evitar EOF en el próximo input
-            proceso.stdin.write("5\n")
-            proceso.stdin.flush()
-            logf.write("[Auto] Enviado: 5 (Salir)\n")
+                # 3. Esperar antes de enviar el RUT
+                time.sleep(1)
+                logf.write("[Auto] Enviando RUT...\n")
 
-            # 8. Cerrar stdin para indicar fin de entradas
-            proceso.stdin.close()
+                # 4. Enviar el RUT
+                proceso.stdin.write(f"{rut}\n")
+                proceso.stdin.flush()
+                logf.write(f"[Auto] Enviado RUT: {rut}\n")
 
-            # 9. Esperar a que termine el subproceso para ejecutar secuencialmente
-            rc = proceso.wait()
-            logf.write(f"[Auto] Proceso finalizado. returncode={rc}\n")
+                # 5. Esperar antes de enviar contraseña
+                time.sleep(1)
+                logf.write("[Auto] Enviando contraseña...\n")
 
-            print(f"GCI opcion {opcion} lanzada para {rut}. Log: {log_path}")
+                # Enviar password (no registrar en logs)
+                proceso.stdin.write(f"{password}\n")
+                proceso.stdin.flush()
+                logf.write("[Auto] Enviada contraseña (oculta en log)\n")
+
+                # 6. Dar tiempo a que el proceso arranque la tarea
+                time.sleep(2)
+                logf.write("[Auto] Enviando salida...\n")
+
+                # 7. Enviar '5' para salir del menú
+                proceso.stdin.write("5\n")
+                proceso.stdin.flush()
+                logf.write("[Auto] Enviado: 5 (Salir)\n")
+
+            except BrokenPipeError as e_pipe:
+                logf.write(f"ERROR: Proceso GCI terminó inesperadamente: {e_pipe}\n")
+                print(f"GCI terminó inesperadamente: {e_pipe}")
+            except OSError as e_os:
+                logf.write(f"ERROR: Problema de comunicación con GCI: {e_os}\n")
+                print(f"Error de I/O con GCI: {e_os}")
+            except Exception as e_stdin:
+                logf.write(f"ERROR: Error escribiendo en stdin: {e_stdin}\n")
+                print(f"Error comunicando con GCI: {e_stdin}")
+            finally:
+                # Cerrar stdin para indicar fin de entradas
+                try:
+                    if proceso.stdin and not proceso.stdin.closed:
+                        proceso.stdin.close()
+                except Exception:
+                    pass
+
+            # 8. Esperar a que termine el subproceso
+            try:
+                rc = proceso.wait(timeout=30)
+                logf.write(f"[Auto] Proceso finalizado. returncode={rc}\n")
+                print(f"GCI opcion {opcion} lanzada para {rut}. Log: {log_path}")
+            except subprocess.TimeoutExpired:
+                logf.write("WARNING: Proceso GCI tardó más de 30 segundos, finalizando...\n")
+                proceso.kill()
+                print(f"WARNING: GCI tardó demasiado para {rut}")
+
+        except FileNotFoundError as e_notfound:
+            logf.write(f"ERROR: {e_notfound}\n")
+            print(f"ERROR: GCI no disponible: {e_notfound}")
         except Exception as e:
             logf.write(f"ERROR: {e}\n")
             import traceback
