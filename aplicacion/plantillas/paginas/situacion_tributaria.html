@@ -18,7 +18,7 @@
       <button type="button" class="btn btn-success flex-grow-1" onclick="abrirModalConsultaNueva()">
         <i class="fas fa-search-plus me-2"></i>Consultar Nueva
       </button>
-      <a href="/stratex/empresas/nueva" class="btn btn-action btn-action-primary flex-grow-1">
+      <a href="/{{ base_datos }}/empresas/nueva" class="btn btn-action btn-action-primary flex-grow-1">
         <i class="fas fa-plus me-2"></i>Nueva Empresa
       </a>
     </div>
@@ -309,6 +309,12 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dj-integral.css') }}">
 <link rel="stylesheet" href="/static/css/estilos-base.css">
 <link rel="stylesheet" href="/static/css/situacion-tributaria.css">
+
+<!-- Configuración de base de datos para JavaScript -->
+<script>
+  window.baseDatos = '{{ base_datos }}';
+  window.csrfToken = '{{ csrf_token() }}';
+</script>
 
 <!-- Scripts: cargar situacion-tributaria.js PRIMERO para evitar conflictos -->
 <script src="/static/js/situacion-tributaria.js"></script>
