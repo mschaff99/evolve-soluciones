@@ -126,7 +126,7 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
         opcion: Número de opción de GCI (1 o 3).
         rut: RUT a procesar.
         password: Contraseña SII en texto plano (no se usa directamente aquí, el script la obtiene).
-        base_datos: Nombre de la base de datos actual (contexto).
+        base_datos: Nombre de la base de datos actual (stratex, etc.) - se pasa al script GCI.
     """
     ahora = datetime.now().strftime("%Y%m%d-%H%M%S")
 
@@ -143,13 +143,13 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
     cmd = [python_gci, ruta_main]
 
     with open(log_path, "w", encoding="utf-8") as logf:
-        logf.write(f"[{ahora}] Ejecutando opcion {opcion} para {rut} en {base_datos}\n")
+        logf.write(f"[{ahora}] Ejecutando opcion {opcion} para {rut} en base de datos: {base_datos}\n")
         logf.write(f"Logs dir: {logs_dir}\n")
         logf.write(f"Python GCI: {python_gci}\n")
         logf.write(f"Directorio GCI: {dir_gci}\n")
         logf.write(f"Script: {ruta_main} (existe={os.path.isfile(ruta_main)})\n")
         logf.write(f"Comando: {python_gci} {os.path.basename(ruta_main)}\n")
-        logf.write(f"Interacción automática: opción={opcion}, rut={rut}\n\n")
+        logf.write(f"Interacción automática: opción={opcion}, rut={rut}, base_datos={base_datos}\n\n")
         try:
             if not os.path.isdir(dir_gci):
                 logf.write("ERROR: Directorio GCI no existe.\n")
@@ -163,6 +163,12 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
             # Forzar UTF-8 en el proceso hijo
             env = dict(os.environ)
             env["PYTHONIOENCODING"] = "utf-8"
+
+            env["DB_NAME"] = base_datos
+            env["EVOLVE_DB_NAME"] = base_datos  # Nombre alternativo por si GCI usa otro
+
+            logf.write(f"[Config] Variable de entorno DB_NAME configurada a: {base_datos}\n")
+            logf.write(f"[Config] Esta base de datos se usará para guardar F29 y DJ\n\n")
 
             # Ejecutar con stdin para enviar respuestas interactivas
             try:

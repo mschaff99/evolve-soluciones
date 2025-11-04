@@ -161,7 +161,6 @@ async function guardarCredencial() {
     document.getElementById('progresoTitulo').innerText = 'Cargando datos de F29...';
     document.getElementById('progresoDescripcion').innerText = 'Por favor espere mientras se descargan los datos desde el SII (F29).';
     const barra = document.getElementById('progresoBarra'); if (barra) barra.style.width = '10%';
-    const detalle = document.getElementById('progresoDetalle'); if (detalle) detalle.style.display = 'none';
     const btnCerrar = document.getElementById('btnCerrarProgreso'); if (btnCerrar) btnCerrar.style.display = 'none';
     modalProInst.show();
 
@@ -205,12 +204,6 @@ async function guardarCredencial() {
             if (barra) barra.style.width = '50%';
             document.getElementById('progresoTitulo').innerText = 'Cargando F29 y DJ...';
             document.getElementById('progresoDescripcion').innerText = 'Procesamiento combinado en curso. Por favor espere.';
-
-            // Mostrar log si está disponible
-            if (st.op5.log && detalle) {
-              detalle.style.display = 'block';
-              document.getElementById('progresoLog').innerText = st.op5.log.slice(-2000);
-            }
           } else if (esperadoOp5) {
             // Proceso combinado finalizado
             clearTimeout(pollingTimer);
@@ -218,7 +211,6 @@ async function guardarCredencial() {
             if (barra) barra.style.width = '100%';
             document.getElementById('progresoTitulo').innerText = 'Procesos finalizados';
             document.getElementById('progresoDescripcion').innerText = 'F29 y DJ cargados correctamente (proceso combinado).';
-            if (detalle) detalle.style.display = 'none';
             const btnCerrar = document.getElementById('btnCerrarProgreso');
             if (btnCerrar) btnCerrar.style.display = 'inline-block';
 
@@ -236,12 +228,6 @@ async function guardarCredencial() {
           if (st.op1 && st.op1.exists && !st.op1.finished) {
             if (barra) barra.style.width = '30%';
             document.getElementById('progresoTitulo').innerText = 'Cargando datos de F29...';
-
-            // Mostrar log de op1
-            if (st.op1.log && detalle) {
-              detalle.style.display = 'block';
-              document.getElementById('progresoLog').innerText = st.op1.log.slice(-2000);
-            }
           }
 
           if (st.op1 && st.op1.finished && esperadoOp1) {
@@ -254,12 +240,6 @@ async function guardarCredencial() {
           // Opción 3: DJ
           if (st.op3 && st.op3.exists && !st.op3.finished && !esperadoOp1) {
             if (barra) barra.style.width = '80%';
-
-            // Mostrar log de op3
-            if (st.op3.log && detalle) {
-              detalle.style.display = 'block';
-              document.getElementById('progresoLog').innerText = st.op3.log.slice(-2000);
-            }
           }
 
           if (st.op3 && st.op3.finished && esperadoOp3 && !esperadoOp1) {
@@ -268,7 +248,6 @@ async function guardarCredencial() {
             if (barra) barra.style.width = '100%';
             document.getElementById('progresoTitulo').innerText = 'Procesos finalizados';
             document.getElementById('progresoDescripcion').innerText = 'F29 y DJ cargados correctamente.';
-            if (detalle) detalle.style.display = 'none';
             const btnCerrar3 = document.getElementById('btnCerrarProgreso');
             if (btnCerrar3) btnCerrar3.style.display = 'inline-block';
 
