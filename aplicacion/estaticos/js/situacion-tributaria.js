@@ -117,16 +117,16 @@ function togglePasswordConsulta() {
 async function ejecutarConsultaNueva() {
   const rut = document.getElementById('consulta_rut').value.trim();
   const clave = document.getElementById('consulta_clave').value.trim();
-  
+
   // Leer base de datos desde variable global (configurada en el template)
   const baseDatos = window.baseDatos;
-  
+
   if (!baseDatos) {
     console.error('ERROR: window.baseDatos no está definida');
     alert('ERROR: No se pudo determinar la base de datos. Recargue la página.');
     return;
   }
-  
+
   console.log(`[ejecutarConsultaNueva] Base de datos: ${baseDatos}`);
 
   // Validaciones básicas
