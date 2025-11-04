@@ -191,7 +191,7 @@ async function ejecutarConsultaNueva() {
     const base = baseDatos;
     let esperadoOp1 = true;
     let esperadoOp3 = true;
-    const maxTimeoutMs = 5 * 60 * 1000; // 5 minutos
+    const maxTimeoutMs = 10 * 60 * 1000; // 10 minutos (aumentado para procesos lentos)
     const startTime = Date.now();
     let pollingTimer = null;
     let pollingActivo = true; // Flag para controlar el polling
@@ -323,12 +323,12 @@ async function ejecutarConsultaNueva() {
 
       // Continuar polling solo si sigue activo
       if (pollingActivo) {
-        pollingTimer = setTimeout(checkStatus, 2000);
+        pollingTimer = setTimeout(checkStatus, 3000); // 3 segundos entre checks (más tiempo para procesos pesados)
       }
     }
 
     // Iniciar polling
-    pollingTimer = setTimeout(checkStatus, 1000);
+    pollingTimer = setTimeout(checkStatus, 2000); // Primer check después de 2 segundos
 
   } catch (error) {
     console.error('Error ejecutando consulta nueva:', error);

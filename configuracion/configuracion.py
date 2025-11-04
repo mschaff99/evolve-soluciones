@@ -85,7 +85,7 @@ class ConfiguracionBase:
     GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.5-pro')
     GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models'
     GEMINI_TIMEOUT = int(os.getenv('GEMINI_TIMEOUT', 120))  # 2 minutos
-    REQUEST_TIMEOUT = 180  # 3 minutos para requests HTTP largos
+    REQUEST_TIMEOUT = 600  # 10 minutos para requests HTTP largos (GCI puede tomar tiempo)
 
 
 class ConfiguracionDesarrollo(ConfiguracionBase):

@@ -47,7 +47,7 @@ if __name__ == '__main__':
         host='0.0.0.0',
         port=8080,
         threads=4,
-        channel_timeout=120,
+        channel_timeout=600,  # 10 minutos - para procesos largos como GCI
         cleanup_interval=30,
         url_scheme='http'
     )

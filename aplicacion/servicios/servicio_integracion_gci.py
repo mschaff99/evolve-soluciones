@@ -221,11 +221,11 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
 
             # 8. Esperar a que termine el subproceso
             try:
-                rc = proceso.wait(timeout=30)
+                rc = proceso.wait(timeout=600)  # 10 minutos para procesos pesados (F29 + DJ)
                 logf.write(f"[Auto] Proceso finalizado. returncode={rc}\n")
                 print(f"GCI opcion {opcion} lanzada para {rut}. Log: {log_path}")
             except subprocess.TimeoutExpired:
-                logf.write("WARNING: Proceso GCI tardó más de 30 segundos, finalizando...\n")
+                logf.write("WARNING: Proceso GCI tardó más de 10 minutos, finalizando...\n")
                 proceso.kill()
                 print(f"WARNING: GCI tardó demasiado para {rut}")
 
