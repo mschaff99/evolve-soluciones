@@ -228,9 +228,14 @@ async function ejecutarConsultaNueva() {
 
         const st = await resp.json();
 
+        // Debug: Mostrar el estado recibido
+        console.log('[GCI Status]', st);
+
         // Verificar si ambos procesos terminaron (caso cuando llega todo completo)
         const op1Terminado = st.op1 && st.op1.finished;
         const op3Terminado = st.op3 && st.op3.finished;
+        const op1Existe = st.op1 && st.op1.exists;
+        const op3Existe = st.op3 && st.op3.exists;
 
         // Si ambos procesos terminaron, finalizar inmediatamente
         if (op1Terminado && op3Terminado) {
@@ -256,7 +261,7 @@ async function ejecutarConsultaNueva() {
         }
 
         // Fase 1: Cargando F29
-        if (st.op1 && st.op1.exists && !st.op1.finished) {
+        if (op1Existe && !op1Terminado) {
           if (barra) {
             barra.style.width = '30%';
             barra.innerText = '30%';
@@ -266,7 +271,7 @@ async function ejecutarConsultaNueva() {
         }
 
         // Fase 2: F29 completado, iniciando DJ
-        if (st.op1 && st.op1.finished && esperadoOp1) {
+        if (op1Terminado && esperadoOp1) {
           esperadoOp1 = false;
           if (barra) {
             barra.style.width = '60%';
@@ -277,11 +282,13 @@ async function ejecutarConsultaNueva() {
         }
 
         // Fase 3: Cargando DJ
-        if (st.op3 && st.op3.exists && !st.op3.finished) {
+        if (op3Existe && !op3Terminado) {
           if (barra) {
             barra.style.width = '80%';
             barra.innerText = '80%';
           }
+          document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Cargando Declaraciones Juradas...';
+          document.getElementById('progresoConsultaDescripcion').innerText = 'Procesando información de DJ desde el SII...';
         }
 
         // Mostrar logs si están disponibles
@@ -291,12 +298,13 @@ async function ejecutarConsultaNueva() {
         }
 
         // Verificar si no hay procesos activos (posible error en backend)
+        // Dar 60 segundos para que los procesos se inicien antes de mostrar advertencia
         const hayProcesos = (st.op1 && st.op1.exists) || (st.op3 && st.op3.exists);
-        if (!hayProcesos && (Date.now() - startTime > 10000)) {
+        if (!hayProcesos && (Date.now() - startTime > 60000)) {
           pollingActivo = false;
           if (pollingTimer) clearTimeout(pollingTimer);
           document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-exclamation-triangle me-2 text-warning"></i>Sin procesos activos';
-          document.getElementById('progresoConsultaDescripcion').innerText = 'No se detectaron procesos activos. Es posible que ya hayan finalizado. Revise la tabla de empresas.';
+          document.getElementById('progresoConsultaDescripcion').innerText = 'No se detectaron procesos activos después de 1 minuto. Es posible que ya hayan finalizado o que haya un error. Revise la tabla de empresas o los logs del servidor.';
           if (btnCerrar) btnCerrar.style.display = 'inline-block';
           return;
         }
