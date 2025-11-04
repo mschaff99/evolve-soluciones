@@ -339,27 +339,46 @@ def api_gci_status(base_datos, rut):
         # Usar ruta absoluta al directorio base del proyecto
         dir_base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         logs_dir = os.path.join(dir_base, 'logs')
-        
+
+        # También buscar en la carpeta de logs del GCI si existe
+        gci_logs_dirs = [
+            logs_dir,  # Logs de evolve-soluciones
+            r"C:\Users\Administrator\Desktop\Gestion-Consulta-Integral\logs\gestion_consulta",  # GCI producción
+            r"c:\Users\mscha\Desktop\Gestion-Consulta-Integral\logs\gestion_consulta",  # GCI desarrollo
+        ]
+
         resultado = {
             'op1': {'exists': False, 'finished': False, 'log': ''},
             'op3': {'exists': False, 'finished': False, 'log': ''},
-            'logs_dir': logs_dir  # Para debugging
+            'logs_dir': logs_dir,  # Para debugging
+            'gci_logs_checked': []  # Para saber qué directorios revisó
         }
 
-        if not os.path.isdir(logs_dir):
-            print(f"[DEBUG] Directorio de logs no existe: {logs_dir}")
-            return jsonify(resultado)
+        files1 = []
+        files3 = []
 
-        # Buscar el archivo más reciente para cada opción
-        pattern1 = os.path.join(logs_dir, f"gci_opcion1_{rut}_*.log")
-        pattern3 = os.path.join(logs_dir, f"gci_opcion3_{rut}_*.log")
+        # Buscar en todos los directorios de logs posibles
+        for search_dir in gci_logs_dirs:
+            if not os.path.isdir(search_dir):
+                continue
 
-        files1 = glob.glob(pattern1)
-        files3 = glob.glob(pattern3)
-        
-        print(f"[DEBUG] Buscando logs para RUT {rut} en: {logs_dir}")
-        print(f"[DEBUG] Pattern op1: {pattern1}, encontrados: {len(files1)}")
-        print(f"[DEBUG] Pattern op3: {pattern3}, encontrados: {len(files3)}")
+            resultado['gci_logs_checked'].append(search_dir)
+
+            # Buscar archivos de opción 1 y 3
+            pattern1 = os.path.join(search_dir, f"gci_opcion1_{rut}_*.log")
+            pattern3 = os.path.join(search_dir, f"gci_opcion3_{rut}_*.log")
+
+            found1 = glob.glob(pattern1)
+            found3 = glob.glob(pattern3)
+
+            files1.extend(found1)
+            files3.extend(found3)
+
+            print(f"[DEBUG] Buscando en: {search_dir}")
+            print(f"[DEBUG]   Op1: {pattern1} -> {len(found1)} archivos")
+            print(f"[DEBUG]   Op3: {pattern3} -> {len(found3)} archivos")
+
+        print(f"[DEBUG] Total encontrados para RUT {rut}: Op1={len(files1)}, Op3={len(files3)}")
 
         def inspect_latest(files, opcion_num):
             if not files:
@@ -376,11 +395,17 @@ def api_gci_status(base_datos, rut):
                 content = ''
 
             finished = False
-            # Marcas que indican fin de ejecución
-            markers = ['returncode=', 'ejecución secuencial finalizada', 'Proceso finalizado', 'Referencias internas limpiadas', 'Navegador cerrado']
+            # Marcas que indican fin de ejecución del GCI
+            markers = [
+                'PROCESAMIENTO COMBINADO F29 + DJ COMPLETADO',  # Mensaje de éxito del GCI
+                'Limpiando referencias internas',  # Limpieza final
+                'returncode=',  # Cuando el subproceso termina
+                'Proceso finalizado',  # Mensaje genérico de fin
+            ]
             for m in markers:
                 if m in content:
                     finished = True
+                    print(f"[DEBUG] Proceso op{opcion_num} marcado como finished por: '{m}'")
                     break
 
             return {'exists': True, 'finished': finished, 'log': content[-8000:]}

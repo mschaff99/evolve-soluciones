@@ -1,8 +1,8 @@
 # Fix Crítico: Rutas Absolutas para Logs de GCI
 
-**Fecha:** 3 de noviembre de 2025  
-**Problema:** Los logs de GCI se generaban en un directorio pero se buscaban en otro, causando que el sistema no detectara los procesos  
-**Severidad:** 🔴 CRÍTICA  
+**Fecha:** 3 de noviembre de 2025
+**Problema:** Los logs de GCI se generaban en un directorio pero se buscaban en otro, causando que el sistema no detectara los procesos
+**Severidad:** 🔴 CRÍTICA
 **Estado:** ✅ Resuelto
 
 ---
@@ -50,7 +50,7 @@ logs_dir = os.getcwd()  # Puede ser diferente según cómo se ejecute la app
 def obtener_directorio_base() -> str:
     """
     Obtiene el directorio base del proyecto de forma consistente.
-    
+
     Returns:
         str: Ruta absoluta al directorio raíz del proyecto
     """
@@ -86,7 +86,7 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
 ```python
 def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) -> None:
     ahora = datetime.now().strftime("%Y%m%d-%H%M%S")
-    
+
     # ✅ Usar ruta absoluta al directorio base del proyecto
     dir_base = obtener_directorio_base()
     logs_dir = os.path.join(dir_base, "logs")
@@ -104,7 +104,7 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
 def api_gci_status(base_datos, rut):
     import glob
     import os
-    
+
     try:
         logs_dir = os.path.join(os.getcwd(), 'logs')  # ❌ CWD dependiente
         resultado = {
@@ -119,12 +119,12 @@ def api_gci_status(base_datos, rut):
 def api_gci_status(base_datos, rut):
     import glob
     import os
-    
+
     try:
         # ✅ Usar ruta absoluta al directorio base del proyecto
         dir_base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         logs_dir = os.path.join(dir_base, 'logs')
-        
+
         resultado = {
             'op1': {'exists': False, 'finished': False, 'log': ''},
             'op3': {'exists': False, 'finished': False, 'log': ''},
@@ -319,6 +319,6 @@ logs_dir = "C:\\Users\\Administrator\\Desktop\\evolve-soluciones\\logs"
 
 ---
 
-**Documentado por:** GitHub Copilot  
-**Revisado por:** equipo Evolve Soluciones  
+**Documentado por:** GitHub Copilot
+**Revisado por:** equipo Evolve Soluciones
 **Última actualización:** 3 nov 2025

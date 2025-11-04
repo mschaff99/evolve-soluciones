@@ -227,7 +227,7 @@ async function ejecutarConsultaNueva() {
         }
 
         const st = await resp.json();
-        
+
         // Log para debugging
         if (st.logs_dir) {
           console.log('[GCI Status] Directorio de logs:', st.logs_dir);
@@ -320,7 +320,7 @@ async function ejecutarConsultaNueva() {
               barra.style.width = '15%';
               barra.innerText = '15%';
             }
-          } 
+          }
           // Si ya pasaron 2 minutos sin procesos, mostrar advertencia
           else if (tiempoTranscurrido > 120000) { // Después de 2 minutos
             pollingActivo = false;
