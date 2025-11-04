@@ -194,13 +194,21 @@ async function ejecutarConsultaNueva() {
     const maxTimeoutMs = 5 * 60 * 1000; // 5 minutos
     const startTime = Date.now();
     let pollingTimer = null;
+    let pollingActivo = true; // Flag para controlar el polling
 
     async function checkStatus() {
+      // Si el polling ya no está activo, salir
+      if (!pollingActivo) {
+        if (pollingTimer) clearTimeout(pollingTimer);
+        return;
+      }
+
       try {
         const resp = await fetch(`/${base}/empresas/api/gci_status/${rutPol}`);
 
         if (resp.status === 404) {
-          clearTimeout(pollingTimer);
+          pollingActivo = false;
+          if (pollingTimer) clearTimeout(pollingTimer);
           console.warn('[ejecutarConsultaNueva] endpoint /api/gci_status no encontrado (404)');
           document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-exclamation-triangle me-2 text-warning"></i>Servicio no disponible';
           document.getElementById('progresoConsultaDescripcion').innerText = 'El servidor no tiene disponible el endpoint de estado GCI. Reinicie la aplicación backend.';
@@ -209,7 +217,8 @@ async function ejecutarConsultaNueva() {
         }
 
         if (!resp.ok) {
-          clearTimeout(pollingTimer);
+          pollingActivo = false;
+          if (pollingTimer) clearTimeout(pollingTimer);
           console.error('[ejecutarConsultaNueva] error en respuesta de gci_status:', resp.status);
           document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-times-circle me-2 text-danger"></i>Error consultando estado';
           document.getElementById('progresoConsultaDescripcion').innerText = `Error ${resp.status} al consultar el estado. Revise el servidor.`;
@@ -218,6 +227,33 @@ async function ejecutarConsultaNueva() {
         }
 
         const st = await resp.json();
+
+        // Verificar si ambos procesos terminaron (caso cuando llega todo completo)
+        const op1Terminado = st.op1 && st.op1.finished;
+        const op3Terminado = st.op3 && st.op3.finished;
+
+        // Si ambos procesos terminaron, finalizar inmediatamente
+        if (op1Terminado && op3Terminado) {
+          pollingActivo = false;
+          if (pollingTimer) clearTimeout(pollingTimer);
+
+          if (barra) {
+            barra.style.width = '100%';
+            barra.innerText = '100%';
+          }
+
+          document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Procesos finalizados';
+          document.getElementById('progresoConsultaDescripcion').innerText = 'F29 y DJ cargados correctamente. Redirigiendo a resultados...';
+
+          if (detalle) detalle.style.display = 'none';
+          if (btnCerrar) btnCerrar.style.display = 'inline-block';
+
+          setTimeout(() => {
+            modalProInst.hide();
+            window.location.href = `/${base}/situacion-tributaria?rut=${encodeURIComponent(rutPol)}`;
+          }, 1500);
+          return;
+        }
 
         // Fase 1: Cargando F29
         if (st.op1 && st.op1.exists && !st.op1.finished) {
@@ -241,35 +277,11 @@ async function ejecutarConsultaNueva() {
         }
 
         // Fase 3: Cargando DJ
-        if (st.op3 && st.op3.exists && !st.op3.finished && !esperadoOp1) {
+        if (st.op3 && st.op3.exists && !st.op3.finished) {
           if (barra) {
             barra.style.width = '80%';
             barra.innerText = '80%';
           }
-        }
-
-        // Fase 4: Todo completado
-        if (st.op3 && st.op3.finished && esperadoOp3 && !esperadoOp1) {
-          clearTimeout(pollingTimer);
-          esperadoOp3 = false;
-
-          if (barra) {
-            barra.style.width = '100%';
-            barra.innerText = '100%';
-          }
-
-          document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Procesos finalizados';
-          document.getElementById('progresoConsultaDescripcion').innerText = 'F29 y DJ cargados correctamente. Redirigiendo a resultados...';
-
-          if (detalle) detalle.style.display = 'none';
-          if (btnCerrar) btnCerrar.style.display = 'inline-block';
-
-          setTimeout(() => {
-            modalProInst.hide();
-            // Redirigir a la página de situación tributaria con el RUT consultado
-            window.location.href = `/${base}/situacion-tributaria?rut=${encodeURIComponent(rutPol)}`;
-          }, 1500);
-          return;
         }
 
         // Mostrar logs si están disponibles
@@ -278,9 +290,21 @@ async function ejecutarConsultaNueva() {
           document.getElementById('progresoConsultaLog').innerText = st.op1.log.slice(-2000);
         }
 
+        // Verificar si no hay procesos activos (posible error en backend)
+        const hayProcesos = (st.op1 && st.op1.exists) || (st.op3 && st.op3.exists);
+        if (!hayProcesos && (Date.now() - startTime > 10000)) {
+          pollingActivo = false;
+          if (pollingTimer) clearTimeout(pollingTimer);
+          document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-exclamation-triangle me-2 text-warning"></i>Sin procesos activos';
+          document.getElementById('progresoConsultaDescripcion').innerText = 'No se detectaron procesos activos. Es posible que ya hayan finalizado. Revise la tabla de empresas.';
+          if (btnCerrar) btnCerrar.style.display = 'inline-block';
+          return;
+        }
+
         // Timeout
         if (Date.now() - startTime > maxTimeoutMs) {
-          clearTimeout(pollingTimer);
+          pollingActivo = false;
+          if (pollingTimer) clearTimeout(pollingTimer);
           document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-clock me-2 text-warning"></i>Tiempo de espera excedido';
           document.getElementById('progresoConsultaDescripcion').innerText = 'El procesamiento está tomando demasiado tiempo. Revise los logs del servidor.';
           if (btnCerrar) btnCerrar.style.display = 'inline-block';
@@ -288,16 +312,22 @@ async function ejecutarConsultaNueva() {
         }
 
       } catch (e) {
-        clearTimeout(pollingTimer);
+        pollingActivo = false;
+        if (pollingTimer) clearTimeout(pollingTimer);
         console.error('Error consultando estado GCI:', e);
         document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-times-circle me-2 text-danger"></i>Error de conexión';
         document.getElementById('progresoConsultaDescripcion').innerText = 'Error al consultar el estado. Revise su conexión e intente nuevamente.';
         if (btnCerrar) btnCerrar.style.display = 'inline-block';
+        return;
       }
 
-      pollingTimer = setTimeout(checkStatus, 2000);
+      // Continuar polling solo si sigue activo
+      if (pollingActivo) {
+        pollingTimer = setTimeout(checkStatus, 2000);
+      }
     }
 
+    // Iniciar polling
     pollingTimer = setTimeout(checkStatus, 1000);
 
   } catch (error) {
