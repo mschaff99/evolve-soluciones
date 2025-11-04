@@ -234,17 +234,55 @@ async function ejecutarConsultaNueva() {
         }
         console.log('[GCI Status] op1:', st.op1?.exists ? 'exists' : 'no existe', st.op1?.finished ? 'finished' : 'en proceso');
         console.log('[GCI Status] op3:', st.op3?.exists ? 'exists' : 'no existe', st.op3?.finished ? 'finished' : 'en proceso');
+        console.log('[GCI Status] op5:', st.op5?.exists ? 'exists' : 'no existe', st.op5?.finished ? 'finished' : 'en proceso');
 
         // Debug: Mostrar el estado recibido
         console.log('[GCI Status]', st);
 
-        // Verificar si ambos procesos terminaron (caso cuando llega todo completo)
+        // Verificar si hay proceso combinado (opción 5)
+        const op5Terminado = st.op5 && st.op5.finished;
+        const op5Existe = st.op5 && st.op5.exists;
+
+        // Verificar procesos individuales (opción 1 y 3)
         const op1Terminado = st.op1 && st.op1.finished;
         const op3Terminado = st.op3 && st.op3.finished;
         const op1Existe = st.op1 && st.op1.exists;
         const op3Existe = st.op3 && st.op3.exists;
 
-        // Si ambos procesos terminaron, finalizar inmediatamente
+        // Si el proceso combinado (opción 5) terminó, finalizar inmediatamente
+        if (op5Terminado) {
+          pollingActivo = false;
+          if (pollingTimer) clearTimeout(pollingTimer);
+
+          if (barra) {
+            barra.style.width = '100%';
+            barra.innerText = '100%';
+          }
+
+          document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-check-circle me-2 text-success"></i>Proceso combinado finalizado';
+          document.getElementById('progresoConsultaDescripcion').innerText = 'F29 y DJ cargados correctamente. Redirigiendo a resultados...';
+
+          if (detalle) detalle.style.display = 'none';
+          if (btnCerrar) btnCerrar.style.display = 'inline-block';
+
+          setTimeout(() => {
+            modalProInst.hide();
+            window.location.href = `/${base}/situacion-tributaria?rut=${encodeURIComponent(rutPol)}`;
+          }, 1500);
+          return;
+        }
+
+        // Si el proceso combinado está corriendo, mostrar progreso
+        if (op5Existe && !op5Terminado) {
+          if (barra) {
+            barra.style.width = '50%';
+            barra.innerText = '50%';
+          }
+          document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Procesando F29 y DJ...';
+          document.getElementById('progresoConsultaDescripcion').innerText = 'Cargando información tributaria desde el SII (proceso combinado). Esto puede tomar varios minutos...';
+        }
+
+        // Si ambos procesos individuales terminaron, finalizar
         if (op1Terminado && op3Terminado) {
           pollingActivo = false;
           if (pollingTimer) clearTimeout(pollingTimer);
@@ -298,17 +336,24 @@ async function ejecutarConsultaNueva() {
           document.getElementById('progresoConsultaDescripcion').innerText = 'Procesando información de DJ desde el SII...';
         }
 
-        // Mostrar logs si están disponibles
-        if (st.op1 && st.op1.log && detalle) {
+        // Mostrar logs si están disponibles (priorizar op5, luego op1)
+        let logToShow = '';
+        if (st.op5 && st.op5.log) {
+          logToShow = st.op5.log;
+        } else if (st.op1 && st.op1.log) {
+          logToShow = st.op1.log;
+        }
+
+        if (logToShow && detalle) {
           detalle.style.display = 'block';
           const logElement = document.getElementById('progresoConsultaLog');
           if (logElement) {
-            logElement.innerText = st.op1.log.slice(-2000);
+            logElement.innerText = logToShow.slice(-2000);
           }
         }
 
-        // Verificar si no hay procesos activos
-        const hayProcesos = op1Existe || op3Existe;
+        // Verificar si no hay procesos activos (incluir op5)
+        const hayProcesos = op1Existe || op3Existe || op5Existe;
         const tiempoTranscurrido = Date.now() - startTime;
 
         if (!hayProcesos) {

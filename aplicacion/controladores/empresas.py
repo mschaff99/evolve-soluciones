@@ -350,12 +350,14 @@ def api_gci_status(base_datos, rut):
         resultado = {
             'op1': {'exists': False, 'finished': False, 'log': ''},
             'op3': {'exists': False, 'finished': False, 'log': ''},
+            'op5': {'exists': False, 'finished': False, 'log': ''},  # Opción 5 (proceso combinado)
             'logs_dir': logs_dir,  # Para debugging
             'gci_logs_checked': []  # Para saber qué directorios revisó
         }
 
         files1 = []
         files3 = []
+        files5 = []
 
         # Buscar en todos los directorios de logs posibles
         for search_dir in gci_logs_dirs:
@@ -364,21 +366,25 @@ def api_gci_status(base_datos, rut):
 
             resultado['gci_logs_checked'].append(search_dir)
 
-            # Buscar archivos de opción 1 y 3
+            # Buscar archivos de opción 1, 3 y 5
             pattern1 = os.path.join(search_dir, f"gci_opcion1_{rut}_*.log")
             pattern3 = os.path.join(search_dir, f"gci_opcion3_{rut}_*.log")
+            pattern5 = os.path.join(search_dir, f"gci_opcion5_{rut}_*.log")
 
             found1 = glob.glob(pattern1)
             found3 = glob.glob(pattern3)
+            found5 = glob.glob(pattern5)
 
             files1.extend(found1)
             files3.extend(found3)
+            files5.extend(found5)
 
             print(f"[DEBUG] Buscando en: {search_dir}")
             print(f"[DEBUG]   Op1: {pattern1} -> {len(found1)} archivos")
             print(f"[DEBUG]   Op3: {pattern3} -> {len(found3)} archivos")
+            print(f"[DEBUG]   Op5: {pattern5} -> {len(found5)} archivos")
 
-        print(f"[DEBUG] Total encontrados para RUT {rut}: Op1={len(files1)}, Op3={len(files3)}")
+        print(f"[DEBUG] Total encontrados para RUT {rut}: Op1={len(files1)}, Op3={len(files3)}, Op5={len(files5)}")
 
         def inspect_latest(files, opcion_num):
             if not files:
@@ -412,6 +418,7 @@ def api_gci_status(base_datos, rut):
 
         resultado['op1'] = inspect_latest(files1, 1)
         resultado['op3'] = inspect_latest(files3, 3)
+        resultado['op5'] = inspect_latest(files5, 5)
 
         return jsonify(resultado)
 
