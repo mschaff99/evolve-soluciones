@@ -227,6 +227,13 @@ async function ejecutarConsultaNueva() {
         }
 
         const st = await resp.json();
+        
+        // Log para debugging
+        if (st.logs_dir) {
+          console.log('[GCI Status] Directorio de logs:', st.logs_dir);
+        }
+        console.log('[GCI Status] op1:', st.op1?.exists ? 'exists' : 'no existe', st.op1?.finished ? 'finished' : 'en proceso');
+        console.log('[GCI Status] op3:', st.op3?.exists ? 'exists' : 'no existe', st.op3?.finished ? 'finished' : 'en proceso');
 
         // Debug: Mostrar el estado recibido
         console.log('[GCI Status]', st);

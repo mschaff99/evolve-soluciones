@@ -336,13 +336,18 @@ def api_gci_status(base_datos, rut):
     import os
 
     try:
-        logs_dir = os.path.join(os.getcwd(), 'logs')
+        # Usar ruta absoluta al directorio base del proyecto
+        dir_base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        logs_dir = os.path.join(dir_base, 'logs')
+        
         resultado = {
             'op1': {'exists': False, 'finished': False, 'log': ''},
-            'op3': {'exists': False, 'finished': False, 'log': ''}
+            'op3': {'exists': False, 'finished': False, 'log': ''},
+            'logs_dir': logs_dir  # Para debugging
         }
 
         if not os.path.isdir(logs_dir):
+            print(f"[DEBUG] Directorio de logs no existe: {logs_dir}")
             return jsonify(resultado)
 
         # Buscar el archivo más reciente para cada opción
@@ -351,16 +356,23 @@ def api_gci_status(base_datos, rut):
 
         files1 = glob.glob(pattern1)
         files3 = glob.glob(pattern3)
+        
+        print(f"[DEBUG] Buscando logs para RUT {rut} en: {logs_dir}")
+        print(f"[DEBUG] Pattern op1: {pattern1}, encontrados: {len(files1)}")
+        print(f"[DEBUG] Pattern op3: {pattern3}, encontrados: {len(files3)}")
 
-        def inspect_latest(files):
+        def inspect_latest(files, opcion_num):
             if not files:
+                print(f"[DEBUG] No hay archivos para opción {opcion_num}")
                 return {'exists': False, 'finished': False, 'log': ''}
             latest = max(files, key=os.path.getmtime)
+            print(f"[DEBUG] Archivo más reciente para op{opcion_num}: {latest}")
             # Leer últimas líneas del log
             try:
                 with open(latest, 'r', encoding='utf-8', errors='ignore') as f:
                     content = f.read()
-            except Exception:
+            except Exception as e_read:
+                print(f"[DEBUG] Error leyendo {latest}: {e_read}")
                 content = ''
 
             finished = False
@@ -373,8 +385,8 @@ def api_gci_status(base_datos, rut):
 
             return {'exists': True, 'finished': finished, 'log': content[-8000:]}
 
-        resultado['op1'] = inspect_latest(files1)
-        resultado['op3'] = inspect_latest(files3)
+        resultado['op1'] = inspect_latest(files1, 1)
+        resultado['op3'] = inspect_latest(files3, 3)
 
         return jsonify(resultado)
 

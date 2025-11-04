@@ -21,6 +21,21 @@ from typing import Optional, Tuple
 from aplicacion.servicios.servicio_empresas import ServicioEmpresas
 
 
+def obtener_directorio_base() -> str:
+    """
+    Obtiene el directorio base del proyecto de forma consistente.
+    
+    Returns:
+        str: Ruta absoluta al directorio raíz del proyecto
+    """
+    # Obtener el directorio de este archivo
+    archivo_actual = os.path.abspath(__file__)
+    # Subir dos niveles: servicios -> aplicacion -> raíz
+    dir_aplicacion = os.path.dirname(os.path.dirname(archivo_actual))
+    dir_base = os.path.dirname(dir_aplicacion)
+    return dir_base
+
+
 def obtener_python_actual() -> str:
     """Devuelve el ejecutable de Python del proceso actual (mejor que adivinar venv).
 
@@ -114,7 +129,10 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
         base_datos: Nombre de la base de datos actual (contexto).
     """
     ahora = datetime.now().strftime("%Y%m%d-%H%M%S")
-    logs_dir = os.path.join(os.getcwd(), "logs")
+    
+    # Usar ruta absoluta al directorio base del proyecto
+    dir_base = obtener_directorio_base()
+    logs_dir = os.path.join(dir_base, "logs")
     os.makedirs(logs_dir, exist_ok=True)
     log_path = os.path.join(logs_dir, f"gci_opcion{opcion}_{rut}_{ahora}.log")
 
