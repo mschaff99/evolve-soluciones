@@ -170,6 +170,7 @@ async function guardarCredencial() {
     const base = baseDatos;
     let esperadoOp1 = true;
     let esperadoOp3 = true;
+    let esperadoOp5 = true; // Proceso combinado (F29 + DJ)
     const maxTimeoutMs = 5 * 60 * 1000; // 5 minutos
     const startTime = Date.now();
     let pollingTimer = null;
@@ -195,55 +196,108 @@ async function guardarCredencial() {
         }
 
         const st = await resp.json();
+        console.log('[POLLING] Estado actual:', st);
 
-        if (st.op1 && st.op1.exists && !st.op1.finished) {
-          if (barra) barra.style.width = '30%';
-          document.getElementById('progresoTitulo').innerText = 'Cargando datos de F29...';
+        // CASO 1: Proceso combinado (opción 5) - F29 + DJ en un solo paso
+        if (st.op5 && st.op5.exists) {
+          if (!st.op5.finished) {
+            // Proceso combinado en ejecución
+            if (barra) barra.style.width = '50%';
+            document.getElementById('progresoTitulo').innerText = 'Cargando F29 y DJ...';
+            document.getElementById('progresoDescripcion').innerText = 'Procesamiento combinado en curso. Por favor espere.';
+
+            // Mostrar log si está disponible
+            if (st.op5.log && detalle) {
+              detalle.style.display = 'block';
+              document.getElementById('progresoLog').innerText = st.op5.log.slice(-2000);
+            }
+          } else if (esperadoOp5) {
+            // Proceso combinado finalizado
+            clearTimeout(pollingTimer);
+            esperadoOp5 = false;
+            if (barra) barra.style.width = '100%';
+            document.getElementById('progresoTitulo').innerText = 'Procesos finalizados';
+            document.getElementById('progresoDescripcion').innerText = 'F29 y DJ cargados correctamente (proceso combinado).';
+            if (detalle) detalle.style.display = 'none';
+            const btnCerrar = document.getElementById('btnCerrarProgreso');
+            if (btnCerrar) btnCerrar.style.display = 'inline-block';
+
+            setTimeout(() => {
+              modalProInst.hide();
+              alert('Empresa cargada exitosamente');
+              location.reload();
+            }, 800);
+            return;
+          }
+        }
+        // CASO 2: Procesos separados (opciones 1 y 3)
+        else {
+          // Opción 1: F29
+          if (st.op1 && st.op1.exists && !st.op1.finished) {
+            if (barra) barra.style.width = '30%';
+            document.getElementById('progresoTitulo').innerText = 'Cargando datos de F29...';
+
+            // Mostrar log de op1
+            if (st.op1.log && detalle) {
+              detalle.style.display = 'block';
+              document.getElementById('progresoLog').innerText = st.op1.log.slice(-2000);
+            }
+          }
+
+          if (st.op1 && st.op1.finished && esperadoOp1) {
+            esperadoOp1 = false;
+            if (barra) barra.style.width = '60%';
+            document.getElementById('progresoTitulo').innerText = 'F29 cargado. Iniciando DJ...';
+            document.getElementById('progresoDescripcion').innerText = 'Ahora se están cargando los datos DJ. Espere por favor.';
+          }
+
+          // Opción 3: DJ
+          if (st.op3 && st.op3.exists && !st.op3.finished && !esperadoOp1) {
+            if (barra) barra.style.width = '80%';
+
+            // Mostrar log de op3
+            if (st.op3.log && detalle) {
+              detalle.style.display = 'block';
+              document.getElementById('progresoLog').innerText = st.op3.log.slice(-2000);
+            }
+          }
+
+          if (st.op3 && st.op3.finished && esperadoOp3 && !esperadoOp1) {
+            clearTimeout(pollingTimer);
+            esperadoOp3 = false;
+            if (barra) barra.style.width = '100%';
+            document.getElementById('progresoTitulo').innerText = 'Procesos finalizados';
+            document.getElementById('progresoDescripcion').innerText = 'F29 y DJ cargados correctamente.';
+            if (detalle) detalle.style.display = 'none';
+            const btnCerrar3 = document.getElementById('btnCerrarProgreso');
+            if (btnCerrar3) btnCerrar3.style.display = 'inline-block';
+
+            setTimeout(() => {
+              modalProInst.hide();
+              alert('Empresa cargada exitosamente');
+              location.reload();
+            }, 800);
+            return;
+          }
         }
 
-        if (st.op1 && st.op1.finished && esperadoOp1) {
-          esperadoOp1 = false;
-          if (barra) barra.style.width = '60%';
-          document.getElementById('progresoTitulo').innerText = 'F29 cargado. Iniciando DJ...';
-          document.getElementById('progresoDescripcion').innerText = 'Ahora se están cargando los datos DJ. Espere por favor.';
-        }
-
-        if (st.op3 && st.op3.exists && !st.op3.finished && !esperadoOp1) {
-          if (barra) barra.style.width = '80%';
-        }
-
-        if (st.op3 && st.op3.finished && esperadoOp3 && !esperadoOp1) {
-          clearTimeout(pollingTimer);
-          esperadoOp3 = false;
-          if (barra) barra.style.width = '100%';
-          document.getElementById('progresoTitulo').innerText = 'Procesos finalizados';
-          document.getElementById('progresoDescripcion').innerText = 'F29 y DJ cargados correctamente.';
-          if (detalle) detalle.style.display = 'none';
-          const btnCerrar3 = document.getElementById('btnCerrarProgreso'); if (btnCerrar3) btnCerrar3.style.display = 'inline-block';
-          setTimeout(() => {
-            modalProInst.hide();
-            alert('Empresa cargada');
-            location.reload();
-          }, 800);
-          return;
-        }
-
-        if (st.op1 && st.op1.log && detalle) {
-          detalle.style.display = 'block';
-          document.getElementById('progresoLog').innerText = st.op1.log.slice(-2000);
-        }
-
+        // Timeout general
         if (Date.now() - startTime > maxTimeoutMs) {
           clearTimeout(pollingTimer);
           document.getElementById('progresoTitulo').innerText = 'Tiempo de espera excedido';
           document.getElementById('progresoDescripcion').innerText = 'El procesamiento está tomando demasiado tiempo. Revise los logs del servidor.';
-          const btnCerrar4 = document.getElementById('btnCerrarProgreso'); if (btnCerrar4) btnCerrar4.style.display = 'inline-block';
+          const btnCerrar4 = document.getElementById('btnCerrarProgreso');
+          if (btnCerrar4) btnCerrar4.style.display = 'inline-block';
           return;
         }
 
       } catch (e) {
         clearTimeout(pollingTimer);
         console.error('Error consultando estado GCI:', e);
+        document.getElementById('progresoTitulo').innerText = 'Error de conexión';
+        document.getElementById('progresoDescripcion').innerText = 'No se pudo consultar el estado del proceso. Verifique su conexión.';
+        const btnCerrar5 = document.getElementById('btnCerrarProgreso');
+        if (btnCerrar5) btnCerrar5.style.display = 'inline-block';
       }
 
       pollingTimer = setTimeout(checkStatus, 2000);
