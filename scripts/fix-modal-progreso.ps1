@@ -39,7 +39,8 @@ $rutaBackup = "$RutaProduccion\aplicacion\estaticos\js\situacion-tributaria.js.b
 if (Test-Path "$RutaProduccion\aplicacion\estaticos\js\situacion-tributaria.js") {
     Write-Host "[2/3] Creando backup en: $rutaBackup" -ForegroundColor Yellow
     Copy-Item "$RutaProduccion\aplicacion\estaticos\js\situacion-tributaria.js" -Destination $rutaBackup
-} else {
+}
+else {
     Write-Host "[2/3] No existe archivo anterior (primera vez)" -ForegroundColor Yellow
 }
 

@@ -294,19 +294,45 @@ async function ejecutarConsultaNueva() {
         // Mostrar logs si están disponibles
         if (st.op1 && st.op1.log && detalle) {
           detalle.style.display = 'block';
-          document.getElementById('progresoConsultaLog').innerText = st.op1.log.slice(-2000);
+          const logElement = document.getElementById('progresoConsultaLog');
+          if (logElement) {
+            logElement.innerText = st.op1.log.slice(-2000);
+          }
         }
 
-        // Verificar si no hay procesos activos (posible error en backend)
-        // Dar 60 segundos para que los procesos se inicien antes de mostrar advertencia
-        const hayProcesos = (st.op1 && st.op1.exists) || (st.op3 && st.op3.exists);
-        if (!hayProcesos && (Date.now() - startTime > 60000)) {
-          pollingActivo = false;
-          if (pollingTimer) clearTimeout(pollingTimer);
-          document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-exclamation-triangle me-2 text-warning"></i>Sin procesos activos';
-          document.getElementById('progresoConsultaDescripcion').innerText = 'No se detectaron procesos activos después de 1 minuto. Es posible que ya hayan finalizado o que haya un error. Revise la tabla de empresas o los logs del servidor.';
-          if (btnCerrar) btnCerrar.style.display = 'inline-block';
-          return;
+        // Verificar si no hay procesos activos
+        const hayProcesos = op1Existe || op3Existe;
+        const tiempoTranscurrido = Date.now() - startTime;
+
+        if (!hayProcesos) {
+          // Si no hay procesos pero aún no ha pasado mucho tiempo, mostrar "Iniciando..."
+          if (tiempoTranscurrido < 30000) { // Primeros 30 segundos
+            document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Iniciando procesos...';
+            document.getElementById('progresoConsultaDescripcion').innerText = 'Preparando la consulta al SII. Esto puede tomar unos segundos...';
+            if (barra) {
+              barra.style.width = '15%';
+              barra.innerText = '15%';
+            }
+          } 
+          // Si ya pasaron 2 minutos sin procesos, mostrar advertencia
+          else if (tiempoTranscurrido > 120000) { // Después de 2 minutos
+            pollingActivo = false;
+            if (pollingTimer) clearTimeout(pollingTimer);
+            console.warn('[GCI] No se detectaron procesos después de 2 minutos');
+            document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-exclamation-triangle me-2 text-warning"></i>Sin procesos detectados';
+            document.getElementById('progresoConsultaDescripcion').innerText = 'No se detectaron procesos activos después de 2 minutos. Es posible que haya un problema en el servidor. Revise los logs o intente nuevamente.';
+            if (btnCerrar) btnCerrar.style.display = 'inline-block';
+            return;
+          }
+          // Entre 30 segundos y 2 minutos, seguir esperando pero informar
+          else {
+            document.getElementById('progresoConsultaTitulo').innerHTML = '<i class="fas fa-hourglass-half me-2 text-info"></i>Esperando inicio de procesos...';
+            document.getElementById('progresoConsultaDescripcion').innerText = 'Los procesos están tomando más tiempo del esperado en iniciarse. Esperando...';
+            if (barra) {
+              barra.style.width = '20%';
+              barra.innerText = '20%';
+            }
+          }
         }
 
         // Timeout

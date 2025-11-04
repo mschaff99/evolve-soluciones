@@ -1,6 +1,6 @@
 # Fix: Timeouts Aumentados para Procesos GCI Largos
 
-**Fecha**: 3 de noviembre de 2025  
+**Fecha**: 3 de noviembre de 2025
 **Problema**: Timeouts insuficientes causaban que procesos largos fueran abortados prematuramente.
 
 ## 🐛 Contexto del Problema
@@ -236,6 +236,6 @@ Get-Service -Name "EvolveWaitress" | Select-Object Status, DisplayName
 
 ---
 
-**Última actualización**: 3 de noviembre de 2025  
-**Versión**: 2.0 (Timeouts aumentados a 10 minutos)  
+**Última actualización**: 3 de noviembre de 2025
+**Versión**: 2.0 (Timeouts aumentados a 10 minutos)
 **Relacionado**: `FIX_MODAL_PROGRESO_COLGADO.md`

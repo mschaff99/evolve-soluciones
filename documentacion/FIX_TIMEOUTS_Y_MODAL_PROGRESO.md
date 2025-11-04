@@ -1,7 +1,7 @@
 # Fix: Timeouts Aumentados + Modal de Progreso Mejorado
 
-**Fecha**: 3 de noviembre de 2025  
-**Problema**: 
+**Fecha**: 3 de noviembre de 2025
+**Problema**:
 1. Modal de progreso mostraba "Sin procesos activos" prematuramente (después de 10s)
 2. Timeouts insuficientes causaban que procesos GCI largos se cortaran
 3. El proceso terminaba correctamente pero el modal no lo reflejaba
@@ -69,9 +69,9 @@ if (!hayProcesos && (Date.now() - startTime > 10000)) {
 if (!hayProcesos && (Date.now() - startTime > 60000)) {
   pollingActivo = false;
   if (pollingTimer) clearTimeout(pollingTimer);
-  document.getElementById('progresoConsultaTitulo').innerHTML = 
+  document.getElementById('progresoConsultaTitulo').innerHTML =
     '<i class="fas fa-exclamation-triangle me-2 text-warning"></i>Sin procesos activos';
-  document.getElementById('progresoConsultaDescripcion').innerText = 
+  document.getElementById('progresoConsultaDescripcion').innerText =
     'No se detectaron procesos activos después de 1 minuto. Es posible que ya hayan ' +
     'finalizado o que haya un error. Revise la tabla de empresas o los logs del servidor.';
   if (btnCerrar) btnCerrar.style.display = 'inline-block';
@@ -108,9 +108,9 @@ if (op3Existe && !op3Terminado) {
     barra.style.width = '80%';
     barra.innerText = '80%';
   }
-  document.getElementById('progresoConsultaTitulo').innerHTML = 
+  document.getElementById('progresoConsultaTitulo').innerHTML =
     '<i class="fas fa-spinner fa-spin me-2"></i>Cargando Declaraciones Juradas...';
-  document.getElementById('progresoConsultaDescripcion').innerText = 
+  document.getElementById('progresoConsultaDescripcion').innerText =
     'Procesando información de DJ desde el SII...';
 }
 ```
@@ -403,8 +403,8 @@ SELECT COUNT(*) FROM declaraciones_juradas WHERE rut_empresa = '12345678-9';
 ```python
 # En aplicacion/controladores/empresas.py
 markers = [
-    'returncode=', 
-    'ejecución secuencial finalizada', 
+    'returncode=',
+    'ejecución secuencial finalizada',
     'Proceso finalizado',
     'Referencias internas limpiadas',
     'Navegador cerrado',
@@ -448,9 +448,9 @@ markers = [
 
 ---
 
-**Estado**: ✅ **IMPLEMENTADO Y LISTO PARA DEPLOY**  
-**Versión**: 2.0.0  
-**Autor**: GitHub Copilot  
-**Fecha**: 3 de noviembre de 2025  
-**Archivos**: 4 archivos modificados  
+**Estado**: ✅ **IMPLEMENTADO Y LISTO PARA DEPLOY**
+**Versión**: 2.0.0
+**Autor**: GitHub Copilot
+**Fecha**: 3 de noviembre de 2025
+**Archivos**: 4 archivos modificados
 **Testing**: Pendiente validación en producción

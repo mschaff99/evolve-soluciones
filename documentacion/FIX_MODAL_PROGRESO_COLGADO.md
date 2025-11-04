@@ -1,7 +1,7 @@
 # Fix: Modal de Progreso Quedaba Colgado
 
-**Fecha**: 2025-11-03  
-**Módulo**: Situación Tributaria / Consulta Nueva Empresa  
+**Fecha**: 2025-11-03
+**Módulo**: Situación Tributaria / Consulta Nueva Empresa
 **Archivo**: `aplicacion/estaticos/js/situacion-tributaria.js`
 
 ## Problema
@@ -83,7 +83,7 @@ const op3Terminado = st.op3 && st.op3.finished;
 if (op1Terminado && op3Terminado) {
   pollingActivo = false;
   if (pollingTimer) clearTimeout(pollingTimer);
-  
+
   // Mostrar 100% y redirigir
   // ...
   return;
@@ -226,10 +226,10 @@ async function poll() {
     clearTimer();
     return;
   }
-  
+
   try {
     const result = await fetch(...);
-    
+
     // Verificar condición de finalización PRIMERO
     if (resultado.terminado) {
       pollingActivo = false;
@@ -237,16 +237,16 @@ async function poll() {
       // Acción final
       return;
     }
-    
+
     // Actualizar UI progreso
-    
+
   } catch (e) {
     pollingActivo = false;
     clearTimer();
     // Mostrar error
     return;
   }
-  
+
   // Solo continuar si sigue activo
   if (pollingActivo) {
     timer = setTimeout(poll, intervalo);
