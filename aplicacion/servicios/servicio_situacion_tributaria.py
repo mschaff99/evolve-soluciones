@@ -24,13 +24,13 @@ class ServicioSituacionTributaria:
 
     def obtener_situacion_por_rut(self, rut: str) -> Dict[str, Any]:
         """
-        Obtiene la situación tributaria consolidada (F29 + DJ) para un RUT.
+        Obtiene la situación tributaria consolidada (F29 + DJ + Renta) para un RUT.
 
         Args:
             rut: RUT de la empresa (con o sin formato)
 
         Returns:
-            Dict con resumen de empresa, F29 y DJ.
+            Dict con resumen de empresa, F29, DJ y Renta.
         """
         resultado: Dict[str, Any] = {
             'rut': rut,
@@ -44,6 +44,10 @@ class ServicioSituacionTributaria:
                 'resumen_anual': {},
                 'total_observadas': 0,
                 'ultima_fecha_consulta': None,
+            },
+            'renta': {
+                'glosas': [],  # Situación Renta Actual
+                'eventos': []  # Historial
             }
         }
 
@@ -175,6 +179,60 @@ class ServicioSituacionTributaria:
 
         except Exception as e:
             print(f"ERROR: Situación Tributaria - obteniendo DJ: {e}")
+
+        # 3) Datos de Renta (glosas y eventos) para años 2023-2025
+        try:
+            from datetime import datetime
+            anio_actual = datetime.now().year
+            periodos_renta = [anio_actual, anio_actual - 1, anio_actual - 2]  # 2025, 2024, 2023
+
+            conexion_renta = self.servicio_f29.obtener_conexion_evolve()
+            with conexion_renta.cursor(pymysql.cursors.DictCursor) as cursor:
+                # Obtener glosas (Situación Renta Actual)
+                placeholders = ','.join(['%s'] * len(periodos_renta))
+                sql_glosas = f"""
+                    SELECT periodo, descripcion
+                    FROM {self.base_datos}.renta_glosas
+                    WHERE rut = %s AND periodo IN ({placeholders})
+                    ORDER BY periodo DESC
+                """
+                cursor.execute(sql_glosas, (rut, *periodos_renta))
+                glosas = cursor.fetchall()
+                resultado['renta']['glosas'] = [
+                    {
+                        'periodo': g['periodo'],
+                        'descripcion': g['descripcion']
+                    }
+                    for g in glosas
+                ]
+
+                # Obtener eventos (Historial) - ordenados por fecha descendente
+                sql_eventos = f"""
+                    SELECT periodo, folio, nombre, fecha_evento
+                    FROM {self.base_datos}.renta_eventos
+                    WHERE rut = %s AND periodo IN ({placeholders})
+                    ORDER BY periodo DESC,
+                             STR_TO_DATE(fecha_evento, '%d/%m/%Y') DESC
+                """
+                cursor.execute(sql_eventos, (rut, *periodos_renta))
+                eventos = cursor.fetchall()
+                resultado['renta']['eventos'] = [
+                    {
+                        'periodo': e['periodo'],
+                        'folio': e['folio'],
+                        'nombre': e['nombre'],
+                        'fecha_evento': e['fecha_evento']
+                    }
+                    for e in eventos
+                ]
+        except Exception as e:
+            print(f"ERROR: Situación Tributaria - obteniendo Renta: {e}")
+        finally:
+            try:
+                if 'conexion_renta' in locals() and conexion_renta:
+                    conexion_renta.close()
+            except Exception:
+                pass
 
         return resultado
 

@@ -205,6 +205,102 @@
         </div>
       </div>
     </div>
+
+    <!-- Tarjeta de Renta -->
+    <div class="col-12">
+      <div class="card mb-2">
+        <div class="card-header">Declaración de Renta</div>
+        <div class="card-body">
+          {% if datos.renta.glosas or datos.renta.eventos %}
+            {# Agrupar eventos por periodo #}
+            {% set eventos_por_periodo = {} %}
+            {% for evento in datos.renta.eventos %}
+              {% set periodo = evento.periodo|string %}
+              {% if periodo not in eventos_por_periodo %}
+                {% set _ = eventos_por_periodo.update({periodo: []}) %}
+              {% endif %}
+              {% set _ = eventos_por_periodo[periodo].append(evento) %}
+            {% endfor %}
+
+            {# Obtener periodos únicos ordenados descendente #}
+            {% set periodos_renta = [] %}
+            {% for glosa in datos.renta.glosas %}
+              {% if glosa.periodo not in periodos_renta %}
+                {% set _ = periodos_renta.append(glosa.periodo) %}
+              {% endif %}
+            {% endfor %}
+            {% for periodo in eventos_por_periodo.keys() %}
+              {% if periodo|int not in periodos_renta %}
+                {% set _ = periodos_renta.append(periodo|int) %}
+              {% endif %}
+            {% endfor %}
+            {% set periodos_renta = periodos_renta | sort(reverse=true) %}
+
+            {# Mostrar cada año con su glosa e historial #}
+            {% for periodo in periodos_renta %}
+              {% if not loop.first %}
+                <hr class="my-3">
+              {% endif %}
+              <div class="mb-4">
+                <!-- Encabezado del Año -->
+                <h6 class="text-primary mb-3">
+                  <i class="fas fa-calendar-alt me-2"></i>
+                  Año {{ periodo }}
+                </h6>
+
+                {# Glosa del año - Situación Renta Actual #}
+                {% set glosa_año = datos.renta.glosas | selectattr('periodo', 'equalto', periodo) | list %}
+                {% if glosa_año %}
+                  <div class="border-start border-primary border-4 bg-light p-3 mb-3">
+                    <h6 class="text-primary mb-2">
+                      <i class="fas fa-info-circle me-2"></i>
+                      Situación Renta Actual
+                    </h6>
+                    <p class="mb-0 text-dark">
+                      {{ glosa_año[0].descripcion }}
+                    </p>
+                  </div>
+                {% endif %}
+
+                {# Historial del año #}
+                {% set eventos_año = eventos_por_periodo.get(periodo|string, []) %}
+                {% if eventos_año %}
+                  <div class="mb-3">
+                    {# Obtener folio único del año #}
+                    {% set folio_unico = eventos_año[0].folio if eventos_año else '' %}
+                    <h6 class="text-secondary mb-2">
+                      <i class="fas fa-history me-2"></i>
+                      Historial
+                      <span class="text-dark ms-2">Folio: <strong>{{ folio_unico }}</strong></span>
+                    </h6>
+                    <div class="table-responsive">
+                      <table class="table table-sm table-hover mb-0">
+                        <thead class="table-light">
+                          <tr>
+                            <th>Fecha</th>
+                            <th>Descripción</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {% for evento in eventos_año %}
+                            <tr>
+                              <td class="text-muted small" style="white-space: nowrap;">{{ evento.fecha_evento }}</td>
+                              <td>{{ evento.nombre }}</td>
+                            </tr>
+                          {% endfor %}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                {% endif %}
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-muted">Sin datos de Renta disponibles para los años 2023-2025</div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
   </div>
   {% else %}
   <div class="alert alert-info">Ingrese un RUT y presione Buscar.</div>
