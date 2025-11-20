@@ -124,12 +124,20 @@ def api_asignacion_datos_root():
                 connection.close()
             except Exception:
                 pass
+            
+            error_msg = f"Módulo ERP Audisoft no disponible para la base de datos '{target_schema}'. "
+            error_msg += f"Tablas faltantes: {', '.join(missing)}. "
+            error_msg += "Este módulo solo funciona con bases de datos que tengan el esquema ERP Audisoft instalado."
+            
+            print(f"ADVERTENCIA: {error_msg}")
+            
             return jsonify({
                 'success': False,
-                'error': 'Tablas requeridas no encontradas en la base de datos',
+                'error': error_msg,
                 'missing_tables': missing,
                 'schema': target_schema,
-                'used_source': used_source
+                'used_source': used_source,
+                'help': 'Verifique que esté accediendo al tenant correcto o configure ASIGNACION_DB en las variables de entorno'
             }), 400
 
         try:
@@ -264,7 +272,21 @@ def api_asignacion_pagos_root():
                 conn.close()
             except Exception:
                 pass
-            return jsonify({'success': False, 'error': 'Tablas requeridas no encontradas en la base de datos', 'missing_tables': missing, 'schema': target_schema, 'used_source': used_source}), 400
+            
+            error_msg = f"Módulo ERP Audisoft (Pagos) no disponible para la base de datos '{target_schema}'. "
+            error_msg += f"Tablas faltantes: {', '.join(missing)}. "
+            error_msg += "Este módulo solo funciona con bases de datos que tengan el esquema ERP Audisoft instalado."
+            
+            print(f"ADVERTENCIA: {error_msg}")
+            
+            return jsonify({
+                'success': False,
+                'error': error_msg,
+                'missing_tables': missing,
+                'schema': target_schema,
+                'used_source': used_source,
+                'help': 'Verifique que esté accediendo al tenant correcto o configure ASIGNACION_PAGOS_DB en las variables de entorno'
+            }), 400
 
         try:
             conn.begin()
