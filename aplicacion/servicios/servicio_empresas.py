@@ -607,6 +607,12 @@ class ServicioEmpresas:
                         ORDER BY 1
                     """)
                     auditores = [row['auditor'] for row in cursor.fetchall()]
+
+                    # Validar que hay auditores antes de construir pivot
+                    if not auditores:
+                        print(f"ADVERTENCIA: No hay auditores con observaciones en {self.base_datos}")
+                        return {'headers': ['Código'], 'rows': [], 'totals': {}}
+
                     headers = ['Código'] + auditores
 
                     # 2. Construir la parte dinámica de la consulta
@@ -715,6 +721,12 @@ class ServicioEmpresas:
                         ORDER BY 1
                     """)
                     auditores = [row['auditor'] for row in cursor.fetchall()]
+
+                    # Validar que hay auditores antes de construir pivot
+                    if not auditores:
+                        print(f"ADVERTENCIA: No hay auditores con observaciones DJ en {self.base_datos}")
+                        return {'headers': ['Código'], 'rows': [], 'totals': {}}
+
                     headers = ['Código'] + auditores
 
                     columnas_pivot = ", ".join([
