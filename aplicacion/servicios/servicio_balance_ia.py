@@ -24,6 +24,11 @@ class BalanceService:
             empresa_rut: RUT de la empresa a buscar
             base_datos_usuario: Base de datos del usuario actual (si no se proporciona, usa Config.DB_NAME)
         """
+        import sys
+        print(f"\n{'='*80}", file=sys.stderr, flush=True)
+        print(f"[_get_empresa_info_cached] INICIO - RUT: {empresa_rut}, BD Usuario: {base_datos_usuario}", file=sys.stderr, flush=True)
+        print(f"{'='*80}\n", file=sys.stderr, flush=True)
+
         cache_key = f"empresa_{empresa_rut}_{base_datos_usuario or Config.DB_NAME}"
         now = datetime.now()
 
@@ -31,16 +36,21 @@ class BalanceService:
         if cache_key in BalanceService._empresa_cache:
             cached_data, cached_time = BalanceService._empresa_cache[cache_key]
             if (now - cached_time).total_seconds() < BalanceService._cache_timeout:
-                print(f"[CACHE] Usando info de empresa desde cache: {empresa_rut}")
+                print(f"[CACHE] Usando info de empresa desde cache: {empresa_rut}", file=sys.stderr, flush=True)
                 return cached_data
+
+        print(f"[CACHE] No hay cache válido para {cache_key}, consultando BD...", file=sys.stderr, flush=True)
 
         # No está en cache o expiró, obtener de BD
         connection = None
         try:
             # Usar la base de datos del usuario actual o la configurada por defecto
             db_name = base_datos_usuario or Config.DB_NAME
+            print(f"[BD] Base de datos a usar: {db_name}", file=sys.stderr, flush=True)
+            print(f"[BD] Config - Host: {Config.REMOTE_DB_HOST}, Port: {Config.REMOTE_DB_PORT}, User: {Config.REMOTE_DB_USER}", file=sys.stderr, flush=True)
+
             # Conectar a BD para obtener info de empresa (incluyendo base_datos)
-            print(f"[DEBUG] Conectando a {Config.REMOTE_DB_HOST}:{Config.REMOTE_DB_PORT}/{db_name} con usuario {Config.REMOTE_DB_USER}")
+            print(f"[CONEXION] Intentando conectar a {Config.REMOTE_DB_HOST}:{Config.REMOTE_DB_PORT}/{db_name}...", file=sys.stderr, flush=True)
             connection = pymysql.connect(
                 host=Config.REMOTE_DB_HOST,
                 user=Config.REMOTE_DB_USER,
@@ -52,6 +62,7 @@ class BalanceService:
                 read_timeout=10,
                 autocommit=True
             )
+            print(f"[CONEXION] ✓ Conectado exitosamente a {db_name}", file=sys.stderr, flush=True)
 
             with connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 consulta_sql = """
@@ -59,65 +70,77 @@ class BalanceService:
                     FROM empresas
                     WHERE run_rut = %s LIMIT 1
                 """
-                print(f"[DEBUG] Ejecutando consulta para RUT: {empresa_rut} en BD: {db_name}")
+                print(f"[CONSULTA] SQL: {consulta_sql}", file=sys.stderr, flush=True)
+                print(f"[CONSULTA] Buscando RUT: '{empresa_rut}' en BD: {db_name}", file=sys.stderr, flush=True)
 
                 # Intentar con el RUT tal cual viene
                 cursor.execute(consulta_sql, (empresa_rut,))
                 empresa_info = cursor.fetchone()
-                print(f"[DEBUG] Resultado de consulta con RUT original: {empresa_info}")
+                print(f"[RESULTADO 1] RUT original '{empresa_rut}': {empresa_info}", file=sys.stderr, flush=True)
 
                 # Si no encuentra, intentar sin guión
                 if not empresa_info and '-' in empresa_rut:
                     rut_sin_guion = empresa_rut.replace('-', '')
-                    print(f"[DEBUG] Intentando con RUT sin guión: {rut_sin_guion}")
+                    print(f"[INTENTO 2] Probando sin guión: '{rut_sin_guion}'", file=sys.stderr, flush=True)
                     cursor.execute(consulta_sql, (rut_sin_guion,))
                     empresa_info = cursor.fetchone()
-                    print(f"[DEBUG] Resultado con RUT sin guión: {empresa_info}")
+                    print(f"[RESULTADO 2] RUT sin guión: {empresa_info}", file=sys.stderr, flush=True)
 
                 # Si aún no encuentra, intentar con guión si no lo tenía
                 if not empresa_info and '-' not in empresa_rut and len(empresa_rut) > 1:
                     rut_con_guion = f"{empresa_rut[:-1]}-{empresa_rut[-1]}"
-                    print(f"[DEBUG] Intentando con RUT con guión: {rut_con_guion}")
+                    print(f"[INTENTO 3] Probando con guión: '{rut_con_guion}'", file=sys.stderr, flush=True)
                     cursor.execute(consulta_sql, (rut_con_guion,))
                     empresa_info = cursor.fetchone()
-                    print(f"[DEBUG] Resultado con RUT con guión: {empresa_info}")
+                    print(f"[RESULTADO 3] RUT con guión: {empresa_info}", file=sys.stderr, flush=True)
 
                 if not empresa_info:
                     # Si no encuentra, buscar similares para debug
-                    print(f"[DEBUG] No se encontró empresa con ningún formato de RUT. Buscando empresas similares...")
+                    print(f"\n[ERROR] ❌ No se encontró empresa con ningún formato de RUT", file=sys.stderr, flush=True)
+                    print(f"[DEBUG] Buscando empresas similares...", file=sys.stderr, flush=True)
                     cursor.execute("SELECT run_rut, empresa, base_datos FROM empresas WHERE run_rut LIKE %s OR run_rut LIKE %s LIMIT 10",
                                    (f"%{empresa_rut.replace('-', '')}%", f"%{empresa_rut}%"))
                     similares = cursor.fetchall()
-                    print(f"[DEBUG] Empresas similares encontradas: {similares}")
+                    print(f"[DEBUG] Empresas similares: {len(similares)} encontradas", file=sys.stderr, flush=True)
+                    for sim in similares:
+                        print(f"  → RUT: '{sim['run_rut']}', Empresa: {sim['empresa']}, BD: {sim.get('base_datos')}", file=sys.stderr, flush=True)
 
                     # Listar todas las empresas si no hay muchas
                     cursor.execute("SELECT COUNT(*) as total FROM empresas")
                     total = cursor.fetchone()
-                    print(f"[DEBUG] Total de empresas en BD {db_name}: {total}")
+                    print(f"\n[DEBUG] Total de empresas en BD '{db_name}': {total['total'] if total else 0}", file=sys.stderr, flush=True)
 
                     if total and total['total'] <= 20:
                         cursor.execute("SELECT run_rut, empresa, base_datos FROM empresas LIMIT 20")
                         todas = cursor.fetchall()
-                        print(f"[DEBUG] Todas las empresas en BD:")
+                        print(f"[DEBUG] Listado completo de empresas en BD:", file=sys.stderr, flush=True)
                         for emp in todas:
-                            print(f"  - RUT: {emp['run_rut']}, Empresa: {emp['empresa']}, BD: {emp.get('base_datos')}")
+                            print(f"  → RUT: '{emp['run_rut']}', Empresa: {emp['empresa']}, BD: {emp.get('base_datos')}", file=sys.stderr, flush=True)
+                else:
+                    print(f"\n[EXITO] ✓ Empresa encontrada: {empresa_info.get('empresa')}", file=sys.stderr, flush=True)
+                    print(f"[EXITO] ✓ Base de datos empresa: {empresa_info.get('base_datos')}", file=sys.stderr, flush=True)
 
                 if empresa_info:
                     # Guardar en cache SOLO si base_datos tiene valor válido
                     if empresa_info.get('base_datos'):
                         BalanceService._empresa_cache[cache_key] = (empresa_info, now)
-                        print(f"Info de empresa cacheada: {empresa_rut} -> BD: {empresa_info['base_datos']}")
+                        print(f"[CACHE] Empresa cacheada: {empresa_rut} -> BD: {empresa_info['base_datos']}", file=sys.stderr, flush=True)
                     else:
-                        print(f"No se cachea empresa {empresa_rut} porque base_datos es NULL")
+                        print(f"[CACHE] No se cachea empresa {empresa_rut} porque base_datos es NULL", file=sys.stderr, flush=True)
 
                 return empresa_info
 
         except Exception as e:
-            print(f"Error obteniendo info empresa: {e}")
+            import traceback
+            print(f"\n{'='*80}", file=sys.stderr, flush=True)
+            print(f"[EXCEPTION] ❌ Error obteniendo info empresa: {e}", file=sys.stderr, flush=True)
+            print(f"[EXCEPTION] Traceback completo:", file=sys.stderr, flush=True)
+            traceback.print_exc(file=sys.stderr)
+            print(f"{'='*80}\n", file=sys.stderr, flush=True)
             # Invalidar cache en caso de error
             if cache_key in BalanceService._empresa_cache:
                 del BalanceService._empresa_cache[cache_key]
-                print(f"Cache invalidado para {empresa_rut} debido a error")
+                print(f"[CACHE] Cache invalidado para {empresa_rut} debido a error", file=sys.stderr, flush=True)
             return None
         finally:
             if connection:
