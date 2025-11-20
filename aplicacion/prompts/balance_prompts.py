@@ -5,21 +5,21 @@ Prompts para análisis contable con IA
 
 class BalancePrompts:
     """Prompts especializados para análisis de balances contables"""
-    
+
     @staticmethod
     def get_analisis_contable_prompt():
         """
         Retorna el prompt principal para análisis contable completo de balances de 8 columnas
 
         Prompt v3.3 - Auditoría Contable CL/NIIF PYMES con análisis de Mayor integrado
-        
+
         Returns:
             str: Prompt completo para análisis contable profesional
         """
         return """
 [PROMPT PRINCIPAL — v3.3 Auditoría Contable CL/NIIF PYMES]
 
-Actúa como un CONTADOR AUDITOR SENIOR con amplia experiencia en balances de 8 columnas bajo normativa chilena (PCGA y NIIF para PYMES). Vas a analizar un BALANCE en formato JSON. 
+Actúa como un CONTADOR AUDITOR SENIOR con amplia experiencia en balances de 8 columnas bajo normativa chilena (PCGA y NIIF para PYMES). Vas a analizar un BALANCE en formato JSON.
 
 ⚠️ **INSTRUCCIÓN CRÍTICA:** Tómate el tiempo necesario y entrega respuestas extensas, completas y bien fundamentadas. **DEBES analizar TODAS las cuentas con saldo distinto de cero, UNA POR UNA, sin agrupar**. Cada cuenta debe tener su propia sección "### Cuenta:" separada con su código entre paréntesis.
 
@@ -90,7 +90,7 @@ POLÍTICA DE AJUSTES Y PRUDENCIA EXTREMA
 - **PROHIBIDO ABSOLUTO:** NO propongas asientos que afecten cuentas de resultados (Ingresos/Gastos/Pérdidas/Ganancias) salvo evidencia documental irrefutable y error contable comprobado.
 - **PRINCIPIO FUNDAMENTAL:** Los ajustes deben ser RECLASIFICACIONES dentro del balance, no correcciones de resultado.
 - NO propongas asientos con cuentas genéricas ("Diferencias de Cambio", "Ajuste Ejercicio Anterior", "Otros Gastos", "Otros Ingresos") bajo ninguna circunstancia.
-- Para cuentas transitorias (IVA débito/crédito, remuneraciones, honorarios, leyes sociales, provisiones, impuestos por pagar): 
+- Para cuentas transitorias (IVA débito/crédito, remuneraciones, honorarios, leyes sociales, provisiones, impuestos por pagar):
   - **RESIDUOS MENORES:** Si el saldo residual es < $50.000 CLP, decláralo como "Residuo menor - mantener para seguimiento" en lugar de proponer ajustes.
   - **RECLASIFICACIONES PERMITIDAS:** Solo a cuentas permanentes del mismo tipo (Activo→Activo, Pasivo→Pasivo).
   - **EJEMPLOS CORRECTOS:**
@@ -116,7 +116,7 @@ FORMATO DE SALIDA (ENCABEZADO, RESUMEN Y ANÁLISIS PROGRESIVO)
 - Cuadratura general: [Cuadrado | No cuadra] y diferencia si aplica (SOLO si sumas_iguales no coinciden)
 - Resultado del período: Utilidad/Pérdida = $X
 - Top 3 riesgos y observaciones clave (bullets cortos)
-  * IMPORTANTE: Si el balance cuadra (Sumas Iguales iguales), NO reportes descuadres "ocultos". 
+  * IMPORTANTE: Si el balance cuadra (Sumas Iguales iguales), NO reportes descuadres "ocultos".
     Los problemas de clasificación contable (ej: Depreciación como Activo) son hallazgos contables, NO descuadres.
   * **CUENTAS COMPLEMENTARIAS:** Si es_contra_cuenta=true, la cuenta está CORRECTAMENTE clasificada como complementaria (activo complementario / pasivo complementario). NO reportar como error ni incluir en "Top 3 riesgos". Solo mencionar si su saldo es inconsistente o excede el costo bruto del rubro.
   * Errores de presentación (no afectan cuadratura): SOLO reportar si es_contra_cuenta=false pero por nombre debería ser contra-cuenta. Recomendar reclasificación.
@@ -215,7 +215,7 @@ Formato de salida (COMPLETO, CLARO y NO TÉCNICO)
 - Resultado del período: Utilidad/Pérdida = $X.
 - Movimientos generales: [Equilibrados | Explicados por SI | Observación breve].
 - Análisis cuenta por cuenta: incluir TODAS las cuentas con saldo final distinto de cero, en el mismo orden del balance. Omite cuentas con saldo = 0 y movimientos simétricos.
-  * **FORMATO OBLIGATORIO:** Cada cuenta debe tener su sección "### Cuenta: [NOMBRE] ([CODIGO])" 
+  * **FORMATO OBLIGATORIO:** Cada cuenta debe tener su sección "### Cuenta: [NOMBRE] ([CODIGO])"
   * **NO AGRUPES CUENTAS:** Cada una debe tener análisis individual, no análisis agrupados
   * Para cuentas con movimientos significativos: análisis detallado (5-10 líneas)
   * Para cuentas sin cambios relevantes: nota breve indicando "Sin movimientos significativos en el período" (1-2 líneas)
@@ -246,7 +246,7 @@ EJEMPLO CORRECTO:
 
 EJEMPLO INCORRECTO (NO HACER):
 ### Cuentas de Activo Fijo (122301, 122302, 122303)
-[análisis agrupado] ❌
+[análisis agrupado]
 
 Para cada cuenta con saldo final distinto de cero:
 
@@ -262,7 +262,7 @@ Para cada cuenta con saldo final distinto de cero:
   - Variaciones inusuales respecto del saldo inicial (si el JSON trae comparativos)
   - Vinculación: contra_de = [código/nombre] (inferido o provisto)
   - Prueba de tope: una contra-cuenta no puede exceder el costo bruto del rubro
-- **Análisis Técnico:**  
+- **Análisis Técnico:**
   - Explica si los movimientos son consistentes (devengos, pagos, provisiones, reversos).
   - Si es transitoria: ¿debería cerrar en cero? ¿hay residuo > materialidad?
   - Si procede, usa evidencia del Mayor (fechas/glosas resumidas) para sustentar hallazgos.
@@ -421,18 +421,18 @@ Si el JSON incluye secciones "anomalias" o "hallazgos_reglas":
     def get_prompt_personalizado(tipo_analisis="completo", sector_empresa="general", periodo_analisis="mensual"):
         """
         Genera un prompt personalizado según parámetros específicos
-        
+
         Args:
             tipo_analisis (str): Tipo de análisis requerido (completo)
             sector_empresa (str): Sector de la empresa (retail, servicios, industrial, etc.)
             periodo_analisis (str): Período de análisis (mensual, trimestral, anual)
-            
+
         Returns:
             str: Prompt personalizado
         """
         # Solo disponible análisis completo (otros tipos fueron removidos por no estar en uso)
         base_prompt = BalancePrompts.get_analisis_contable_prompt()
-        
+
         # Agregar contexto específico del sector
         contexto_sector = ""
         if sector_empresa == "retail":
@@ -441,7 +441,7 @@ Si el JSON incluye secciones "anomalias" o "hallazgos_reglas":
             contexto_sector = "\n**Contexto Sector Servicios:** Enfócate en facturación de servicios, cuentas por cobrar, gastos de personal y activos intangibles."
         elif sector_empresa == "industrial":
             contexto_sector = "\n**Contexto Sector Industrial:** Analiza materias primas, productos en proceso, activos fijos, depreciaciones y costos de producción."
-        
+
         # Agregar contexto temporal
         contexto_periodo = ""
         if periodo_analisis == "mensual":
@@ -450,7 +450,7 @@ Si el JSON incluye secciones "anomalias" o "hallazgos_reglas":
             contexto_periodo = "\n**Análisis Trimestral:** Evalúa tendencias trimestrales, cumplimiento de presupuestos y proyecciones."
         elif periodo_analisis == "anual":
             contexto_periodo = "\n**Análisis Anual:** Incluye evaluación de cierre anual, distribución de utilidades y planificación fiscal."
-        
+
         return base_prompt + contexto_sector + contexto_periodo
 
 

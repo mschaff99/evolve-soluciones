@@ -208,7 +208,7 @@ Por favor proporciona un análisis profesional, preciso y útil para la toma de 
                 ]
             }
 
-            print(f"🤖 Enviando request a Gemini: {url}")
+            print(f"[GEMINI] Enviando request a Gemini: {url}")
 
             response = requests.post(
                 url,
@@ -217,7 +217,7 @@ Por favor proporciona un análisis profesional, preciso y útil para la toma de 
                 timeout=Config.GEMINI_TIMEOUT  # Usar timeout configurable
             )
 
-            print(f"📡 Response status: {response.status_code}")
+            print(f"[RESPONSE] Response status: {response.status_code}")
 
             if response.status_code == 200:
                 response_data = response.json()
