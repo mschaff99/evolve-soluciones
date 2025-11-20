@@ -45,8 +45,8 @@ class ServicioEncriptacion:
             f.write(nueva_clave)
 
         print(f" Clave de encriptación creada en: {archivo_clave}")
-        print("⚠️  IMPORTANTE: Guarda este archivo de forma segura (backup)")
-        print("⚠️  Añade '.encryption_key' a tu .gitignore")
+        print("[IMPORTANTE] Guarda este archivo de forma segura (backup)")
+        print("[IMPORTANTE] Añade '.encryption_key' a tu .gitignore")
 
         return nueva_clave
 

@@ -399,7 +399,7 @@ class ServicioEmpresas:
                     clave_plana = servicio_encriptacion.desencriptar(clave_encriptada)
                     return clave_plana
                 except Exception as e:
-                    print(f"⚠️  Error desencriptando credencial para {rut}: {e}")
+                    print(f"[ADVERTENCIA] Error desencriptando credencial para {rut}: {e}")
                     print("    Puede ser que esté en formato bcrypt (no reversible)")
                     return None
 
@@ -459,7 +459,7 @@ class ServicioEmpresas:
                 cursor.execute(consulta, [rut])
                 conexion.commit()
 
-                print(f"✓ Credencial SII para {rut} eliminada")
+                print(f"[OK] Credencial SII para {rut} eliminada")
                 return True
 
         except Exception as e:

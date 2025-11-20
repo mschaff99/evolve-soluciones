@@ -164,12 +164,12 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
             env = dict(os.environ)
             env["PYTHONIOENCODING"] = "utf-8"
 
-            # 🔥 CRÍTICO: Pasar la base de datos al script GCI vía variable de entorno
+            # CRITICO: Pasar la base de datos al script GCI vía variable de entorno
             env["DB_NAME"] = base_datos
             env["EVOLVE_DB_NAME"] = base_datos  # Nombre alternativo por si GCI usa otro
 
             logf.write(f"\n{'='*60}\n")
-            logf.write(f"🔧 CONFIGURACIÓN DE BASE DE DATOS\n")
+            logf.write(f"[CONFIG] CONFIGURACIÓN DE BASE DE DATOS\n")
             logf.write(f"{'='*60}\n")
             logf.write(f"[Config] Variable de entorno DB_NAME configurada a: {base_datos}\n")
             logf.write(f"[Config] Esta base de datos se usará para guardar F29 y DJ\n")

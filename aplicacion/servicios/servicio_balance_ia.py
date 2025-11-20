@@ -143,7 +143,7 @@ class BalanceService:
     def limpiar_datos_balance_para_ia(balance_data):
         """Limpia y valida los datos del balance antes de enviarlos a la IA"""
         try:
-            print(f"🔧 LIMPIEZA - Input type: {type(balance_data)}, keys: {list(balance_data.keys()) if isinstance(balance_data, dict) else 'No es dict'}")
+            print(f"[LIMPIEZA] Input type: {type(balance_data)}, keys: {list(balance_data.keys()) if isinstance(balance_data, dict) else 'No es dict'}")
             balance_limpio = {
                 'cuentas_detalle': [],
                 'sumas': None,
@@ -208,12 +208,12 @@ class BalanceService:
                         'ganancia': float(fila.get('ganancia') or 0)
                     }
 
-            print(f"🔧 LIMPIEZA - Output type: {type(balance_limpio)}, cuentas: {len(balance_limpio.get('cuentas_detalle', []))}")
+            print(f"[LIMPIEZA] Output type: {type(balance_limpio)}, cuentas: {len(balance_limpio.get('cuentas_detalle', []))}")
             return balance_limpio
 
         except Exception as e:
             print(f"Error limpiando datos para IA: {e}")
-            print(f"🔧 LIMPIEZA - Devolviendo datos originales por error")
+            print(f"[LIMPIEZA] Devolviendo datos originales por error")
             return balance_data  # Devolver datos originales si hay error
 
     @staticmethod
@@ -245,13 +245,13 @@ class BalanceService:
                 }
 
             info_empresa_time = datetime.now()
-            print(f"⏱️ Tiempo para obtener info de empresa: {(info_empresa_time - start_time).total_seconds()}s")
+            print(f"[TIEMPO] Tiempo para obtener info de empresa: {(info_empresa_time - start_time).total_seconds()}s")
             print(f" DEBUG empresa_info completo: {empresa_info}")
 
             # Conectar a la base de datos específica de la empresa
             base_datos_empresa = empresa_info.get('base_datos')
-            print(f"🗄️ Conectando a base de datos específica: {base_datos_empresa}")
-            print(f" DEBUG keys disponibles en empresa_info: {list(empresa_info.keys())}")
+            print(f"[DB] Conectando a base de datos específica: {base_datos_empresa}")
+            print(f"[DEBUG] Keys disponibles en empresa_info: {list(empresa_info.keys())}")
 
             if not base_datos_empresa:
                 return {
@@ -280,7 +280,7 @@ class BalanceService:
                 # Construir parámetros usando método optimizado
                 params = balance_queries.build_balance_parameters(periodo_inicio, periodo_fin)
 
-                print(f"📊 Ejecutando consulta de balance con {len(params)} parámetros")
+                print(f"[BALANCE] Ejecutando consulta de balance con {len(params)} parámetros")
                 print(f" DEBUG PARÁMETROS:")
                 print(f"  periodo_inicio: {periodo_inicio}")
                 print(f"  periodo_fin: {periodo_fin}")
@@ -290,7 +290,7 @@ class BalanceService:
                 cursor.execute(query, params)
                 resultados = cursor.fetchall()
                 query_end_time = datetime.now()
-                print(f"⏱️ Tiempo de ejecución de la consulta de balance: {(query_end_time - query_start_time).total_seconds()}s")
+                print(f"[TIEMPO] Tiempo de ejecución de la consulta de balance: {(query_end_time - query_start_time).total_seconds()}s")
 
                 print(f" Balance generado: {len(resultados)} filas")
 
@@ -346,7 +346,7 @@ class BalanceService:
                     balance_data['cuentas_detalle'].append(fila_procesada)
 
                 processing_end_time = datetime.now()
-                print(f"⏱️ Tiempo de procesamiento de resultados: {(processing_end_time - processing_start_time).total_seconds()}s")
+                print(f"[TIEMPO] Tiempo de procesamiento de resultados: {(processing_end_time - processing_start_time).total_seconds()}s")
 
                 # SOLO GENERAR EL BALANCE - Sin análisis automático del mayor
                 respuesta = {
@@ -370,7 +370,7 @@ class BalanceService:
                 print(" Balance generado SIN análisis automático del mayor - para mejor rendimiento")
 
                 total_end_time = datetime.now()
-                print(f"⏱️ Tiempo total de generación de balance: {(total_end_time - start_time).total_seconds()}s")
+                print(f"[TIEMPO] Tiempo total de generación de balance: {(total_end_time - start_time).total_seconds()}s")
                 return respuesta
 
         except Exception as e:
@@ -423,11 +423,11 @@ class BalanceService:
             if empresa_info and empresa_info.get('empresa'):
                 return empresa_info['empresa']
             else:
-                print(f"⚠️ No se encontró info para empresa: {empresa_rut}")
+                print(f"[ADVERTENCIA] No se encontró info para empresa: {empresa_rut}")
                 return empresa_rut
 
         except Exception as e:
-            print(f"⚠️ Error obteniendo nombre empresa: {e}")
+            print(f"[ADVERTENCIA] Error obteniendo nombre empresa: {e}")
             return empresa_rut
 
     @staticmethod
@@ -538,7 +538,7 @@ class BalanceService:
                     'detalles': 'El balance no contiene cuentas detalle'
                 }
 
-            print(f"📊 Balance válido: {len(cuentas_detalle)} cuentas para analizar")
+            print(f"[BALANCE] Balance válido: {len(cuentas_detalle)} cuentas para analizar")
 
             # LIMPIAR Y VALIDAR DATOS ANTES DE ENVIAR A LA IA
             print(f" DEBUG - balance_data antes de limpiar: {type(balance_data)}, cuentas: {len(balance_data.get('cuentas_detalle', []) if balance_data else [])}")
@@ -560,7 +560,7 @@ class BalanceService:
             try:
                 from aplicacion.servicios.servicio_ia_memoria import IAMemoriaService
             except ImportError as import_error:
-                print(f"⚠️ Error importando IAMemoriaService: {import_error}")
+                print(f"[ADVERTENCIA] Error importando IAMemoriaService: {import_error}")
                 IAMemoriaService = None
             contexto_historico = ""
             if IAMemoriaService:
@@ -570,7 +570,7 @@ class BalanceService:
                         int(str(metadata.get('periodo_fin', 0))[:6])  # Convertir a formato YYYYMM
                     )
                 except Exception as memoria_error:
-                    print(f"⚠️ Error obteniendo contexto histórico: {memoria_error}")
+                    print(f"[ADVERTENCIA] Error obteniendo contexto histórico: {memoria_error}")
                     contexto_historico = ""
 
             if contexto_historico:
@@ -611,10 +611,10 @@ class BalanceService:
 
             # VALIDACIÓN PREVIA: Asegurar que balance_data_limpio esté disponible para toda la función
             if balance_data_limpio is None:
-                print("⚠️ CRÍTICO: balance_data_limpio es None antes de continuar. Reintentando limpieza...")
+                print("[CRITICO] balance_data_limpio es None antes de continuar. Reintentando limpieza...")
                 balance_data_limpio = BalanceService.limpiar_datos_balance_para_ia(balance_data)
                 if balance_data_limpio is None:
-                    print("⚠️ CRÍTICO: Limpieza falló dos veces. Usando datos originales.")
+                    print("[CRITICO] Limpieza falló dos veces. Usando datos originales.")
                     balance_data_limpio = balance_data or {}
 
             # Importar el servicio de Gemini
@@ -755,7 +755,7 @@ class BalanceService:
             print(f" Detectadas {len(cuentas_proveedores_honorarios)} cuentas de proveedores/honorarios")
             print(f" Detectadas {len(cuentas_anticipos)} cuentas de anticipos")
 
-            # 🔧 ANÁLISIS DE ANTICIPOS/PROVEEDORES COMENTADO (DESHABILITADO POR AHORA)
+            # NOTA: ANÁLISIS DE ANTICIPOS/PROVEEDORES COMENTADO (DESHABILITADO POR AHORA)
             # Si hay cuentas relevantes con saldos significativos, ejecutar análisis de relaciones
             """
             analisis_anticipos = {}
@@ -776,7 +776,7 @@ class BalanceService:
                         # Analizar cada cuenta significativa
                         for cuenta_info in cuentas_significativas[:3]:  # Limitar a 3 cuentas para no saturar
                             codigo_cuenta = cuenta_info['cuenta']
-                            print(f"📊 Analizando relaciones en cuenta: {codigo_cuenta}")
+                            print(f"[ANALISIS] Analizando relaciones en cuenta: {codigo_cuenta}")
 
                             resultado_cuenta = proveedores_service.analizar_proveedores_honorarios(
                                 empresa_rut=empresa_rut,
@@ -802,10 +802,10 @@ class BalanceService:
                                 }
                                 print(f" Análisis completado para cuenta {codigo_cuenta}")
                             else:
-                                print(f"⚠️ Error en análisis de cuenta {codigo_cuenta}: {resultado_cuenta.get('error')}")
+                                print(f"[ADVERTENCIA] Error en análisis de cuenta {codigo_cuenta}: {resultado_cuenta.get('error')}")
 
                     except Exception as e:
-                        print(f"⚠️ Error en análisis de anticipos: {e}")
+                        print(f"[ADVERTENCIA] Error en análisis de anticipos: {e}")
                         analisis_anticipos = {'error': f'Error en análisis: {str(e)}'}
 
             # Agregar análisis de anticipos al JSON principal
@@ -814,9 +814,9 @@ class BalanceService:
                 print(f"📋 Análisis de anticipos agregado al balance: {len(analisis_anticipos)} cuentas analizadas")
             """
 
-            # 🔧 ANÁLISIS DE ANTICIPOS/PROVEEDORES DESHABILITADO
+            # NOTA: ANÁLISIS DE ANTICIPOS/PROVEEDORES DESHABILITADO
             analisis_anticipos = {}
-            print(f"⏭️ Análisis de anticipos/proveedores deshabilitado por ahora")
+            print(f"[SKIP] Análisis de anticipos/proveedores deshabilitado por ahora")
 
             # Convertir todos los Decimals a float para serialización JSON
             balance_json_clean = BalanceService.decimal_to_float(balance_json)
@@ -879,15 +879,15 @@ class BalanceService:
                             tiempo_procesamiento=tiempo_procesamiento
                         )
                     except Exception as memoria_error:
-                        print(f"⚠️ Error guardando en memoria (no crítico): {memoria_error}")
+                        print(f"[ADVERTENCIA] Error guardando en memoria (no crítico): {memoria_error}")
                         import traceback
-                        print(f"⚠️ Traceback memoria: {traceback.format_exc()}")
+                        print(f"[ADVERTENCIA] Traceback memoria: {traceback.format_exc()}")
                         memoria_resultado = {'success': False, 'error': str(memoria_error)}
                 else:
-                    print("⚠️ IAMemoriaService no disponible, saltando guardado en memoria")
+                    print("[ADVERTENCIA] IAMemoriaService no disponible, saltando guardado en memoria")
 
                 if memoria_resultado.get('success'):
-                    print(f"💾 Análisis guardado en memoria - ID: {memoria_resultado.get('analisis_id')}")
+                    print(f"[GUARDADO] Análisis guardado en memoria - ID: {memoria_resultado.get('analisis_id')}")
 
                 return {
                     'success': True,
@@ -976,7 +976,7 @@ class BalanceService:
 
             return anomalias_encontradas
         except Exception as e:
-            print(f"⚠️ Error detectando anomalías: {e}")
+            print(f"[ADVERTENCIA] Error detectando anomalías: {e}")
             return []
 
     @staticmethod
@@ -1053,7 +1053,7 @@ class BalanceService:
             connection.close()
             return investigaciones
         except Exception as e:
-            print(f"⚠️ Error analizando mayor por anomalías: {e}")
+            print(f"[ADVERTENCIA] Error analizando mayor por anomalías: {e}")
             try:
                 connection.close()
             except:
@@ -1099,7 +1099,7 @@ class BalanceService:
                             }
                         })
         except Exception as e:
-            print(f"⚠️ Error aplicando reglas contables: {e}")
+            print(f"[ADVERTENCIA] Error aplicando reglas contables: {e}")
         return hallazgos
 
     @staticmethod
@@ -1122,7 +1122,7 @@ class BalanceService:
                 return None, None
             return int(row['min_p']), int(row['max_p'])
         except Exception as e:
-            print(f"⚠️ Error obteniendo rango del mayor: {e}")
+            print(f"[ADVERTENCIA] Error obteniendo rango del mayor: {e}")
             return None, None
 
     @staticmethod
@@ -1140,7 +1140,7 @@ class BalanceService:
             row = cursor.fetchone()
             return float(row.get('saldo_ini', 0) if row else 0)
         except Exception as e:
-            print(f"⚠️ Error obteniendo saldo inicial: {e}")
+            print(f"[ADVERTENCIA] Error obteniendo saldo inicial: {e}")
             return 0.0
 
     @staticmethod
@@ -1169,7 +1169,7 @@ class BalanceService:
             )
             return list(cursor.fetchall() or [])
         except Exception as e:
-            print(f"⚠️ Error obteniendo movimientos del mayor: {e}")
+            print(f"[ADVERTENCIA] Error obteniendo movimientos del mayor: {e}")
             return []
 
     @staticmethod
@@ -1239,7 +1239,7 @@ class BalanceService:
             connection.close()
             return investigaciones
         except Exception as e:
-            print(f"⚠️ Error analizando mayor (críticas): {e}")
+            print(f"[ADVERTENCIA] Error analizando mayor (críticas): {e}")
             try:
                 connection.close()
             except:
@@ -1367,14 +1367,14 @@ class BalanceService:
 
             print(f" Extraídos análisis de {len(analisis_dict)} cuentas")
             if len(analisis_dict) == 0:
-                print("⚠️ No se encontraron análisis de cuentas. Guardando análisis completo como respaldo.")
+                print("[ADVERTENCIA] No se encontraron análisis de cuentas. Guardando análisis completo como respaldo.")
 
                 # DEBUG: Guardar el análisis completo en un archivo temporal
                 try:
                     import tempfile
                     with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.txt', encoding='utf-8') as f:
                         f.write(analisis_texto)
-                        print(f"📝 Análisis completo guardado en: {f.name}")
+                        print(f"[GUARDADO] Análisis completo guardado en: {f.name}")
                 except:
                     pass
 
@@ -1385,7 +1385,7 @@ class BalanceService:
 
         except Exception as e:
             import traceback
-            print(f"⚠️ Error extrayendo análisis por cuenta: {e}")
+            print(f"[ADVERTENCIA] Error extrayendo análisis por cuenta: {e}")
             print(traceback.format_exc())
             return {}
 
@@ -1519,7 +1519,7 @@ class BalanceService:
             from openpyxl.utils.dataframe import dataframe_to_rows
             from openpyxl.styles import Font, PatternFill, Alignment, Border, Side
 
-            print(f"📊 Generando Excel completo para {empresa_rut}")
+            print(f"[EXCEL] Generando Excel completo para {empresa_rut}")
 
             # 1. Generar el balance
             resultado_balance = BalanceService.generar_balance_8_columnas(
@@ -1554,7 +1554,7 @@ class BalanceService:
 
                     # Extraer análisis por cuenta del texto completo
                     if analisis_ia_texto:
-                        print("📊 Extrayendo análisis por cuenta...")
+                        print("[ANALISIS] Extrayendo análisis por cuenta...")
                         analisis_por_cuenta = BalanceService._extraer_analisis_por_cuenta(analisis_ia_texto)
 
             # 3. Crear archivo Excel
@@ -1802,7 +1802,7 @@ class BalanceService:
                                     print(f" Análisis encontrado con patrón {i+1} para {codigo_cuenta}")
                                     break
                         except Exception as e:
-                            print(f"⚠️ Error en patrón {i+1}: {e}")
+                            print(f"[ADVERTENCIA] Error en patrón {i+1}: {e}")
                             continue
 
                 if analisis_cuenta:
@@ -1851,7 +1851,7 @@ class BalanceService:
 
                             fila += 1
                 else:
-                    print(f"⚠️ No se encontró análisis para cuenta {codigo_cuenta} ({codigo_limpio})")
+                    print(f"[ADVERTENCIA] No se encontró análisis para cuenta {codigo_cuenta} ({codigo_limpio})")
 
                 # Ajustar anchos
                 ws_mayor.column_dimensions['A'].width = 10

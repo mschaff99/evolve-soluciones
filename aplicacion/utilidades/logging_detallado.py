@@ -170,7 +170,7 @@ def log_error_csrf_detallado(request_obj=None):
     diagnostico = ""
     if es_chrome and not tiene_csrf_cookie:
         diagnostico = """
-⚠️ DIAGNÓSTICO PROBABLE: Cookies corruptas en Chrome modo normal
+[DIAGNOSTICO] PROBABLE: Cookies corruptas en Chrome modo normal
 - Chrome/Edge detectado
 - Cookie CSRF ausente (probablemente bloqueada o corrupta)
 - SOLUCIÓN: Usuario debe limpiar cookies del sitio o usar incógnito
@@ -374,9 +374,9 @@ User Agent: {user_agent}
 
 ANÁLISIS:
 - Navegador: {diagnostico['navegador']}
-- Problema detectado: {'SÍ ⚠️' if diagnostico['problema_detectado'] else 'No'}
-- Session cookie presente: {'SÍ' if diagnostico['tiene_session_cookie'] else 'NO ⚠️'}
-- CSRF cookie presente: {'SÍ' if diagnostico['tiene_csrf_cookie'] else 'NO ⚠️'}
+- Problema detectado: {'SÍ [ADVERTENCIA]' if diagnostico['problema_detectado'] else 'No'}
+- Session cookie presente: {'SÍ' if diagnostico['tiene_session_cookie'] else 'NO [ADVERTENCIA]'}
+- CSRF cookie presente: {'SÍ' if diagnostico['tiene_csrf_cookie'] else 'NO [ADVERTENCIA]'}
 - Total de cookies: {diagnostico['total_cookies']}
 
 RECOMENDACIÓN: {diagnostico['recomendacion']}

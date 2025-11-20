@@ -357,7 +357,7 @@ class IAMemoriaService:
             print(f"🧠 Analizando patrones para aprendizaje automático - Empresa: {empresa_rut}")
 
         except Exception as e:
-            print(f"⚠️ Error en aprendizaje de patrones: {e}")
+            print(f"[ADVERTENCIA] Error en aprendizaje de patrones: {e}")
 
     @staticmethod
     def _evaluar_condiciones_patron(condiciones: Dict, contexto_actual: Dict) -> bool:
@@ -374,5 +374,5 @@ class IAMemoriaService:
             return True
 
         except Exception as e:
-            print(f"⚠️ Error evaluando condiciones de patrón: {e}")
+            print(f"[ADVERTENCIA] Error evaluando condiciones de patrón: {e}")
             return False
