@@ -533,6 +533,17 @@ def analizar_balance_completo():
         # Importar servicios necesarios
         from aplicacion.servicios.servicio_balance_ia import BalanceService
 
+        # Obtener base de datos del usuario actual
+        base_datos_usuario = current_user.base_datos_mysql if current_user.is_authenticated else None
+        print(f" [BD_USUARIO] Base de datos del usuario: {base_datos_usuario}")
+
+        # Validar que el usuario tenga base de datos asignada
+        if not base_datos_usuario:
+            return jsonify({
+                'success': False,
+                'error': 'No tienes una base de datos asignada. Accede a través de la URL correcta: /[base_datos]/ia/dashboard'
+            }), 400
+
         # Paso 1: Generar balance
         periodo_inicio = int(f"{anio_inicio}{mes_inicio:02d}")
         periodo_fin = int(f"{anio_fin}{mes_fin:02d}")
@@ -540,7 +551,8 @@ def analizar_balance_completo():
         resultado_balance = BalanceService.generar_balance_8_columnas(
             empresa_rut=empresa_rut,
             periodo_inicio=periodo_inicio,
-            periodo_fin=periodo_fin
+            periodo_fin=periodo_fin,
+            base_datos_usuario=base_datos_usuario
         )
 
         print(f" Resultado balance: {resultado_balance.keys() if resultado_balance else 'None'}")
@@ -581,7 +593,8 @@ def analizar_balance_completo():
             empresa_rut=empresa_rut,
             periodo_inicio=periodo_inicio,
             periodo_fin=periodo_fin,
-            balance_data=balance_data
+            balance_data=balance_data,
+            base_datos_usuario=base_datos_usuario
         )
 
         # Paso 3: Analizar con IA usando el balance + análisis del mayor

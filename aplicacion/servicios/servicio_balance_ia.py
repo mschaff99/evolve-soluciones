@@ -536,16 +536,23 @@ class BalanceService:
             return empresa_rut
 
     @staticmethod
-    def generar_analisis_mayor_para_ia(empresa_rut, periodo_inicio, periodo_fin, balance_data):
+    def generar_analisis_mayor_para_ia(empresa_rut, periodo_inicio, periodo_fin, balance_data, base_datos_usuario=None):
         """
         Genera análisis del mayor SOLO cuando se va a usar con IA.
         Esto se ejecuta por separado para no afectar el rendimiento del balance básico.
+
+        Args:
+            empresa_rut: RUT de la empresa
+            periodo_inicio: Período inicio en formato YYYYMM
+            periodo_fin: Período fin en formato YYYYMM
+            balance_data: Datos del balance generado
+            base_datos_usuario: Base de datos del usuario actual (opcional)
         """
         try:
             print(" Generando análisis del mayor para IA...")
 
             # Obtener info de empresa (puede usar cache)
-            empresa_info = BalanceService._get_empresa_info_cached(empresa_rut)
+            empresa_info = BalanceService._get_empresa_info_cached(empresa_rut, base_datos_usuario)
             if not empresa_info:
                 return {
                     'anomalias_balance': [],
