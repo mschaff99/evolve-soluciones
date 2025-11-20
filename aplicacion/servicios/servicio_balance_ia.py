@@ -16,11 +16,15 @@ class BalanceService:
     _cache_timeout = 3600  # 1 hora en segundos
 
     @staticmethod
-    def _get_empresa_info_cached(empresa_rut):
+    def _get_empresa_info_cached(empresa_rut, base_datos_usuario=None):
         """
         Obtiene información de empresa con cache en memoria
+
+        Args:
+            empresa_rut: RUT de la empresa a buscar
+            base_datos_usuario: Base de datos del usuario actual (si no se proporciona, usa Config.DB_NAME)
         """
-        cache_key = f"empresa_{empresa_rut}"
+        cache_key = f"empresa_{empresa_rut}_{base_datos_usuario or Config.DB_NAME}"
         now = datetime.now()
 
         # Verificar si existe en cache y no ha expirado
@@ -33,14 +37,16 @@ class BalanceService:
         # No está en cache o expiró, obtener de BD
         connection = None
         try:
-            # Conectar a BD local para obtener info de empresa (incluyendo base_datos)
-            print(f" DEBUG: Conectando a {Config.DB_HOST}:{Config.DB_PORT}/{Config.DB_NAME} con usuario {Config.DB_USER}")
+            # Usar la base de datos del usuario actual o la configurada por defecto
+            db_name = base_datos_usuario or Config.DB_NAME
+            # Conectar a BD para obtener info de empresa (incluyendo base_datos)
+            print(f"[DEBUG] Conectando a {Config.REMOTE_DB_HOST}:{Config.REMOTE_DB_PORT}/{db_name} con usuario {Config.REMOTE_DB_USER}")
             connection = pymysql.connect(
-                host=Config.DB_HOST,
-                user=Config.DB_USER,
-                password=Config.DB_PASSWORD,
-                database=Config.DB_NAME,
-                port=Config.DB_PORT,
+                host=Config.REMOTE_DB_HOST,
+                user=Config.REMOTE_DB_USER,
+                password=Config.REMOTE_DB_PASSWORD,
+                database=db_name,
+                port=Config.REMOTE_DB_PORT,
                 charset='utf8',
                 connect_timeout=5,
                 read_timeout=10,
@@ -217,7 +223,7 @@ class BalanceService:
             return balance_data  # Devolver datos originales si hay error
 
     @staticmethod
-    def generar_balance_8_columnas(empresa_rut, periodo_inicio, periodo_fin):
+    def generar_balance_8_columnas(empresa_rut, periodo_inicio, periodo_fin, base_datos_usuario=None):
         """
         Genera un balance de 8 columnas para una empresa en un período específico
 
@@ -225,6 +231,7 @@ class BalanceService:
             empresa_rut (str): RUT de la empresa
             periodo_inicio (int): Período inicio en formato YYYYMM (ej: 202501)
             periodo_fin (int): Período fin en formato YYYYMM (ej: 202508)
+            base_datos_usuario (str): Base de datos del usuario actual (opcional)
 
         Returns:
             dict: Resultado con success, data y metadatos
@@ -233,9 +240,10 @@ class BalanceService:
         try:
             start_time = datetime.now()
             print(f"[BALANCE] Generando balance para {empresa_rut}: {periodo_inicio} - {periodo_fin}")
+            print(f"[BD] Base de datos usuario: {base_datos_usuario or 'No especificada (usará Config.DB_NAME)'}")
 
             # OPTIMIZACIÓN: Obtener información de empresa con cache
-            empresa_info = BalanceService._get_empresa_info_cached(empresa_rut)
+            empresa_info = BalanceService._get_empresa_info_cached(empresa_rut, base_datos_usuario)
 
             if not empresa_info:
                 return {
@@ -405,20 +413,21 @@ class BalanceService:
         return anio * 100 + mes
 
     @staticmethod
-    def obtener_nombre_empresa(empresa_rut):
+    def obtener_nombre_empresa(empresa_rut, base_datos_usuario=None):
         """
         Obtiene el nombre de la empresa por su RUT desde la base de datos remota
         OPTIMIZADO: Usa el cache de empresa en lugar de hacer consulta separada
 
         Args:
             empresa_rut (str): RUT de la empresa
+            base_datos_usuario (str): Base de datos del usuario actual (opcional)
 
         Returns:
             str: Nombre de la empresa o RUT si no se encuentra
         """
         try:
             # OPTIMIZACIÓN: Usar el cache en lugar de conexión separada
-            empresa_info = BalanceService._get_empresa_info_cached(empresa_rut)
+            empresa_info = BalanceService._get_empresa_info_cached(empresa_rut, base_datos_usuario)
 
             if empresa_info and empresa_info.get('empresa'):
                 return empresa_info['empresa']

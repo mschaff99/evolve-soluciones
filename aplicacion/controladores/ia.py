@@ -106,10 +106,15 @@ def generar_balance_empresa():
         periodo_fin = balance_service.formatear_periodo(anio_fin, mes_fin)
         logger.info(f"[FORMATO] Periodos formateados: {periodo_inicio} - {periodo_fin}")
 
+        # Obtener base de datos del usuario actual
+        base_datos_usuario = current_user.base_datos_mysql if current_user.is_authenticated else None
+        logger.info(f"[BD_USUARIO] Base de datos del usuario: {base_datos_usuario}")
+        print(f"[BD_USUARIO] Base de datos del usuario: {base_datos_usuario}", file=sys.stderr, flush=True)
+
         # Obtener nombre de la empresa
         logger.info(f"[EMPRESA] Obteniendo nombre para RUT: {empresa_rut}")
         print(f"[EMPRESA] Obteniendo nombre para RUT: {empresa_rut}", file=sys.stderr, flush=True)
-        nombre_empresa = balance_service.obtener_nombre_empresa(empresa_rut)
+        nombre_empresa = balance_service.obtener_nombre_empresa(empresa_rut, base_datos_usuario)
         logger.info(f"[EMPRESA] Nombre obtenido: {nombre_empresa}")
 
         # Generar el balance
@@ -118,7 +123,8 @@ def generar_balance_empresa():
         resultado = balance_service.generar_balance_8_columnas(
             empresa_rut=empresa_rut,
             periodo_inicio=periodo_inicio,
-            periodo_fin=periodo_fin
+            periodo_fin=periodo_fin,
+            base_datos_usuario=base_datos_usuario
         )
         logger.info(f"[RESULTADO] Balance generado, success={resultado.get('success')}")
         print(f"[RESULTADO] Balance generado, success={resultado.get('success')}", file=sys.stderr, flush=True)
