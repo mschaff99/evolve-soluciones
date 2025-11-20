@@ -38,7 +38,7 @@ def insertar_credencial_interactiva(base_datos: str = 'stratex'):
     print()
 
     # Solicitar RUT
-    rut = input("📋 Ingrese el RUT (formato: XX.XXX.XXX-X o XXXXXXXX-X): ").strip()
+    rut = input(" Ingrese el RUT (formato: XX.XXX.XXX-X o XXXXXXXX-X): ").strip()
     if not rut:
         print("RUT requerido")
         return False
@@ -136,7 +136,7 @@ def insertar_credencial_argumentos(rut: str, password: str, base_datos: str = 's
     print("🔐 INSERTAR CREDENCIAL SII")
     print("=" * 80)
     print(f"🗄️  Base de datos: {base_datos}")
-    print(f"📋 RUT: {rut}")
+    print(f" RUT: {rut}")
     print(f"🔑 Password: {'*' * len(password)}")
     print()
 

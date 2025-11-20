@@ -223,7 +223,7 @@ Get-Service -Name "EvolveWaitress" | Select-Object Status, DisplayName
 - **Subprocess Timeout**: https://docs.python.org/3/library/subprocess.html#subprocess.Popen.wait
 - **JavaScript setTimeout**: https://developer.mozilla.org/en-US/docs/Web/API/setTimeout
 
-## 📋 Checklist Post-Despliegue
+##  Checklist Post-Despliegue
 
 - [ ] Código actualizado desde Git
 - [ ] Servicio Waitress reiniciado

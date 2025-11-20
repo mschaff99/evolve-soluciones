@@ -222,7 +222,7 @@ def main():
 
     if all(resultados.values()):
         print("\n🎉 ¡TODAS LAS VERIFICACIONES PASARON!")
-        print("\n📋 Próximos pasos:")
+        print("\n Próximos pasos:")
         print("   1. Ejecutar: python aplicacion.py")
         print("   2. Abrir navegador: http://localhost:5000/auth/iniciar-sesion")
         print("   3. Verificar: http://localhost:5000/auth/ayuda-navegador")

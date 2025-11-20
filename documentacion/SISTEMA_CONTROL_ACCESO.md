@@ -1,6 +1,6 @@
 # Sistema de Control de Acceso Multi-Nivel
 
-## 📋 Descripción General
+##  Descripción General
 
 El sistema implementa **doble validación de autenticación**:
 

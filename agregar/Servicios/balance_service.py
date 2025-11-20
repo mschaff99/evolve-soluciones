@@ -797,7 +797,7 @@ class BalanceService:
             # Agregar análisis de anticipos al JSON principal
             if analisis_anticipos:
                 balance_json["analisis_anticipos_proveedores"] = analisis_anticipos
-                print(f"📋 Análisis de anticipos agregado al balance: {len(analisis_anticipos)} cuentas analizadas")
+                print(f" Análisis de anticipos agregado al balance: {len(analisis_anticipos)} cuentas analizadas")
             """
 
             # 🔧 ANÁLISIS DE ANTICIPOS/PROVEEDORES DESHABILITADO
@@ -1658,7 +1658,7 @@ class BalanceService:
                 ws_analisis.column_dimensions['A'].width = 120
 
             # === HOJAS DE MAYORES ===
-            print(f"📋 Generando mayores para {len(cuentas_detalle)} cuentas...")
+            print(f" Generando mayores para {len(cuentas_detalle)} cuentas...")
 
             # GENERAR TODAS LAS CUENTAS CON MOVIMIENTOS (sin límite)
             # EXCLUIR cuentas de Ganancia y Pérdida (resultado)
@@ -1666,7 +1666,7 @@ class BalanceService:
                                     if (float(c.get('debitos', 0)) > 0 or float(c.get('creditos', 0)) > 0)
                                     and (float(c.get('ganancia', 0)) == 0 and float(c.get('perdida', 0)) == 0)]
 
-            print(f"📋 Total de cuentas con movimiento (excluyendo Ganancia/Pérdida): {len(cuentas_con_movimiento)}")
+            print(f" Total de cuentas con movimiento (excluyendo Ganancia/Pérdida): {len(cuentas_con_movimiento)}")
 
             for cuenta in cuentas_con_movimiento:
                 codigo_cuenta = cuenta.get('cuenta', '')

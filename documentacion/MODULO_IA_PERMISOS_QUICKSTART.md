@@ -27,7 +27,7 @@ python scripts/gestionar_modulo_ia.py habilitar nombre_base_datos
 python scripts/gestionar_modulo_ia.py deshabilitar nombre_base_datos
 ```
 
-## 📋 Consultas SQL Útiles
+##  Consultas SQL Útiles
 
 ```sql
 -- Ver qué clientes tienen IA

@@ -1,6 +1,6 @@
 # Solución a Problema de Navegadores Bloqueados (Chrome Modo Normal)
 
-## 📋 Descripción del Problema
+##  Descripción del Problema
 
 **Síntoma:** Usuarios pueden iniciar sesión en modo incógnito de Chrome/Edge pero **NO en modo normal**.
 

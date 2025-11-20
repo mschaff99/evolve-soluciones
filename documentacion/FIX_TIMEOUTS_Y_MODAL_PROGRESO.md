@@ -8,7 +8,7 @@
 
 ---
 
-## 📋 Problemas Identificados
+##  Problemas Identificados
 
 ### 1. **Mensaje "Sin procesos activos" Prematuro**
 - **Síntoma**: Aparecía después de solo 10 segundos cuando el proceso aún estaba iniciando

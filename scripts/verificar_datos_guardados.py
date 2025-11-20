@@ -126,7 +126,7 @@ def main():
             print(f"    Conectado exitosamente")
             print(f"   📄 Registros F29: {resultado['total_f29']}")
             print(f"   ⚠️  Observaciones F29: {resultado['total_obs_f29']}")
-            print(f"   📋 Registros DJ: {resultado['total_dj']}")
+            print(f"    Registros DJ: {resultado['total_dj']}")
             print(f"   🔴 Observaciones DJ: {resultado['total_obs_dj']}")
             if resultado['ultima_fecha']:
                 print(f"   📅 Última actualización: {resultado['ultima_fecha']}")

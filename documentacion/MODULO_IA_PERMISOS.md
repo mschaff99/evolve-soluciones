@@ -1,6 +1,6 @@
 # Sistema de Permisos - Módulo IA
 
-## 📋 Descripción General
+##  Descripción General
 
 El módulo de IA (Inteligencia Artificial) ahora cuenta con un sistema de permisos granular basado en la base de datos MySQL del usuario. Esto permite controlar qué clientes/empresas tienen acceso a las funcionalidades de análisis inteligente con Gemini AI.
 

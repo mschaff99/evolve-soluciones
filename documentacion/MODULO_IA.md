@@ -1,6 +1,6 @@
 # Módulo de Inteligencia Artificial (IA)
 
-## 📋 Descripción General
+##  Descripción General
 
 El Módulo de IA integra **Google Gemini AI** al sistema Evolve Soluciones para realizar análisis contables automatizados y profesionales de balances de 8 columnas.
 

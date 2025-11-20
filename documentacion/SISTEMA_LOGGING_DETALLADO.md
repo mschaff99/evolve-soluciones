@@ -1,6 +1,6 @@
 # Sistema de Logging Detallado - Evolve Soluciones
 
-## 📋 Descripción General
+##  Descripción General
 
 Sistema de logging especializado para diagnosticar problemas de autenticación, sesiones y errores CSRF. Proporciona logs detallados con toda la información necesaria para identificar por qué algunos usuarios tienen el navegador bloqueado.
 
