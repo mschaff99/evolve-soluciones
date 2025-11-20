@@ -3,7 +3,7 @@ Rutas para integración con IA (Inteligencia Artificial)
 Endpoints para análisis de balances y datos contables usando Gemini AI
 """
 
-from flask import Blueprint, request, jsonify, render_template
+from flask import Blueprint, request, jsonify, render_template, redirect, url_for, flash
 from flask_login import login_required, current_user
 from datetime import datetime
 from aplicacion.utilidades.decoradores import solo_administradores, requiere_modulo
