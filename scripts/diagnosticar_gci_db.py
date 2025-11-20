@@ -29,7 +29,7 @@ def diagnosticar_config_actual():
         print(f"No se encontró archivo .env en: {env_file}")
         return
 
-    print(f"✅ Archivo .env encontrado: {env_file}\n")
+    print(f" Archivo .env encontrado: {env_file}\n")
 
     # Buscar DB_NAME en .env
     with open(env_file, 'r', encoding='utf-8') as f:
@@ -63,12 +63,12 @@ def diagnosticar_gci_config():
         print(f"   Rutas buscadas: {rutas_gci}")
         return
 
-    print(f"✅ GCI encontrado en: {dir_gci}\n")
+    print(f" GCI encontrado en: {dir_gci}\n")
 
     # Verificar .env del GCI
     env_gci = Path(dir_gci) / '.env'
     if env_gci.exists():
-        print(f"✅ Archivo .env de GCI encontrado\n")
+        print(f" Archivo .env de GCI encontrado\n")
         print("   Configuración de base de datos:")
         with open(env_gci, 'r', encoding='utf-8') as f:
             for line in f:
@@ -91,7 +91,7 @@ def diagnosticar_gci_config():
     for config_file in config_files:
         config_path = Path(dir_gci) / config_file
         if config_path.exists():
-            print(f"   ✅ Encontrado: {config_file}")
+            print(f"    Encontrado: {config_file}")
 
             # Leer y buscar DB_NAME
             with open(config_path, 'r', encoding='utf-8') as f:
@@ -158,8 +158,8 @@ print(f"DB_NAME desde variable de entorno: {db_name_env}")
     test_file.unlink()
 
     if "test_database" in result2.stdout:
-        print("✅ La variable de entorno se puede sobrescribir correctamente")
-        print("✅ El script GCI DEBERÍA poder leer la base de datos dinámica")
+        print(" La variable de entorno se puede sobrescribir correctamente")
+        print(" El script GCI DEBERÍA poder leer la base de datos dinámica")
     else:
         print("⚠️  La variable de entorno NO se sobrescribe correctamente")
         print("⚠️  Esto puede indicar un problema con python-dotenv")
@@ -216,7 +216,7 @@ if __name__ == '__main__':
     mostrar_recomendaciones()
 
     print("\n" + "="*60)
-    print("✅ Diagnóstico completado")
+    print(" Diagnóstico completado")
     print("="*60 + "\n")
 
     print("📖 Para más información, consulta:")

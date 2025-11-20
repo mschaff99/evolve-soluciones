@@ -22,7 +22,7 @@ def probar_conexion_gemini():
     try:
         from aplicacion.servicios.servicio_gemini import gemini_service
 
-        print(f"🧪 Usuario {current_user.nombre_usuario} probando conexión con Gemini")
+        print(f"[TEST] Usuario {current_user.nombre_usuario} probando conexión con Gemini")
 
         resultado = gemini_service.test_connection()
 
@@ -80,7 +80,7 @@ def generar_balance_empresa():
                 'mensaje': 'empresa_rut es requerido'
             }), 400
 
-        print(f"📊 Generando balance: RUT={empresa_rut}, Período={anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}")
+        print(f"[BALANCE] Generando balance: RUT={empresa_rut}, Período={anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}")
 
         # Importar el servicio de balance
         from aplicacion.servicios.servicio_balance_ia import balance_service
@@ -270,7 +270,7 @@ def dashboard_ia():
     Todos los usuarios (normales, supervisores y administradores) ven el mismo dashboard completo
     sin restricciones de funcionalidad
     """
-    print(f"📊 Usuario {current_user.nombre_usuario} (Rol: {current_user.rol}) accediendo al Dashboard IA")
+    print(f"[IA] Usuario {current_user.nombre_usuario} (Rol: {current_user.rol}) accediendo al Dashboard IA")
 
     # TODOS los usuarios ven el mismo dashboard completo con todas las funcionalidades
     return render_template('ia_dashboard.html',
@@ -292,11 +292,18 @@ def obtener_empresas_para_ia():
         anio = request.args.get('anio', type=int)
         mes = request.args.get('mes', type=int)
 
-        print(f"🏢 Obteniendo empresas para IA: anio={anio}, mes={mes}")
-        print(f"👤 Usuario: {current_user.nombre_usuario}, Rol: {current_user.rol}")
+        print(f"[IA] Obteniendo empresas para IA: anio={anio}, mes={mes}")
+        print(f"[USER] Usuario: {current_user.nombre_usuario}, Rol: {current_user.rol}")
 
         # Obtener base de datos del usuario actual
         base_datos = getattr(current_user, 'base_datos_mysql', 'stratex')
+
+        # Validación: Asegurarse de que base_datos no sea un valor inválido
+        if not base_datos or base_datos in ['favicon.ico', 'static', 'None', '']:
+            print(f"[WARNING] Base de datos inválida detectada: '{base_datos}', usando 'stratex' por defecto")
+            base_datos = 'stratex'
+
+        print(f"[DB] Usando base de datos: {base_datos}")
 
         # TODOS los usuarios pueden ver TODAS las empresas (sin restricciones)
         servicio = ServicioEmpresas(base_datos)
@@ -313,8 +320,8 @@ def obtener_empresas_para_ia():
             }
             empresas_ia.append(empresa_formateada)
 
-        print(f"✅ {len(empresas_ia)} empresas obtenidas para IA (acceso completo)")
-        print(f"📤 Enviando respuesta: success=True, total={len(empresas_ia)}")
+        print(f" {len(empresas_ia)} empresas obtenidas para IA (acceso completo)")
+        print(f"[RESPONSE] Enviando respuesta: success=True, total={len(empresas_ia)}")
 
         return jsonify({
             'success': True,
@@ -391,7 +398,7 @@ def generar_balance_empresas():
                 'datos_recibidos': datos
             }), 400
 
-        print(f"🧮 Generando balance para {empresa_rut}: {anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}")
+        print(f"[BALANCE] Generando balance para {empresa_rut}: {anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}")
 
         # Importar el servicio de balance
         from aplicacion.servicios.servicio_balance_ia import BalanceService
@@ -737,7 +744,7 @@ def exportar_balance_completo():
         periodo_inicio = int(f"{anio_inicio}{mes_inicio:02d}")
         periodo_fin = int(f"{anio_fin}{mes_fin:02d}")
 
-        print(f"📊 Exportando balance completo: {empresa_rut} | {periodo_inicio}-{periodo_fin} | IA={incluir_ia}")
+        print(f"[EXPORT] Exportando balance completo: {empresa_rut} | {periodo_inicio}-{periodo_fin} | IA={incluir_ia}")
 
         # Generar Excel
         resultado = BalanceService.generar_excel_balance_mayores(

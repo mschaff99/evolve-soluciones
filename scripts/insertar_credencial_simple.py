@@ -7,9 +7,9 @@ PARA EL PROYECTO: evolve-soluciones
 Modo interactivo que solicita RUT y contraseña, la encripta con Fernet
 y la guarda en la base de datos usando ServicioEmpresas.
 
-✅ Encriptación reversible (Fernet/AES) - Compatible con automatización
-✅ Verifica la credencial después de guardarla
-✅ Muestra si se insertó o actualizó
+ Encriptación reversible (Fernet/AES) - Compatible con automatización
+ Verifica la credencial después de guardarla
+ Muestra si se insertó o actualizó
 
 Uso:
     python scripts/insertar_credencial_simple.py
@@ -48,7 +48,7 @@ def insertar_credencial_interactiva(base_datos: str = 'stratex'):
     # Inicializar servicio
     try:
         servicio = ServicioEmpresas(base_datos=base_datos)
-        print(f"✅ Conectado a base de datos: {base_datos}")
+        print(f" Conectado a base de datos: {base_datos}")
     except Exception as e:
         print(f"Error conectando a base de datos: {e}")
         return False
@@ -90,7 +90,7 @@ def insertar_credencial_interactiva(base_datos: str = 'stratex'):
     # Guardar con encriptación reversible
     try:
         if servicio.guardar_credencial_sii(rut, password):
-            print("✅ Credencial guardada exitosamente")
+            print(" Credencial guardada exitosamente")
             print()
 
             # Verificar que se puede desencriptar
@@ -99,14 +99,14 @@ def insertar_credencial_interactiva(base_datos: str = 'stratex'):
 
             if password_recuperada:
                 if password_recuperada == password:
-                    print("✅ Verificación exitosa - La contraseña se puede recuperar correctamente")
+                    print(" Verificación exitosa - La contraseña se puede recuperar correctamente")
                     print()
                     print("=" * 80)
                     print("🎉 ¡TODO LISTO!")
                     print("=" * 80)
-                    print(f"✅ El RUT {rut} ahora tiene login 100% automático")
-                    print(f"✅ La contraseña está encriptada con Fernet (reversible)")
-                    print(f"✅ Los scripts pueden leer la contraseña automáticamente")
+                    print(f" El RUT {rut} ahora tiene login 100% automático")
+                    print(f" La contraseña está encriptada con Fernet (reversible)")
+                    print(f" Los scripts pueden leer la contraseña automáticamente")
                     print("=" * 80)
                     return True
                 else:
@@ -142,7 +142,7 @@ def insertar_credencial_argumentos(rut: str, password: str, base_datos: str = 's
 
     try:
         servicio = ServicioEmpresas(base_datos=base_datos)
-        print(f"✅ Conectado a base de datos: {base_datos}")
+        print(f" Conectado a base de datos: {base_datos}")
     except Exception as e:
         print(f"Error conectando a base de datos: {e}")
         return False
@@ -162,7 +162,7 @@ def insertar_credencial_argumentos(rut: str, password: str, base_datos: str = 's
 
     try:
         if servicio.guardar_credencial_sii(rut, password):
-            print("✅ Credencial guardada exitosamente")
+            print(" Credencial guardada exitosamente")
             print()
 
             # Verificar
@@ -170,7 +170,7 @@ def insertar_credencial_argumentos(rut: str, password: str, base_datos: str = 's
             password_recuperada = servicio.obtener_credencial_sii_desencriptada(rut)
 
             if password_recuperada and password_recuperada == password:
-                print("✅ Verificación exitosa")
+                print(" Verificación exitosa")
                 print()
                 print("=" * 80)
                 print("🎉 ¡TODO LISTO!")

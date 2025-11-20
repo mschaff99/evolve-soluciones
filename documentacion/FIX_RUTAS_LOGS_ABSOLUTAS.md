@@ -3,7 +3,7 @@
 **Fecha:** 3 de noviembre de 2025
 **Problema:** Los logs de GCI se generaban en un directorio pero se buscaban en otro, causando que el sistema no detectara los procesos
 **Severidad:** 🔴 CRÍTICA
-**Estado:** ✅ Resuelto
+**Estado:**  Resuelto
 
 ---
 
@@ -29,7 +29,7 @@ logs_dir = os.getcwd()  # Puede ser diferente según cómo se ejecute la app
 - `os.getcwd()` → `C:\Users\mscha\Desktop\evolve-soluciones`
 - Logs generados en: `C:\Users\mscha\Desktop\evolve-soluciones\logs\`
 - Logs buscados en: `C:\Users\mscha\Desktop\evolve-soluciones\logs\`
-- ✅ **Funcionaba** porque ambos eran iguales
+-  **Funcionaba** porque ambos eran iguales
 
 **En producción (Waitress/IIS con usuario Administrator):**
 - `os.getcwd()` en GCI → `C:\Users\Administrator\Desktop\evolve-soluciones`
@@ -87,7 +87,7 @@ def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) 
 def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) -> None:
     ahora = datetime.now().strftime("%Y%m%d-%H%M%S")
 
-    # ✅ Usar ruta absoluta al directorio base del proyecto
+    #  Usar ruta absoluta al directorio base del proyecto
     dir_base = obtener_directorio_base()
     logs_dir = os.path.join(dir_base, "logs")
     os.makedirs(logs_dir, exist_ok=True)
@@ -121,14 +121,14 @@ def api_gci_status(base_datos, rut):
     import os
 
     try:
-        # ✅ Usar ruta absoluta al directorio base del proyecto
+        #  Usar ruta absoluta al directorio base del proyecto
         dir_base = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
         logs_dir = os.path.join(dir_base, 'logs')
 
         resultado = {
             'op1': {'exists': False, 'finished': False, 'log': ''},
             'op3': {'exists': False, 'finished': False, 'log': ''},
-            'logs_dir': logs_dir  # ✅ Para debugging
+            'logs_dir': logs_dir  #  Para debugging
         }
 ```
 
@@ -205,10 +205,10 @@ Get-Content (Get-ChildItem .\logs\gci_opcion*.log -Recurse | Sort-Object LastWri
 - Logs generados pero nunca leídos
 
 ### Después del Fix
-- ✅ Detección correcta en desarrollo Y producción
-- ✅ Modal muestra progreso real (F29 → DJ → Completado)
-- ✅ Logs leídos y mostrados en tiempo real
-- ✅ Sistema funcional end-to-end
+-  Detección correcta en desarrollo Y producción
+-  Modal muestra progreso real (F29 → DJ → Completado)
+-  Logs leídos y mostrados en tiempo real
+-  Sistema funcional end-to-end
 
 ---
 
@@ -221,7 +221,7 @@ os.path.abspath('.')  # Igual que getcwd()
 os.path.abspath('logs')  # Relativo al CWD
 ```
 
-### ✅ Usar
+###  Usar
 ```python
 # Opción 1: Relativo al archivo actual
 dir_actual = os.path.dirname(os.path.abspath(__file__))

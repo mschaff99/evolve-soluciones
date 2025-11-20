@@ -3,7 +3,7 @@
 ## Problema
 GCI necesita Playwright para automatizar la consulta del SII. El error indica:
 ```
-BrowserType.launch: Executable doesn't exist at 
+BrowserType.launch: Executable doesn't exist at
 C:\Windows\system32\config\systemprofile\AppData\Local\ms-playwright\chromium-1187\chrome-win\chrome.exe
 ```
 
@@ -47,7 +47,7 @@ deactivate
 python -m playwright install --with-deps
 
 # O ejecutar un test simple
-python -c "from playwright.sync_api import sync_playwright; print('✅ Playwright funcionando')"
+python -c "from playwright.sync_api import sync_playwright; print(' Playwright funcionando')"
 ```
 
 ## Notas Importantes
@@ -74,9 +74,9 @@ python -c "from playwright.sync_api import sync_playwright; print('✅ Playwrigh
 ## Próximos Pasos
 
 Después de instalar Playwright, GCI debería poder:
-1. ✅ Desencriptar contraseñas (ya funciona con `.encryption_key`)
-2. ✅ Automatizar consultas SII
-3. ✅ Generar reportes F29 y DJ
+1.  Desencriptar contraseñas (ya funciona con `.encryption_key`)
+2.  Automatizar consultas SII
+3.  Generar reportes F29 y DJ
 
 Luego prueba desde Evolve:
 ```bash

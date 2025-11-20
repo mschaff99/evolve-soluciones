@@ -6,7 +6,7 @@ Cuando se ejecuta el proceso GCI desde Evolve Soluciones, el script debe guardar
 
 Por defecto, el script GCI lee el `.env` y usa `DB_NAME=stratex`, pero esto no es correcto cuando el usuario está trabajando con otra base de datos.
 
-## ✅ Solución Implementada
+##  Solución Implementada
 
 ### 1. **Evolve Soluciones pasa la base de datos al script GCI**
 
@@ -30,7 +30,7 @@ El script `Gestion-Consulta-Integral/main.py` **debe estar configurado** para le
 DB_NAME = "stratex"  # ⛔ Siempre usa stratex
 ```
 
-#### ✅ CORRECTO (lee variable de entorno):
+####  CORRECTO (lee variable de entorno):
 ```python
 import os
 from dotenv import load_dotenv
@@ -169,7 +169,7 @@ def get_mysql_connection():
         # Log para debugging
         import logging
         logger = logging.getLogger(__name__)
-        logger.info(f"✅ Conectado a MySQL: {conn_params['database']} @ {conn_params['host']}")
+        logger.info(f" Conectado a MySQL: {conn_params['database']} @ {conn_params['host']}")
 
         return connection
 
@@ -183,7 +183,7 @@ def get_mysql_connection():
 
 ## 📝 Checklist de Implementación
 
-### En Evolve Soluciones (✅ Ya implementado)
+### En Evolve Soluciones ( Ya implementado)
 - [x] Pasar `base_datos` al servicio de integración
 - [x] Configurar variable de entorno `DB_NAME` en el proceso hijo
 - [x] Agregar logging de la base de datos configurada

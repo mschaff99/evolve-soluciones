@@ -6,7 +6,7 @@ El Módulo de IA integra **Google Gemini AI** al sistema Evolve Soluciones para 
 
 **Fecha de integración:** Enero 2025
 **Versión:** 1.0.0
-**Estado:** ✅ Operacional
+**Estado:**  Operacional
 
 ---
 
@@ -452,14 +452,14 @@ Para soporte técnico contactar al equipo de desarrollo:
 ## 📝 Changelog
 
 ### v1.0.0 (Enero 2025)
-- ✅ Integración inicial con Google Gemini AI
-- ✅ Generación de balances de 8 columnas
-- ✅ Análisis contable automatizado
-- ✅ Memoria histórica de análisis
-- ✅ Exportación a Excel con mayores
-- ✅ Dashboard interactivo
-- ✅ Detección de anomalías contables
-- ✅ Análisis del mayor
+-  Integración inicial con Google Gemini AI
+-  Generación de balances de 8 columnas
+-  Análisis contable automatizado
+-  Memoria histórica de análisis
+-  Exportación a Excel con mayores
+-  Dashboard interactivo
+-  Detección de anomalías contables
+-  Análisis del mayor
 
 ---
 

@@ -154,17 +154,17 @@ Get-Service -Name "EvolveWaitress" | Select-Object Status, DisplayName
 
 ### Casos de Prueba
 
-#### ✅ Caso 1: Empresa Pequeña (<12 períodos)
+####  Caso 1: Empresa Pequeña (<12 períodos)
 - **Tiempo esperado**: 1-2 minutos
 - **Comportamiento**: Debe completar normalmente y redirigir
 - **Verificación**: Modal se cierra automáticamente
 
-#### ✅ Caso 2: Empresa Mediana (12-36 períodos)
+####  Caso 2: Empresa Mediana (12-36 períodos)
 - **Tiempo esperado**: 3-5 minutos
 - **Comportamiento**: Progreso visible, sin timeout
 - **Verificación**: Barra de progreso avanza correctamente
 
-#### ✅ Caso 3: Empresa Grande (>36 períodos)
+####  Caso 3: Empresa Grande (>36 períodos)
 - **Tiempo esperado**: 5-8 minutos
 - **Comportamiento**: Debe completar sin timeout
 - **Verificación**: Proceso finaliza exitosamente dentro de 10min

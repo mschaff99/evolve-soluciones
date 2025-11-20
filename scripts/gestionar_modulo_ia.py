@@ -44,7 +44,7 @@ def listar_bases_datos_con_ia():
                 return
 
             for row in resultados:
-                estado_ia = "✅ HABILITADO" if row['habilitado'] else "❌ NO HABILITADO"
+                estado_ia = " HABILITADO" if row['habilitado'] else "❌ NO HABILITADO"
                 print(f"\n📊 {row['nombre_base_datos']}")
                 print(f"   Cliente: {row['nombre_cliente']}")
                 print(f"   Plan: {row['plan'] or 'N/A'}")
@@ -76,12 +76,12 @@ def habilitar_ia_para_bd(nombre_bd):
             )
 
             if resultado['success']:
-                print(f"✅ {resultado['mensaje']}")
+                print(f" {resultado['mensaje']}")
 
                 # Verificar
                 tiene_ia = Modulo.verificar_modulo_habilitado(nombre_bd, 'ia')
                 if tiene_ia:
-                    print(f"✅ Verificado: La BD '{nombre_bd}' ahora tiene acceso al módulo IA")
+                    print(f" Verificado: La BD '{nombre_bd}' ahora tiene acceso al módulo IA")
                 else:
                     print(f"⚠️ Advertencia: La habilitación no se pudo verificar")
             else:
@@ -107,12 +107,12 @@ def deshabilitar_ia_para_bd(nombre_bd):
             )
 
             if resultado['success']:
-                print(f"✅ {resultado['mensaje']}")
+                print(f" {resultado['mensaje']}")
 
                 # Verificar
                 tiene_ia = Modulo.verificar_modulo_habilitado(nombre_bd, 'ia')
                 if not tiene_ia:
-                    print(f"✅ Verificado: La BD '{nombre_bd}' ya no tiene acceso al módulo IA")
+                    print(f" Verificado: La BD '{nombre_bd}' ya no tiene acceso al módulo IA")
                 else:
                     print(f"⚠️ Advertencia: La deshabilitación no se pudo verificar")
             else:

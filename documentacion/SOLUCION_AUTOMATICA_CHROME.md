@@ -152,29 +152,29 @@ COOKIES ACTUALES:
                      ▼
 ┌─────────────────────────────────────────────────────────────┐
 │ 5. Usuario vuelve al login (página recargada)              │
-│    - Cookies limpias ✅                                     │
-│    - Storage limpio ✅                                      │
-│    - Puede iniciar sesión normalmente ✅                    │
+│    - Cookies limpias                                      │
+│    - Storage limpio                                       │
+│    - Puede iniciar sesión normalmente                     │
 └─────────────────────────────────────────────────────────────┘
 ```
 
 ##  Ventajas de Esta Solución
 
-### ✅ Sin Intervención del Usuario
+###  Sin Intervención del Usuario
 - No requiere que el usuario haga clic en nada
 - No requiere conocimientos técnicos
 - No requiere leer instrucciones
 
-### ✅ Rápida (2 segundos)
+###  Rápida (2 segundos)
 - El proceso completo toma solo 2 segundos
 - Usuario ni siquiera nota que hubo un problema
 
-### ✅ Efectiva
+###  Efectiva
 - Limpia cookies desde servidor Y cliente
 - Elimina también localStorage/sessionStorage
 - Funciona en todos los casos de cookies corruptas
 
-### ✅ Logging Completo
+###  Logging Completo
 - Se registra cada detección en logs
 - Permite identificar patrones de usuarios afectados
 - Ayuda a diagnosticar si hay un problema mayor
@@ -198,19 +198,19 @@ grep "problema_detectado.*SÍ" logs/csrf_errors.log | grep -o "IP Cliente: [0-9.
 
 ## 🚀 Casos de Uso Cubiertos
 
-### ✅ Caso 1: Cookies corruptas leves
+###  Caso 1: Cookies corruptas leves
 - **Solución**: Middleware limpia preventivamente
 - **Resultado**: Usuario inicia sesión sin ver error
 
-### ✅ Caso 2: Cookies muy corruptas
+###  Caso 2: Cookies muy corruptas
 - **Solución**: Página de auto-reparación (2 segundos)
 - **Resultado**: Usuario ve mensaje breve y luego puede iniciar sesión
 
-### ✅ Caso 3: Extensiones bloqueando cookies
+###  Caso 3: Extensiones bloqueando cookies
 - **Solución**: Limpieza agresiva de cookies + storage
 - **Resultado**: Usuario puede iniciar sesión (aunque puede requerir desactivar extensión)
 
-### ✅ Caso 4: Cache de navegador corrupto
+###  Caso 4: Cache de navegador corrupto
 - **Solución**: localStorage y sessionStorage también se limpian
 - **Resultado**: Cache corrupto eliminado automáticamente
 

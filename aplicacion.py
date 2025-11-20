@@ -275,6 +275,25 @@ def registrar_middleware(aplicacion):
                     print(f"Error al validar sesión única: {e}")
                     # En caso de error, mantener la sesión pero loggear el problema
 
+    @aplicacion.route('/favicon.ico')
+    def favicon():
+        """Maneja solicitudes de favicon para evitar errores 404"""
+        from flask import send_from_directory
+        import os
+
+        # Intentar servir favicon desde la carpeta de imágenes estáticas
+        favicon_path = os.path.join(aplicacion.root_path, 'estaticos', 'imagenes', 'favicon.ico')
+
+        if os.path.exists(favicon_path):
+            return send_from_directory(
+                os.path.join(aplicacion.root_path, 'estaticos', 'imagenes'),
+                'favicon.ico',
+                mimetype='image/vnd.microsoft.icon'
+            )
+        else:
+            # Si no existe, devolver 204 No Content para evitar errores
+            return '', 204
+
     @aplicacion.after_request
     def despues_de_request(response):
         """Headers para optimizar performance y seguridad"""

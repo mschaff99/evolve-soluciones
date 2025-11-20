@@ -127,22 +127,22 @@ Esto detecta casos donde el backend:
 
 ## Casos Cubiertos
 
-### ✅ Caso 1: Proceso Normal (Secuencial)
+###  Caso 1: Proceso Normal (Secuencial)
 1. Poll 1: op1 en progreso → 30%
 2. Poll 2: op1 terminado → 60%
 3. Poll 3: op3 en progreso → 80%
 4. Poll 4: op3 terminado → 100% → redirección
 
-### ✅ Caso 2: Proceso Muy Rápido
+###  Caso 2: Proceso Muy Rápido
 1. Poll 1: ambos terminados → 100% inmediato → redirección
 
-### ✅ Caso 3: Error en Backend
+###  Caso 3: Error en Backend
 1. Poll 1: no hay procesos activos después de 10s → mensaje de advertencia
 
-### ✅ Caso 4: Timeout
+###  Caso 4: Timeout
 1. Después de 5 minutos → mensaje de timeout → botón cerrar visible
 
-### ✅ Caso 5: Error de Red
+###  Caso 5: Error de Red
 1. Fetch falla → catch → mensaje de error → botón cerrar visible
 
 ## Cambios en el Código
@@ -152,13 +152,13 @@ Esto detecta casos donde el backend:
 **Líneas modificadas**: ~190-300 (función `ejecutarConsultaNueva`)
 
 **Cambios principales**:
-1. ✅ Agregado `let pollingActivo = true`
-2. ✅ Verificación al inicio de `checkStatus()` para salir si inactivo
-3. ✅ Verificación temprana de `op1Terminado && op3Terminado`
-4. ✅ `pollingActivo = false` en TODOS los casos de finalización
-5. ✅ Limpieza del timer antes de `return` en todos los casos
-6. ✅ Detección de procesos inexistentes después de 10s
-7. ✅ Condicional `if (pollingActivo)` antes de reprogramar el polling
+1.  Agregado `let pollingActivo = true`
+2.  Verificación al inicio de `checkStatus()` para salir si inactivo
+3.  Verificación temprana de `op1Terminado && op3Terminado`
+4.  `pollingActivo = false` en TODOS los casos de finalización
+5.  Limpieza del timer antes de `return` en todos los casos
+6.  Detección de procesos inexistentes después de 10s
+7.  Condicional `if (pollingActivo)` antes de reprogramar el polling
 
 ## Deployment
 

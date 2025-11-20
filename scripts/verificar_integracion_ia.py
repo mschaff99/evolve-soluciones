@@ -7,14 +7,14 @@ import sys
 def verificar_archivo(ruta, descripcion):
     """Verifica que un archivo exista"""
     existe = os.path.exists(ruta)
-    estado = "✅" if existe else "❌"
+    estado = "" if existe else "❌"
     print(f"{estado} {descripcion}: {ruta}")
     return existe
 
 def verificar_directorio(ruta, descripcion):
     """Verifica que un directorio exista"""
     existe = os.path.isdir(ruta)
-    estado = "✅" if existe else "❌"
+    estado = "" if existe else "❌"
     print(f"{estado} {descripcion}: {ruta}")
     return existe
 
@@ -24,7 +24,7 @@ def verificar_contenido_archivo(ruta, texto, descripcion):
         with open(ruta, 'r', encoding='utf-8') as f:
             contenido = f.read()
             contiene = texto in contenido
-            estado = "✅" if contiene else "❌"
+            estado = "" if contiene else "❌"
             print(f"{estado} {descripcion}")
             return contiene
     except:
@@ -189,7 +189,7 @@ def main():
     porcentaje = (exitosos / total * 100) if total > 0 else 0
 
     print(f"Total de verificaciones: {total}")
-    print(f"✅ Exitosas: {exitosos}")
+    print(f" Exitosas: {exitosos}")
     print(f"Fallidas: {fallidos}")
     print(f"📊 Porcentaje de éxito: {porcentaje:.1f}%")
     print()

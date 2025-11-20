@@ -26,7 +26,7 @@ def encontrar_gci():
 
     for ruta in rutas_posibles:
         if ruta.is_dir():
-            print(f"✅ GCI encontrado en: {ruta}")
+            print(f" GCI encontrado en: {ruta}")
             return ruta
 
     print("ERROR: No se encontró GCI en ninguna ruta:")
@@ -45,7 +45,7 @@ def encontrar_python_gci(dir_gci):
 
     for venv_py in venv_paths:
         if venv_py.is_file():
-            print(f"✅ Python de GCI encontrado: {venv_py}")
+            print(f" Python de GCI encontrado: {venv_py}")
             return str(venv_py)
 
     print("ERROR: No se encontró venv de GCI en:")
@@ -86,7 +86,7 @@ def main():
 
         if result.returncode == 0:
             print()
-            print("✅ Playwright instalado exitosamente")
+            print(" Playwright instalado exitosamente")
             print()
             print("Instalando dependencias del sistema...")
             subprocess.run(
@@ -95,7 +95,7 @@ def main():
             )
             print()
             print("=" * 50)
-            print("✅ Instalación completada")
+            print(" Instalación completada")
             print("=" * 50)
             return 0
         else:

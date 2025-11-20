@@ -1363,9 +1363,9 @@ class BalanceService:
                         analisis_dict[codigo] = f"### Cuenta: {nombre_cuenta}\n\n{contenido_analisis}"
                         analisis_dict[codigo_limpio] = f"### Cuenta: {nombre_cuenta}\n\n{contenido_analisis}"
 
-                        print(f"✅ Cuenta extraída: {codigo} / {codigo_limpio}")
+                        print(f" Cuenta extraída: {codigo} / {codigo_limpio}")
 
-            print(f"✅ Extraídos análisis de {len(analisis_dict)} cuentas")
+            print(f" Extraídos análisis de {len(analisis_dict)} cuentas")
             if len(analisis_dict) == 0:
                 print("⚠️ No se encontraron análisis de cuentas. Guardando análisis completo como respaldo.")
 
@@ -1771,10 +1771,10 @@ class BalanceService:
 
                 if codigo_cuenta in analisis_por_cuenta:
                     analisis_cuenta = analisis_por_cuenta[codigo_cuenta]
-                    print(f"✅ Análisis encontrado directo para {codigo_cuenta}")
+                    print(f" Análisis encontrado directo para {codigo_cuenta}")
                 elif codigo_limpio in analisis_por_cuenta:
                     analisis_cuenta = analisis_por_cuenta[codigo_limpio]
-                    print(f"✅ Análisis encontrado limpio para {codigo_limpio}")
+                    print(f" Análisis encontrado limpio para {codigo_limpio}")
                 elif '__completo__' in analisis_por_cuenta:
                     # Buscar en el análisis completo con múltiples patrones
                     analisis_completo = analisis_por_cuenta['__completo__']
@@ -1799,7 +1799,7 @@ class BalanceService:
                                 contenido = match.group(1).strip()
                                 if len(contenido) > 50:  # Validar que tenga contenido real
                                     analisis_cuenta = f"Código: {codigo_cuenta} | Tipo: {cuenta.get('tipo_cuenta', 'N/A')}\n\n{contenido}"
-                                    print(f"✅ Análisis encontrado con patrón {i+1} para {codigo_cuenta}")
+                                    print(f" Análisis encontrado con patrón {i+1} para {codigo_cuenta}")
                                     break
                         except Exception as e:
                             print(f"⚠️ Error en patrón {i+1}: {e}")

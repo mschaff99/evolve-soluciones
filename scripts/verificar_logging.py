@@ -27,7 +27,7 @@ def verificar_archivos():
     for archivo in archivos_requeridos:
         ruta_completa = os.path.join(os.path.dirname(os.path.dirname(__file__)), archivo)
         existe = os.path.exists(ruta_completa)
-        simbolo = "✅" if existe else "❌"
+        simbolo = "" if existe else "❌"
         print(f"{simbolo} {archivo}")
         if not existe:
             todos_ok = False
@@ -54,7 +54,7 @@ def verificar_imports():
             log_diagnostico_cookies
         )
         imports_exitosos.append("logging_detallado (5 funciones)")
-        print("✅ aplicacion.utilidades.logging_detallado")
+        print(" aplicacion.utilidades.logging_detallado")
     except Exception as e:
         imports_fallidos.append(f"logging_detallado: {e}")
         print(f"aplicacion.utilidades.logging_detallado: {e}")
@@ -75,11 +75,11 @@ def verificar_imports():
 
         app = aplicacion_main.crear_aplicacion('desarrollo')
         imports_exitosos.append("aplicacion.crear_aplicacion")
-        print("✅ aplicacion.crear_aplicacion")
+        print(" aplicacion.crear_aplicacion")
 
         # Verificar que el logging fue configurado
         if os.path.exists('logs'):
-            print("✅ Carpeta logs/ creada")
+            print(" Carpeta logs/ creada")
         else:
             print("⚠️  Carpeta logs/ no creada aún (se creará al ejecutar la app)")
     except Exception as e:
@@ -109,7 +109,7 @@ def verificar_funciones():
             headers={'User-Agent': 'Mozilla/5.0 (Windows NT 10.0) Chrome/118.0.0.0'}
         ):
             resultado = detectar_problema_cookies_chrome()
-            print(f"✅ detectar_problema_cookies_chrome() ejecutada")
+            print(f" detectar_problema_cookies_chrome() ejecutada")
             print(f"   - Problema detectado: {resultado['problema_detectado']}")
             print(f"   - Es Chrome: {resultado['es_chrome']}")
             print(f"   - Navegador: {resultado['navegador']}")
@@ -156,7 +156,7 @@ def verificar_rutas():
         todas_ok = True
         for ruta in rutas_esperadas:
             existe = ruta in rutas_registradas
-            simbolo = "✅" if existe else "❌"
+            simbolo = "" if existe else "❌"
             print(f"{simbolo} {ruta}")
             if not existe:
                 todas_ok = False
@@ -182,7 +182,7 @@ def verificar_templates():
     for template in templates_requeridos:
         ruta_completa = os.path.join(os.path.dirname(os.path.dirname(__file__)), template)
         existe = os.path.exists(ruta_completa)
-        simbolo = "✅" if existe else "❌"
+        simbolo = "" if existe else "❌"
         print(f"{simbolo} {template}")
         if not existe:
             todas_ok = False
@@ -215,7 +215,7 @@ def main():
     checks_exitosos = sum(1 for v in resultados.values() if v)
 
     for nombre, resultado in resultados.items():
-        simbolo = "✅" if resultado else "❌"
+        simbolo = "" if resultado else "❌"
         print(f"{simbolo} {nombre.capitalize()}: {'OK' if resultado else 'FALLÓ'}")
 
     print(f"\nTotal: {checks_exitosos}/{total_checks} verificaciones exitosas")

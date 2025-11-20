@@ -6,11 +6,11 @@ El módulo de IA (Inteligencia Artificial) ahora cuenta con un sistema de permis
 
 ## 🔐 Características
 
-- ✅ **Control por Base de Datos**: Cada BD MySQL puede tener el módulo IA habilitado/deshabilitado
-- ✅ **Validación en Backend**: Decorador `@requiere_modulo('ia')` protege todas las rutas
-- ✅ **UI Dinámica**: Los elementos de interfaz se muestran/ocultan según permisos
-- ✅ **Gestión Flexible**: Scripts y funciones SQL para administrar permisos
-- ✅ **Auditoría**: Registro de fechas de habilitación/deshabilitación
+-  **Control por Base de Datos**: Cada BD MySQL puede tener el módulo IA habilitado/deshabilitado
+-  **Validación en Backend**: Decorador `@requiere_modulo('ia')` protege todas las rutas
+-  **UI Dinámica**: Los elementos de interfaz se muestran/ocultan según permisos
+-  **Gestión Flexible**: Scripts y funciones SQL para administrar permisos
+-  **Auditoría**: Registro de fechas de habilitación/deshabilitación
 
 ## 📦 Instalación
 
@@ -44,7 +44,7 @@ WHERE codigo_modulo = 'ia'
 
 Los usuarios verán el módulo IA en el dashboard **solo si su base de datos tiene el módulo habilitado**:
 
-- ✅ **Con permisos**: Botón "Agente IA" activo con badge "PRO"
+-  **Con permisos**: Botón "Agente IA" activo con badge "PRO"
 - ❌ **Sin permisos**: Botón deshabilitado con badge "No disponible"
 
 Si intentan acceder directamente a `/ia/dashboard` sin permisos:
@@ -118,7 +118,7 @@ Se recomienda habilitar el módulo IA según el plan contratado:
 ⚠️ Opcional (según negociación)
 
 ### Plan Enterprise
-✅ Incluye módulo IA por defecto
+ Incluye módulo IA por defecto
 
 ### Ejemplo de Configuración
 
@@ -149,7 +149,7 @@ WHERE mh.id_base_datos = bd.id
    - Obtiene base_datos_mysql del usuario
    - Verifica en auth.modulos_habilitados_bd
 4. Resultado:
-   - ✅ Permitido: Ejecuta la función
+   -  Permitido: Ejecuta la función
    - ❌ Denegado: Redirige o devuelve 403
 ```
 

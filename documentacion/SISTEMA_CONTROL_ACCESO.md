@@ -282,8 +282,8 @@ SELECT * FROM usuarios_acceso WHERE usuario = 'mschaff';
 ```
 
 Ahora cuando `mschaff` inicie sesión:
-1. ✅ Autentica contra PostgreSQL
-2. ✅ Valida vigencia en MySQL stratex
-3. ✅ Guarda auditor = 'matias'
-4. ✅ Guarda tipo_usuario = 'admin'
-5. ✅ Puede usar `@admin_mysql_requerido` en rutas protegidas
+1.  Autentica contra PostgreSQL
+2.  Valida vigencia en MySQL stratex
+3.  Guarda auditor = 'matias'
+4.  Guarda tipo_usuario = 'admin'
+5.  Puede usar `@admin_mysql_requerido` en rutas protegidas

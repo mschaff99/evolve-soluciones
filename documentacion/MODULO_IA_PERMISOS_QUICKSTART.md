@@ -57,7 +57,7 @@ INNER JOIN auth.modulos_sistema m ON mh.id_modulo = m.id
 WHERE m.codigo = 'ia' AND mh.habilitado = TRUE AND u.activo = TRUE;
 ```
 
-## ✅ Checklist Post-Instalación
+##  Checklist Post-Instalación
 
 - [ ] Migración ejecutada sin errores
 - [ ] BDs `stratex` y `evolve` tienen IA habilitado por defecto

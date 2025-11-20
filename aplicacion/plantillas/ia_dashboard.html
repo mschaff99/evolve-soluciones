@@ -482,7 +482,7 @@ async function ejecutarGeneracionBalance(empresaRut, empresaNombre, anioInicio, 
         const data = await response.json();
 
         if (data.estado === 'exitoso') {
-            console.log('✅ Balance generado:', data);
+            console.log(' Balance generado:', data);
 
             // PASO 1: Cerrar SweetAlert
             Swal.close();
@@ -517,7 +517,7 @@ async function ejecutarGeneracionBalance(empresaRut, empresaNombre, anioInicio, 
                         document.body.removeAttribute('aria-hidden');
                     }
 
-                    console.log('✅ SweetAlert completamente limpiado (incluyendo aria-hidden)');
+                    console.log(' SweetAlert completamente limpiado (incluyendo aria-hidden)');
                 } catch (e) {
                     console.error('Error en limpieza de SweetAlert:', e);
                 }
@@ -551,7 +551,7 @@ async function ejecutarGeneracionBalance(empresaRut, empresaNombre, anioInicio, 
                     return;
                 }
 
-                console.log('✅ Modal verificado, existe en DOM');
+                console.log(' Modal verificado, existe en DOM');
 
                 // Mostrar el balance en el modal profesional
                 mostrarBalanceEnModal(empresaRut, empresaNombre, data.balance, {
@@ -1827,7 +1827,7 @@ function mostrarBalanceEnModal(empresaRut, empresaNombre, balanceData, metadata)
 
         // Mostrar modal (con validación adicional)
         if (modal && typeof modal.show === 'function') {
-            console.log('✅ Mostrando modal...');
+            console.log(' Mostrando modal...');
             modal.show();
 
             // PASO 1: Forzar estilos inline inmediatamente
@@ -1846,12 +1846,12 @@ function mostrarBalanceEnModal(empresaRut, empresaNombre, balanceData, metadata)
                     backdrop.style.position = 'fixed';
                     backdrop.style.zIndex = '9998';
                     backdrop.style.opacity = '0.5';
-                    console.log('✅ Backdrop configurado: z-index=9998');
+                    console.log(' Backdrop configurado: z-index=9998');
                 }
 
                 // Re-forzar z-index del modal por si acaso
                 modalElement.style.zIndex = '9999';
-                console.log('✅ Modal configurado: z-index=9999, position=fixed');
+                console.log(' Modal configurado: z-index=9999, position=fixed');
             }, 50);
         } else {
             throw new Error('Modal no tiene método show()');
@@ -1869,7 +1869,7 @@ function mostrarBalanceEnModal(empresaRut, empresaNombre, balanceData, metadata)
                     if (index === backdrops.length - 1) {
                         // El último backdrop (el activo)
                         backdrop.style.zIndex = '9998';
-                        console.log(`✅ Backdrop activo configurado: z-index=9998`);
+                        console.log(` Backdrop activo configurado: z-index=9998`);
                     } else {
                         // Backdrops extras (deberían haber sido eliminados)
                         console.warn(`⚠️ Backdrop extra detectado #${index}, eliminando...`);
@@ -1891,7 +1891,7 @@ function mostrarBalanceEnModal(empresaRut, empresaNombre, balanceData, metadata)
                     document.body.classList.add('modal-open');
                 }
 
-                console.log('✅ Verificación final completada');
+                console.log(' Verificación final completada');
             } catch (e) {
                 console.error('Error en verificación final:', e);
             }

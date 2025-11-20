@@ -40,6 +40,11 @@ def inicio_base_datos(base_datos):
     Página de inicio principal para una base de datos específica
     URL: /<base_datos> (ej: /stratex, /otra-base)
     """
+    # Validar que no sea una solicitud de recurso estático
+    if base_datos in ['favicon.ico', 'static', 'robots.txt', 'sitemap.xml']:
+        from flask import abort
+        abort(404)
+    
     # Validar acceso a la base de datos
     if not validar_base_datos_usuario(base_datos):
         from flask import flash

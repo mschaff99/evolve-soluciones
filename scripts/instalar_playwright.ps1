@@ -19,7 +19,7 @@ $dir_gci = $null
 foreach ($ruta in $rutas_gci) {
     if (Test-Path $ruta) {
         $dir_gci = $ruta
-        Write-Host "✅ GCI encontrado en: $dir_gci" -ForegroundColor Green
+        Write-Host " GCI encontrado en: $dir_gci" -ForegroundColor Green
         break
     }
 }
@@ -41,7 +41,7 @@ $python_gci = $null
 foreach ($venv_py in $venv_paths) {
     if (Test-Path $venv_py) {
         $python_gci = $venv_py
-        Write-Host "✅ Python de GCI encontrado: $python_gci" -ForegroundColor Green
+        Write-Host " Python de GCI encontrado: $python_gci" -ForegroundColor Green
         break
     }
 }
@@ -68,7 +68,7 @@ try {
 
     if ($LASTEXITCODE -eq 0) {
         Write-Host ""
-        Write-Host "✅ Playwright instalado exitosamente" -ForegroundColor Green
+        Write-Host " Playwright instalado exitosamente" -ForegroundColor Green
         Write-Host ""
         Write-Host "Navegadores instalados:" -ForegroundColor Green
         & $python_gci -m playwright install-deps --help
@@ -90,5 +90,5 @@ finally {
 
 Write-Host ""
 Write-Host "========================================" -ForegroundColor Green
-Write-Host "✅ Instalación completada" -ForegroundColor Green
+Write-Host " Instalación completada" -ForegroundColor Green
 Write-Host "========================================" -ForegroundColor Green

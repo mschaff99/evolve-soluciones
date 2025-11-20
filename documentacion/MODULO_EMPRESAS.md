@@ -45,12 +45,12 @@ scripts/
 ## 🎯 Funcionalidades
 
 ### Vista Listado (`listar.html` + `empresas-listado.js`)
-- ✅ Tabla de empresas con búsqueda
-- ✅ Estadísticas rápidas (3 cards)
-- ✅ Modal para gestionar credenciales SII
-- ✅ Toggle de visibilidad de contraseña
-- ✅ Validaciones frontend
-- ✅ Indicadores de credencial configurada/no configurada
+-  Tabla de empresas con búsqueda
+-  Estadísticas rápidas (3 cards)
+-  Modal para gestionar credenciales SII
+-  Toggle de visibilidad de contraseña
+-  Validaciones frontend
+-  Indicadores de credencial configurada/no configurada
 
 **Funciones JavaScript:**
 - `editarEmpresa(rut)` - Redirige a edición
@@ -60,12 +60,12 @@ scripts/
 - `eliminarCredencial(rut)` - Elimina credencial con confirmación
 
 ### Vista Formulario (`formulario.html` + `empresas-formulario.js`)
-- ✅ Crear/editar empresa
-- ✅ Validación de RUT (formato y obligatoriedad)
-- ✅ Formateo automático de RUT (XXXXXXXX-X)
-- ✅ RUT readonly en modo edición
-- ✅ Advertencia de cambios sin guardar
-- ✅ Indicadores de carga
+-  Crear/editar empresa
+-  Validación de RUT (formato y obligatoriedad)
+-  Formateo automático de RUT (XXXXXXXX-X)
+-  RUT readonly en modo edición
+-  Advertencia de cambios sin guardar
+-  Indicadores de carga
 
 **Funciones JavaScript:**
 - `manejarEnvioFormulario(e)` - Envío asíncrono
@@ -82,10 +82,10 @@ scripts/
 4. **Confirmar**: Solo commit si verificación exitosa
 
 ### Características de Fernet
-- ✅ **Reversible** (se puede desencriptar)
-- ✅ **Segura** (AES-128 CBC + HMAC)
-- ✅ **Compatible** con automatización
-- ✅ Clave en `.encryption_key` (git-ignored)
+-  **Reversible** (se puede desencriptar)
+-  **Segura** (AES-128 CBC + HMAC)
+-  **Compatible** con automatización
+-  Clave en `.encryption_key` (git-ignored)
 
 ### Lectura para Scripts Externos
 ```python
@@ -185,16 +185,16 @@ Base de Datos (MySQL)
 ## 🛡️ Seguridad
 
 ### Validaciones
-- ✅ Frontend: JavaScript en tiempo real
-- ✅ Backend: Python en controladores
-- ✅ Base de Datos: Restricciones SQL
+-  Frontend: JavaScript en tiempo real
+-  Backend: Python en controladores
+-  Base de Datos: Restricciones SQL
 
 ### Protecciones
-- ✅ CSRF tokens en todos los formularios
-- ✅ SQL parametrizado (sin concatenación)
-- ✅ Escape automático en templates (Jinja2)
-- ✅ Encriptación Fernet para passwords
-- ✅ HTTPS recomendado en producción
+-  CSRF tokens en todos los formularios
+-  SQL parametrizado (sin concatenación)
+-  Escape automático en templates (Jinja2)
+-  Encriptación Fernet para passwords
+-  HTTPS recomendado en producción
 
 ## 📝 Logs Esperados
 
@@ -203,14 +203,14 @@ Base de Datos (MySQL)
 🔐 Encriptando credencial para 77235170-4 con Fernet...
 💾 Credencial SII para 77235170-4 actualizada en base de datos
  Verificando que se puede desencriptar...
-✅ Verificación exitosa - La contraseña se puede recuperar correctamente
-✅ Credencial SII para 77235170-4 lista para automatización (Fernet reversible)
+ Verificación exitosa - La contraseña se puede recuperar correctamente
+ Credencial SII para 77235170-4 lista para automatización (Fernet reversible)
 127.0.0.1 - - [15/Oct/2025 10:45:26] "POST /stratex/empresas/api/credencial/77235170-4 HTTP/1.1" 200 -
 ```
 
 ## 🎯 Próximos Pasos
 
-1. ✅ Separación de JS en archivos externos (COMPLETADO)
+1.  Separación de JS en archivos externos (COMPLETADO)
 2. ⏳ Migración: Ejecutar `004_agregar_modulo_empresas.sql`
 3. ⏳ Habilitar módulo para usuarios específicos
 4. ⏳ Insertar credenciales masivas con script

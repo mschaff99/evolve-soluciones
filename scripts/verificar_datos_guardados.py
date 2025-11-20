@@ -123,7 +123,7 @@ def main():
         resultados[nombre_db] = resultado
 
         if resultado['conectado']:
-            print(f"   ✅ Conectado exitosamente")
+            print(f"    Conectado exitosamente")
             print(f"   📄 Registros F29: {resultado['total_f29']}")
             print(f"   ⚠️  Observaciones F29: {resultado['total_obs_f29']}")
             print(f"   📋 Registros DJ: {resultado['total_dj']}")
@@ -158,7 +158,7 @@ def main():
         db_actual = bases_con_datos[0]
 
         if db_actual == db_correcta:
-            print(f"✅ Los datos están en la base de datos CORRECTA: {db_actual}")
+            print(f" Los datos están en la base de datos CORRECTA: {db_actual}")
         else:
             print(f"⚠️  Los datos están en la base de datos INCORRECTA")
             print(f"\n   Base de datos esperada: {db_correcta}")
