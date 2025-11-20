@@ -149,7 +149,7 @@ def generar_balance_empresa():
             logger.error(f"[TRACEBACK] {error_traceback}")
             print(f"[ERROR] Balance falló: {error_msg}", file=sys.stderr, flush=True)
             print(f"[TRACEBACK] {error_traceback}", file=sys.stderr, flush=True)
-            
+
             return jsonify({
                 'estado': 'error',
                 'mensaje': error_msg,
