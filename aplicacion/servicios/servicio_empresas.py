@@ -599,11 +599,11 @@ class ServicioEmpresas:
                 if usuario_actual.es_administrador():
                     # Lógica para administradores: pivot dinámico
                     # 1. Obtener lista de auditores para las columnas
-                    cursor.execute("""
+                    cursor.execute(f"""
                         SELECT DISTINCT COALESCE(c.auditor, '(Sin Asignar)') as auditor
-                        FROM observaciones a
-                        LEFT JOIN consulta_integral b ON a.consulta_id = b.id
-                        LEFT JOIN empresas c ON b.rut = c.run_rut
+                        FROM {self.base_datos}.observaciones a
+                        LEFT JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
+                        LEFT JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
                         ORDER BY 1
                     """)
                     auditores = [row['auditor'] for row in cursor.fetchall()]
@@ -620,9 +620,9 @@ class ServicioEmpresas:
                         SELECT
                             a.codigo,
                             {columnas_pivot}
-                        FROM observaciones a
-                        LEFT JOIN consulta_integral b ON a.consulta_id = b.id
-                        LEFT JOIN empresas c ON b.rut = c.run_rut
+                        FROM {self.base_datos}.observaciones a
+                        LEFT JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
+                        LEFT JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
                         GROUP BY a.codigo
                         ORDER BY a.codigo
                     """
@@ -634,13 +634,13 @@ class ServicioEmpresas:
                     auditor_actual = usuario_actual.nombre_usuario
                     headers = ['Código', auditor_actual]
 
-                    consulta = """
+                    consulta = f"""
                         SELECT
                             a.codigo,
                             COUNT(a.id) as total_auditor
-                        FROM observaciones a
-                        LEFT JOIN consulta_integral b ON a.consulta_id = b.id
-                        LEFT JOIN empresas c ON b.rut = c.run_rut
+                        FROM {self.base_datos}.observaciones a
+                        LEFT JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
+                        LEFT JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
                         WHERE c.auditor = %s
                         GROUP BY a.codigo
                         ORDER BY a.codigo
@@ -668,6 +668,15 @@ class ServicioEmpresas:
 
                 return {'headers': headers, 'rows': rows, 'totals': totals}
 
+        except pymysql.err.ProgrammingError as e:
+            if "doesn't exist" in str(e):
+                print(f"ADVERTENCIA: Tabla de observaciones no existe en {self.base_datos}: {e}")
+                return {'headers': [], 'rows': [], 'totals': {}}
+            else:
+                print(f"Error SQL obteniendo resumen de observaciones: {e}")
+                import traceback
+                traceback.print_exc()
+                return {'headers': [], 'rows': [], 'totals': {}}
         except Exception as e:
             print(f"Error obteniendo resumen de observaciones: {e}")
             import traceback
@@ -699,10 +708,10 @@ class ServicioEmpresas:
 
                 if usuario_actual.es_administrador():
                     # Lógica para administradores: pivot dinámico
-                    cursor.execute("""
+                    cursor.execute(f"""
                         SELECT DISTINCT COALESCE(c.auditor, '(Sin Asignar)') as auditor
-                        FROM dj_integral_observaciones a
-                        LEFT JOIN empresas c ON a.rut = c.run_rut
+                        FROM {self.base_datos}.dj_integral_observaciones a
+                        LEFT JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
                         ORDER BY 1
                     """)
                     auditores = [row['auditor'] for row in cursor.fetchall()]
@@ -717,8 +726,8 @@ class ServicioEmpresas:
                         SELECT
                             a.observacion_code as codigo,
                             {columnas_pivot}
-                        FROM dj_integral_observaciones a
-                        LEFT JOIN empresas c ON a.rut = c.run_rut
+                        FROM {self.base_datos}.dj_integral_observaciones a
+                        LEFT JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
                         GROUP BY a.observacion_code
                         ORDER BY a.observacion_code
                     """
@@ -730,12 +739,12 @@ class ServicioEmpresas:
                     auditor_actual = usuario_actual.nombre_usuario
                     headers = ['Código', auditor_actual]
 
-                    consulta = """
+                    consulta = f"""
                         SELECT
                             a.observacion_code as codigo,
                             COUNT(a.observacion_code) as total_auditor
-                        FROM dj_integral_observaciones a
-                        LEFT JOIN empresas c ON a.rut = c.run_rut
+                        FROM {self.base_datos}.dj_integral_observaciones a
+                        LEFT JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
                         WHERE c.auditor = %s
                         GROUP BY a.observacion_code
                         ORDER BY a.observacion_code
@@ -759,8 +768,19 @@ class ServicioEmpresas:
 
                 return {'headers': headers, 'rows': rows, 'totals': totals}
 
+        except pymysql.err.ProgrammingError as e:
+            if "doesn't exist" in str(e):
+                print(f"ADVERTENCIA: Tabla de observaciones DJ no existe en {self.base_datos}: {e}")
+                return {'headers': [], 'rows': [], 'totals': {}}
+            else:
+                print(f"Error SQL obteniendo resumen de observaciones DJ: {e}")
+                import traceback
+                traceback.print_exc()
+                return {'headers': [], 'rows': [], 'totals': {}}
         except Exception as e:
             print(f"Error obteniendo resumen de observaciones DJ: {e}")
+            import traceback
+            traceback.print_exc()
             return {'headers': [], 'rows': [], 'totals': {}}
         finally:
             if conexion:
