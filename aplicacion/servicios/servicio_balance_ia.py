@@ -27,7 +27,7 @@ class BalanceService:
         if cache_key in BalanceService._empresa_cache:
             cached_data, cached_time = BalanceService._empresa_cache[cache_key]
             if (now - cached_time).total_seconds() < BalanceService._cache_timeout:
-                print(f" Usando info de empresa desde cache: {empresa_rut}")
+                print(f"[CACHE] Usando info de empresa desde cache: {empresa_rut}")
                 return cached_data
 
         # No está en cache o expiró, obtener de BD
@@ -188,7 +188,7 @@ class BalanceService:
 
                 # DEBUG: Mostrar cuentas detectadas como contra-cuentas
                 if info_contra['es_contra_cuenta']:
-                    print(f" CONTRA-CUENTA DETECTADA: {nombre_cuenta} → {info_contra['rol_presentacion']}")
+                    print(f"[CONTRA-CUENTA] {nombre_cuenta} -> {info_contra['rol_presentacion']}")
 
                 balance_limpio['cuentas_detalle'].append(cuenta_limpia)
 
@@ -232,7 +232,7 @@ class BalanceService:
         connection = None
         try:
             start_time = datetime.now()
-            print(f" Generando balance para {empresa_rut}: {periodo_inicio} - {periodo_fin}")
+            print(f"[BALANCE] Generando balance para {empresa_rut}: {periodo_inicio} - {periodo_fin}")
 
             # OPTIMIZACIÓN: Obtener información de empresa con cache
             empresa_info = BalanceService._get_empresa_info_cached(empresa_rut)
@@ -271,7 +271,7 @@ class BalanceService:
                 read_timeout=120  # Timeout más largo para consultas complejas
             )
 
-            print(f" Conectado a base de datos remota: {Config.REMOTE_DB_HOST}/{base_datos_empresa}")
+            print(f"[DB] Conectado a base de datos remota: {Config.REMOTE_DB_HOST}/{base_datos_empresa}")
 
             with connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Obtener consulta SQL desde archivo separado
@@ -292,7 +292,7 @@ class BalanceService:
                 query_end_time = datetime.now()
                 print(f"[TIEMPO] Tiempo de ejecución de la consulta de balance: {(query_end_time - query_start_time).total_seconds()}s")
 
-                print(f" Balance generado: {len(resultados)} filas")
+                print(f"[OK] Balance generado: {len(resultados)} filas")
 
                 # DEBUG: Mostrar los datos RAW de la primera cuenta con TODOS los campos
                 if resultados:
