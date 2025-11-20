@@ -63,7 +63,7 @@ class BalanceService:
                 read_timeout=10,
                 autocommit=True
             )
-            print(f"[CONEXION] ✓ Conectado exitosamente a {db_name} en LOCALHOST", file=sys.stderr, flush=True)
+            print(f"[CONEXION] OK - Conectado exitosamente a {db_name} en LOCALHOST", file=sys.stderr, flush=True)
 
             with connection.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Primero, verificar qué columnas tiene la tabla empresas
@@ -114,7 +114,7 @@ class BalanceService:
 
                 if not empresa_info:
                     # Si no encuentra, buscar similares para debug
-                    print(f"\n[ERROR] ❌ No se encontró empresa con ningún formato de RUT", file=sys.stderr, flush=True)
+                    print(f"\n[ERROR] No se encontró empresa con ningún formato de RUT", file=sys.stderr, flush=True)
                     print(f"[DEBUG] Buscando empresas similares...", file=sys.stderr, flush=True)
 
                     # Ajustar consulta de búsqueda según columnas disponibles
@@ -143,7 +143,7 @@ class BalanceService:
                             bd_info = f", BD: {emp.get('base_datos')}" if 'base_datos' in emp else ""
                             print(f"  → RUT: '{emp['run_rut']}', Empresa: {emp['empresa']}{bd_info}", file=sys.stderr, flush=True)
                 else:
-                    print(f"\n[EXITO] ✓ Empresa encontrada: {empresa_info.get('empresa')}", file=sys.stderr, flush=True)
+                    print(f"\n[EXITO] OK - Empresa encontrada: {empresa_info.get('empresa')}", file=sys.stderr, flush=True)
 
                     # Si no tiene base_datos, construirla a partir del RUT
                     if 'base_datos' not in empresa_info or not empresa_info.get('base_datos'):
@@ -151,9 +151,9 @@ class BalanceService:
                         rut_sin_guion = empresa_rut.replace('-', '')
                         base_datos_calculada = f"d{rut_sin_guion}"
                         empresa_info['base_datos'] = base_datos_calculada
-                        print(f"[INFO] ⚠ Columna 'base_datos' no existe o está vacía. Calculada: {base_datos_calculada}", file=sys.stderr, flush=True)
+                        print(f"[INFO] AVISO - Columna 'base_datos' no existe o está vacía. Calculada: {base_datos_calculada}", file=sys.stderr, flush=True)
                     else:
-                        print(f"[EXITO] ✓ Base de datos empresa: {empresa_info.get('base_datos')}", file=sys.stderr, flush=True)
+                        print(f"[EXITO] OK - Base de datos empresa: {empresa_info.get('base_datos')}", file=sys.stderr, flush=True)
 
                 if empresa_info:
                     # Guardar en cache SOLO si base_datos tiene valor válido
@@ -168,7 +168,7 @@ class BalanceService:
         except Exception as e:
             import traceback
             print(f"\n{'='*80}", file=sys.stderr, flush=True)
-            print(f"[EXCEPTION] ❌ Error obteniendo info empresa: {e}", file=sys.stderr, flush=True)
+            print(f"[EXCEPTION] ERROR - Error obteniendo info empresa: {e}", file=sys.stderr, flush=True)
             print(f"[EXCEPTION] Traceback completo:", file=sys.stderr, flush=True)
             traceback.print_exc(file=sys.stderr)
             print(f"{'='*80}\n", file=sys.stderr, flush=True)
@@ -492,7 +492,7 @@ class BalanceService:
         finally:
             if connection:
                 connection.close()
-                print("🔐 Conexión a BD cerrada")
+                print("[DB] Conexión a BD cerrada")
 
     @staticmethod
     def formatear_periodo(anio, mes):
