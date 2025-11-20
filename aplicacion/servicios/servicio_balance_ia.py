@@ -59,10 +59,17 @@ class BalanceService:
                     FROM empresas
                     WHERE run_rut = %s LIMIT 1
                 """
-                print(f" DEBUG: Ejecutando consulta para RUT: {empresa_rut}")
+                print(f"[DEBUG] Ejecutando consulta para RUT: {empresa_rut} en BD: {db_name}")
                 cursor.execute(consulta_sql, (empresa_rut,))
                 empresa_info = cursor.fetchone()
-                print(f" DEBUG: Resultado de consulta: {empresa_info}")
+                print(f"[DEBUG] Resultado de consulta: {empresa_info}")
+
+                if not empresa_info:
+                    # Si no encuentra, buscar similares para debug
+                    print(f"[DEBUG] No se encontró empresa con RUT exacto. Buscando empresas similares...")
+                    cursor.execute("SELECT run_rut, empresa FROM empresas WHERE run_rut LIKE %s LIMIT 5", (f"%{empresa_rut.replace('-', '')}%",))
+                    similares = cursor.fetchall()
+                    print(f"[DEBUG] Empresas similares encontradas: {similares}")
 
                 if empresa_info:
                     # Guardar en cache SOLO si base_datos tiene valor válido
