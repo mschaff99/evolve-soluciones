@@ -124,13 +124,13 @@ def api_asignacion_datos_root():
                 connection.close()
             except Exception:
                 pass
-            
+
             error_msg = f"Módulo ERP Audisoft no disponible para la base de datos '{target_schema}'. "
             error_msg += f"Tablas faltantes: {', '.join(missing)}. "
             error_msg += "Este módulo solo funciona con bases de datos que tengan el esquema ERP Audisoft instalado."
-            
+
             print(f"ADVERTENCIA: {error_msg}")
-            
+
             return jsonify({
                 'success': False,
                 'error': error_msg,
@@ -272,13 +272,13 @@ def api_asignacion_pagos_root():
                 conn.close()
             except Exception:
                 pass
-            
+
             error_msg = f"Módulo ERP Audisoft (Pagos) no disponible para la base de datos '{target_schema}'. "
             error_msg += f"Tablas faltantes: {', '.join(missing)}. "
             error_msg += "Este módulo solo funciona con bases de datos que tengan el esquema ERP Audisoft instalado."
-            
+
             print(f"ADVERTENCIA: {error_msg}")
-            
+
             return jsonify({
                 'success': False,
                 'error': error_msg,
@@ -301,27 +301,32 @@ def api_asignacion_pagos_root():
 
             sql2 = f"""
             UPDATE {target_schema}.documentosventas AS dv
-                            LEFT JOIN (
-                                SELECT
-                                    a.codigo_documentosventas,
-                                    a.numero_documentosventas,
-                                    a.proveedor_documentosventas,
-                                    CONCAT(d.nombre, ' ', c.fecha) AS glosa
-                                FROM {target_schema}.documentosventas a
-                                LEFT JOIN {target_schema}.co_tr_det_ctacte b ON a.codigo_documentosventas = b.tipo_docto
-                                                        AND a.numero_documentosventas = b.num_docto
-                                                        AND a.proveedor_documentosventas = b.rut_cliente
-                                LEFT JOIN {target_schema}.co_tr_det_vouchers c ON b.tipo_voucher = c.tipo
-                                                            AND b.numero_voucher = c.numero
-                                LEFT JOIN {target_schema}.co_tmcuentas d ON d.codigo = c.cuenta
-                                WHERE a.periodocontable_documentosventas > 202500
-                                AND c.cuenta NOT IN (101201, 101203, 302001,406004,407005)
-                                AND c.tipo <> 15
-                            ) AS subquery ON dv.codigo_documentosventas = subquery.codigo_documentosventas
-                                        AND dv.numero_documentosventas = subquery.numero_documentosventas
-                                        AND dv.proveedor_documentosventas = subquery.proveedor_documentosventas
-                            SET dv.observacion = subquery.glosa
-                            WHERE dv.periodocontable_documentosventas > 202500
+            JOIN (
+                SELECT
+                    a.codigo_documentosventas,
+                    a.numero_documentosventas,
+                    a.proveedor_documentosventas,
+                    CONCAT(d.nombre, ' ', c.fecha) AS glosa
+                FROM {target_schema}.documentosventas a
+                LEFT JOIN {target_schema}.co_tr_det_ctacte b
+                    ON a.codigo_documentosventas = b.tipo_docto
+                   AND a.numero_documentosventas = b.num_docto
+                   AND a.proveedor_documentosventas = b.rut_cliente
+                LEFT JOIN {target_schema}.co_tr_det_vouchers c
+                    ON b.tipo_voucher = c.tipo
+                   AND b.numero_voucher = c.numero
+                LEFT JOIN {target_schema}.co_tmcuentas d
+                    ON d.codigo = c.cuenta
+                WHERE a.periodocontable_documentosventas > 202500
+                  AND c.cuenta NOT IN (101201, 101203, 302001, 406004, 407005)
+                  AND c.tipo <> 15
+            ) AS subquery
+              ON dv.codigo_documentosventas = subquery.codigo_documentosventas
+             AND dv.numero_documentosventas = subquery.numero_documentosventas
+             AND dv.proveedor_documentosventas = subquery.proveedor_documentosventas
+            SET dv.observacion = subquery.glosa
+            WHERE dv.periodocontable_documentosventas > 202500
+              AND subquery.glosa IS NOT NULL
             """
             cur.execute(sql2)
             affected2 = cur.rowcount
@@ -357,7 +362,19 @@ def api_asignacion_pagos_root():
                 conn.rollback()
             except Exception:
                 pass
-            return jsonify({'success': False, 'error': 'Error al ejecutar asignacion-pagos', 'details': str(e), 'used_source': used_source}), 500
+
+            # Log detallado del error
+            print(f"ERROR en asignacion-pagos: {str(e)}")
+            import traceback
+            traceback.print_exc()
+
+            return jsonify({
+                'success': False,
+                'error': 'Error al ejecutar asignacion-pagos',
+                'details': str(e),
+                'used_source': used_source,
+                'schema': target_schema
+            }), 500
 
         finally:
             try:
@@ -370,4 +387,15 @@ def api_asignacion_pagos_root():
                 pass
 
     except Exception as e:
-        return jsonify({'success': False, 'error': 'Error de conexión a la base de datos', 'details': str(e), 'used_source': used_source}), 500
+        # Log detallado del error de conexión
+        print(f"ERROR de conexión en asignacion-pagos: {str(e)}")
+        import traceback
+        traceback.print_exc()
+
+        return jsonify({
+            'success': False,
+            'error': 'Error de conexión a la base de datos',
+            'details': str(e),
+            'used_source': 'unknown',
+            'schema': target_schema if 'target_schema' in locals() else 'unknown'
+        }), 500

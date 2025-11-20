@@ -127,21 +127,24 @@ class ReporteImpuestosApp {
       });
 
       const result = await response.json();
-      
+
       // Si el error es de tablas faltantes, mostrar mensaje más claro
       if (!response.ok) {
         if (result.missing_tables && result.missing_tables.length > 0) {
           const msg = `Este módulo no está disponible para la base de datos actual.\n\n` +
-                      `Tablas faltantes: ${result.missing_tables.join(', ')}\n\n` +
-                      `Base de datos: ${result.schema || 'desconocida'}\n\n` +
-                      `El módulo ERP Audisoft solo funciona con bases de datos que tengan el esquema instalado.`;
+            `Tablas faltantes: ${result.missing_tables.join(', ')}\n\n` +
+            `Base de datos: ${result.schema || 'desconocida'}\n\n` +
+            `El módulo ERP Audisoft solo funciona con bases de datos que tengan el esquema instalado.`;
           this.showError(msg);
           return;
         }
-        throw new Error(result.error || 'Error al ejecutar la asignación');
-      }
-
-      if (result.success) {
+        // Incluir detalles técnicos si están disponibles
+        let errorMsg = result.error || 'Error al ejecutar la asignación';
+        if (result.details) {
+          errorMsg += `\n\nDetalles técnicos: ${result.details}`;
+        }
+        throw new Error(errorMsg);
+      } if (result.success) {
         alert('Asignación completada: ' + (result.message || 'OK'));
       } else {
         throw new Error(result.error || 'Fallo en la asignación');
@@ -169,18 +172,26 @@ class ReporteImpuestosApp {
       });
 
       const result = await response.json();
-      
+
       // Si el error es de tablas faltantes, mostrar mensaje más claro
       if (!response.ok) {
         if (result.missing_tables && result.missing_tables.length > 0) {
           const msg = `Este módulo no está disponible para la base de datos actual.\n\n` +
-                      `Tablas faltantes: ${result.missing_tables.join(', ')}\n\n` +
-                      `Base de datos: ${result.schema || 'desconocida'}\n\n` +
-                      `El módulo ERP Audisoft solo funciona con bases de datos que tengan el esquema instalado.`;
+            `Tablas faltantes: ${result.missing_tables.join(', ')}\n\n` +
+            `Base de datos: ${result.schema || 'desconocida'}\n\n` +
+            `El módulo ERP Audisoft solo funciona con bases de datos que tengan el esquema instalado.`;
           this.showError(msg);
           return;
         }
-        throw new Error(result.error || 'Error al ejecutar la asignaci\u00f3n de pagos');
+        // Incluir detalles técnicos si están disponibles
+        let errorMsg = result.error || 'Error al ejecutar la asignaci\u00f3n de pagos';
+        if (result.details) {
+          errorMsg += `\n\nDetalles técnicos: ${result.details}`;
+        }
+        if (result.schema) {
+          errorMsg += `\n\nBase de datos: ${result.schema}`;
+        }
+        throw new Error(errorMsg);
       }
 
       if (result.success) {
