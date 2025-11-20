@@ -60,16 +60,47 @@ class BalanceService:
                     WHERE run_rut = %s LIMIT 1
                 """
                 print(f"[DEBUG] Ejecutando consulta para RUT: {empresa_rut} en BD: {db_name}")
+
+                # Intentar con el RUT tal cual viene
                 cursor.execute(consulta_sql, (empresa_rut,))
                 empresa_info = cursor.fetchone()
-                print(f"[DEBUG] Resultado de consulta: {empresa_info}")
+                print(f"[DEBUG] Resultado de consulta con RUT original: {empresa_info}")
+
+                # Si no encuentra, intentar sin guión
+                if not empresa_info and '-' in empresa_rut:
+                    rut_sin_guion = empresa_rut.replace('-', '')
+                    print(f"[DEBUG] Intentando con RUT sin guión: {rut_sin_guion}")
+                    cursor.execute(consulta_sql, (rut_sin_guion,))
+                    empresa_info = cursor.fetchone()
+                    print(f"[DEBUG] Resultado con RUT sin guión: {empresa_info}")
+
+                # Si aún no encuentra, intentar con guión si no lo tenía
+                if not empresa_info and '-' not in empresa_rut and len(empresa_rut) > 1:
+                    rut_con_guion = f"{empresa_rut[:-1]}-{empresa_rut[-1]}"
+                    print(f"[DEBUG] Intentando con RUT con guión: {rut_con_guion}")
+                    cursor.execute(consulta_sql, (rut_con_guion,))
+                    empresa_info = cursor.fetchone()
+                    print(f"[DEBUG] Resultado con RUT con guión: {empresa_info}")
 
                 if not empresa_info:
                     # Si no encuentra, buscar similares para debug
-                    print(f"[DEBUG] No se encontró empresa con RUT exacto. Buscando empresas similares...")
-                    cursor.execute("SELECT run_rut, empresa FROM empresas WHERE run_rut LIKE %s LIMIT 5", (f"%{empresa_rut.replace('-', '')}%",))
+                    print(f"[DEBUG] No se encontró empresa con ningún formato de RUT. Buscando empresas similares...")
+                    cursor.execute("SELECT run_rut, empresa, base_datos FROM empresas WHERE run_rut LIKE %s OR run_rut LIKE %s LIMIT 10",
+                                   (f"%{empresa_rut.replace('-', '')}%", f"%{empresa_rut}%"))
                     similares = cursor.fetchall()
                     print(f"[DEBUG] Empresas similares encontradas: {similares}")
+
+                    # Listar todas las empresas si no hay muchas
+                    cursor.execute("SELECT COUNT(*) as total FROM empresas")
+                    total = cursor.fetchone()
+                    print(f"[DEBUG] Total de empresas en BD {db_name}: {total}")
+
+                    if total and total['total'] <= 20:
+                        cursor.execute("SELECT run_rut, empresa, base_datos FROM empresas LIMIT 20")
+                        todas = cursor.fetchall()
+                        print(f"[DEBUG] Todas las empresas en BD:")
+                        for emp in todas:
+                            print(f"  - RUT: {emp['run_rut']}, Empresa: {emp['empresa']}, BD: {emp.get('base_datos')}")
 
                 if empresa_info:
                     # Guardar en cache SOLO si base_datos tiene valor válido
