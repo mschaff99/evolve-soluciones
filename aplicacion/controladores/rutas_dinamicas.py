@@ -44,7 +44,7 @@ def inicio_base_datos(base_datos):
     if base_datos in ['favicon.ico', 'static', 'robots.txt', 'sitemap.xml']:
         from flask import abort
         abort(404)
-    
+
     # Validar acceso a la base de datos
     if not validar_base_datos_usuario(base_datos):
         from flask import flash

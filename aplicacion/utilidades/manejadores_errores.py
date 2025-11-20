@@ -47,7 +47,7 @@ def registrar_manejadores_errores(aplicacion):
         if request.path.startswith('/auth/iniciar-sesion'):
             print("[CSRF ERROR] Redirigiendo a limpieza de sesión automática.")
             flash('Detectamos un problema con tu sesión. La hemos limpiado automáticamente.', 'warning')
-            return redirect(url_for('autenticacion.limpiar_sesion'))
+            return redirect(url_for('autenticacion.sesion'))
 
         flash(payload['mensaje'], 'error')
         return redirect(request.referrer or url_for('autenticacion.iniciar_sesion'))
