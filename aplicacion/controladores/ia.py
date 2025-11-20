@@ -318,23 +318,19 @@ def obtener_estado_gemini():
 @requiere_modulo('ia')
 def dashboard_ia():
     """
-    Dashboard de Inteligencia Artificial - ACCESIBLE PARA TODOS LOS USUARIOS
-    Todos los usuarios (normales, supervisores y administradores) ven el mismo dashboard completo
-    sin restricciones de funcionalidad
+    Dashboard de Inteligencia Artificial - Redirige a la URL con base de datos
     """
-    print(f"[IA] Usuario {current_user.nombre_usuario} (Rol: {current_user.rol}) accediendo al Dashboard IA")
+    print(f"[IA] Redirigiendo usuario {current_user.nombre_usuario} a URL con base de datos")
 
     # Validar que el usuario tenga base de datos asignada
     if not current_user.base_datos_mysql:
         flash('No tienes una base de datos asignada. Por favor contacta al administrador.', 'error')
         return redirect(url_for('autenticacion.iniciar_sesion'))
 
-    print(f"[IA] Base de datos del usuario: {current_user.base_datos_mysql}")
-
-    # TODOS los usuarios ven el mismo dashboard completo con todas las funcionalidades
-    return render_template('ia_dashboard.html',
-                         titulo='Dashboard de Inteligencia Artificial',
-                         usuario=current_user)
+    # Redirigir a la URL correcta con la base de datos del usuario
+    base_datos = current_user.base_datos_mysql
+    print(f"[IA] Redirigiendo a /{base_datos}/ia/dashboard")
+    return redirect(f'/{base_datos}/ia/dashboard')
 
 
 @ia_bp.route('/api/empresas-lista', methods=['GET'])
