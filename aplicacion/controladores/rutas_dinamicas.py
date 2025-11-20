@@ -479,6 +479,35 @@ def observaciones_base_datos(base_datos):
     return redirect(f'/{base_datos}/situacion-tributaria')
 
 
+@rutas_dinamicas_bp.route('/<base_datos>/ia/dashboard')
+@login_required
+@requiere_modulo('ia')
+def ia_dashboard_base_datos(base_datos):
+    """
+    Dashboard de IA para una base de datos específica
+    URL: /<base_datos>/ia/dashboard
+    """
+    # Validar acceso a la base de datos
+    if not validar_base_datos_usuario(base_datos):
+        from flask import flash
+        flash(f'No tienes acceso a la base de datos "{base_datos}"', 'error')
+        return redirect(url_for('autenticacion.iniciar_sesion'))
+
+    # Configurar la base de datos en la sesión
+    session['base_datos_actual'] = base_datos
+
+    # Actualizar temporalmente la base de datos del usuario para esta petición
+    current_user.base_datos_mysql = base_datos
+
+    print(f"[IA] Usuario {current_user.nombre_usuario} accediendo a IA Dashboard con BD: {base_datos}")
+
+    # Renderizar el template de IA directamente
+    return render_template('ia_dashboard.html',
+                         titulo='Dashboard de Inteligencia Artificial',
+                         base_datos=base_datos,
+                         usuario=current_user)
+
+
 @rutas_dinamicas_bp.before_request
 def configurar_base_datos_contexto():
     """
