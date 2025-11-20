@@ -110,6 +110,15 @@ def generar_balance_empresa():
         base_datos_usuario = current_user.base_datos_mysql if current_user.is_authenticated else None
         logger.info(f"[BD_USUARIO] Base de datos del usuario: {base_datos_usuario}")
         print(f"[BD_USUARIO] Base de datos del usuario: {base_datos_usuario}", file=sys.stderr, flush=True)
+        
+        # Validar que el usuario tenga base de datos asignada
+        if not base_datos_usuario:
+            logger.error("[ERROR] Usuario sin base de datos asignada")
+            return jsonify({
+                'estado': 'error',
+                'mensaje': 'No tienes una base de datos asignada. Accede a través de la URL correcta: /[base_datos]/ia/dashboard',
+                'timestamp': datetime.now().isoformat()
+            }), 400
 
         # Obtener nombre de la empresa
         logger.info(f"[EMPRESA] Obteniendo nombre para RUT: {empresa_rut}")
@@ -314,6 +323,13 @@ def dashboard_ia():
     sin restricciones de funcionalidad
     """
     print(f"[IA] Usuario {current_user.nombre_usuario} (Rol: {current_user.rol}) accediendo al Dashboard IA")
+    
+    # Validar que el usuario tenga base de datos asignada
+    if not current_user.base_datos_mysql:
+        flash('No tienes una base de datos asignada. Por favor contacta al administrador.', 'error')
+        return redirect(url_for('autenticacion.iniciar_sesion'))
+    
+    print(f"[IA] Base de datos del usuario: {current_user.base_datos_mysql}")
 
     # TODOS los usuarios ven el mismo dashboard completo con todas las funcionalidades
     return render_template('ia_dashboard.html',
