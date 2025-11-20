@@ -656,11 +656,11 @@ class BalanceService:
             print(f" DEBUG - balance_data antes de limpiar: {type(balance_data)}, cuentas: {len(balance_data.get('cuentas_detalle', []) if balance_data else [])}")
             balance_data_limpio = BalanceService.limpiar_datos_balance_para_ia(balance_data)
             print(f" DEBUG - balance_data_limpio después de limpiar: {type(balance_data_limpio)}, cuentas: {len(balance_data_limpio.get('cuentas_detalle', []) if balance_data_limpio else [])}")
-            print("🧹 Datos del balance limpiados y validados para IA")
+            print("[LIMPIEZA] Datos del balance limpiados y validados para IA")
 
             cuentas_limpias = balance_data_limpio.get('cuentas_detalle', [])
             # Analizar TODAS las cuentas, manteniendo el orden del balance
-            print(f"🧮 Analizando TODAS las cuentas del balance en orden: {len(cuentas_limpias)} cuentas")
+            print(f"[ANALISIS] Analizando TODAS las cuentas del balance en orden: {len(cuentas_limpias)} cuentas")
 
             # Importar el servicio de Gemini
             from aplicacion.servicios.servicio_gemini import gemini_service
@@ -690,12 +690,12 @@ class BalanceService:
 
             # Mejoras: indicar cuentas típicas a priorizar y verificación cruzada
             prompt_analisis += "\n\n---\n\n" \
-                               "🔎 Prioriza revisión de cuentas transitorias y críticas: IVA, Impuestos por Pagar, Remuneraciones por Pagar, Honorarios por Pagar, Leyes Sociales, Provisiones. " \
+                               "[PRIORIZACION] Prioriza revisión de cuentas transitorias y críticas: IVA, Impuestos por Pagar, Remuneraciones por Pagar, Honorarios por Pagar, Leyes Sociales, Provisiones. " \
                                "Verifica que los saldos queden razonablemente en cero al cierre mensual o explica su residuo. Cruza provisiones F29 con sus pagos (PAGO F29)."
 
             # Instrucciones para análisis de anticipos (si están presentes)
             prompt_analisis += "\n\n---\n\n" \
-                               "🔗 **ANÁLISIS DE ANTICIPOS DE PROVEEDORES Y HONORARIOS:**\n\n" \
+                               "[ANTICIPOS] **ANÁLISIS DE ANTICIPOS DE PROVEEDORES Y HONORARIOS:**\n\n" \
                                "Si el JSON incluye una sección 'analisis_anticipos_proveedores', úsala como evidencia PRIORITARIA para:\n" \
                                "1. **Validar relaciones entre anticipos y cuentas por pagar** por RUT y monto\n" \
                                "2. **Identificar anticipos no aplicados** o mal aplicados\n" \
@@ -948,7 +948,7 @@ class BalanceService:
             # Combinar prompt con datos
             prompt_completo = f"{prompt_analisis}\n\n```json\n{balance_json_str}\n```"
 
-            print(f"📄 Enviando balance a IA: {len(balance_data.get('cuentas_detalle', []))} cuentas")
+            print(f"[ENVIO] Enviando balance a IA: {len(balance_data.get('cuentas_detalle', []))} cuentas")
             print(f" PERÍODO ENVIADO A IA - Inicio: {metadata.get('periodo_inicio')}, Fin: {metadata.get('periodo_fin')}")
             print(f" EMPRESA ENVIADA A IA: {metadata.get('nombre_empresa')}")
 
@@ -1657,7 +1657,7 @@ class BalanceService:
             analisis_por_cuenta = {}  # Diccionario para guardar análisis por cuenta
 
             if incluir_analisis_ia:
-                print("🤖 Obteniendo análisis de IA...")
+                print("[IA] Obteniendo análisis de IA...")
                 resultado_ia = BalanceService.analizar_balance_con_ia(
                     balance_data=balance_data,
                     metadata=metadata
