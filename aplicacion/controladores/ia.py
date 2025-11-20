@@ -59,10 +59,20 @@ def probar_conexion_gemini():
 @requiere_modulo('ia')
 def generar_balance_empresa():
     """Generar balance de 8 columnas para una empresa específica - Accesible para todos los usuarios"""
+    import sys
+    import logging
+    logger = logging.getLogger('aplicacion_root')
+
     try:
+        logger.info("[INICIO] Endpoint /ia/generar-balance llamado")
+        print("[INICIO] Endpoint /ia/generar-balance llamado", file=sys.stderr, flush=True)
+
         datos = request.get_json()
+        logger.info(f"[DATOS] Datos recibidos: {datos}")
+        print(f"[DATOS] Datos recibidos: {datos}", file=sys.stderr, flush=True)
 
         if not datos:
+            logger.error("[ERROR] No se proporcionaron datos")
             return jsonify({
                 'estado': 'error',
                 'mensaje': 'No se proporcionaron datos'
@@ -75,29 +85,43 @@ def generar_balance_empresa():
         mes_fin = datos.get('mes_fin', 8)
 
         if not empresa_rut:
+            logger.error("[ERROR] empresa_rut no proporcionado")
             return jsonify({
                 'estado': 'error',
                 'mensaje': 'empresa_rut es requerido'
             }), 400
 
-        print(f"[BALANCE] Generando balance: RUT={empresa_rut}, Período={anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}")
+        logger.info(f"[BALANCE] Generando balance: RUT={empresa_rut}, Periodo={anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}")
+        print(f"[BALANCE] Generando balance: RUT={empresa_rut}, Periodo={anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}", file=sys.stderr, flush=True)
 
         # Importar el servicio de balance
+        logger.info("[IMPORT] Importando servicio de balance")
+        print("[IMPORT] Importando servicio de balance", file=sys.stderr, flush=True)
         from aplicacion.servicios.servicio_balance_ia import balance_service
 
         # Formatear períodos a YYYYMM
+        logger.info(f"[FORMATO] Formateando periodos: {anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}")
+        print(f"[FORMATO] Formateando periodos: {anio_inicio}/{mes_inicio} - {anio_fin}/{mes_fin}", file=sys.stderr, flush=True)
         periodo_inicio = balance_service.formatear_periodo(anio_inicio, mes_inicio)
         periodo_fin = balance_service.formatear_periodo(anio_fin, mes_fin)
+        logger.info(f"[FORMATO] Periodos formateados: {periodo_inicio} - {periodo_fin}")
 
         # Obtener nombre de la empresa
+        logger.info(f"[EMPRESA] Obteniendo nombre para RUT: {empresa_rut}")
+        print(f"[EMPRESA] Obteniendo nombre para RUT: {empresa_rut}", file=sys.stderr, flush=True)
         nombre_empresa = balance_service.obtener_nombre_empresa(empresa_rut)
+        logger.info(f"[EMPRESA] Nombre obtenido: {nombre_empresa}")
 
         # Generar el balance
+        logger.info(f"[GENERANDO] Llamando a generar_balance_8_columnas")
+        print(f"[GENERANDO] Llamando a generar_balance_8_columnas", file=sys.stderr, flush=True)
         resultado = balance_service.generar_balance_8_columnas(
             empresa_rut=empresa_rut,
             periodo_inicio=periodo_inicio,
             periodo_fin=periodo_fin
         )
+        logger.info(f"[RESULTADO] Balance generado, success={resultado.get('success')}")
+        print(f"[RESULTADO] Balance generado, success={resultado.get('success')}", file=sys.stderr, flush=True)
 
         if resultado.get('success'):
             # Agregar información adicional
@@ -127,9 +151,15 @@ def generar_balance_empresa():
             }), 500
 
     except Exception as e:
+        import sys
+        import logging
+        logger = logging.getLogger('aplicacion_root')
+
         error_completo = traceback.format_exc()
-        print(f"Error en generar_balance_empresa: {e}")
-        print(f"Traceback completo:\n{error_completo}")
+        logger.error(f"[ERROR CRITICO] Error en generar_balance_empresa: {e}")
+        logger.error(f"[TRACEBACK] {error_completo}")
+        print(f"[ERROR CRITICO] Error en generar_balance_empresa: {e}", file=sys.stderr, flush=True)
+        print(f"[TRACEBACK] {error_completo}", file=sys.stderr, flush=True)
 
         return jsonify({
             'estado': 'error',
