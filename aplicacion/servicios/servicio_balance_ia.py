@@ -47,30 +47,48 @@ class BalanceService:
             # Usar la base de datos del usuario actual o la configurada por defecto
             db_name = base_datos_usuario or Config.DB_NAME
             print(f"[BD] Base de datos a usar: {db_name}", file=sys.stderr, flush=True)
-            print(f"[BD] Config - Host: {Config.REMOTE_DB_HOST}, Port: {Config.REMOTE_DB_PORT}, User: {Config.REMOTE_DB_USER}", file=sys.stderr, flush=True)
+            print(f"[BD] Config - Host: {Config.DB_HOST} (LOCAL), Port: {Config.DB_PORT}, User: {Config.DB_USER}", file=sys.stderr, flush=True)
 
-            # Conectar a BD para obtener info de empresa (incluyendo base_datos)
-            print(f"[CONEXION] Intentando conectar a {Config.REMOTE_DB_HOST}:{Config.REMOTE_DB_PORT}/{db_name}...", file=sys.stderr, flush=True)
+            # IMPORTANTE: Conectar a BD LOCAL para obtener info de empresa
+            # Esta es la primera conexión - a la BD de gestión (localhost)
+            print(f"[CONEXION] Intentando conectar a {Config.DB_HOST}:{Config.DB_PORT}/{db_name} (LOCALHOST)...", file=sys.stderr, flush=True)
             connection = pymysql.connect(
-                host=Config.REMOTE_DB_HOST,
-                user=Config.REMOTE_DB_USER,
-                password=Config.REMOTE_DB_PASSWORD,
+                host=Config.DB_HOST,          # localhost
+                user=Config.DB_USER,          # Usuario local
+                password=Config.DB_PASSWORD,  # Password local
                 database=db_name,
-                port=Config.REMOTE_DB_PORT,
+                port=Config.DB_PORT,          # 3306 local
                 charset='utf8',
                 connect_timeout=5,
                 read_timeout=10,
                 autocommit=True
             )
-            print(f"[CONEXION] ✓ Conectado exitosamente a {db_name}", file=sys.stderr, flush=True)
+            print(f"[CONEXION] ✓ Conectado exitosamente a {db_name} en LOCALHOST", file=sys.stderr, flush=True)
 
             with connection.cursor(pymysql.cursors.DictCursor) as cursor:
-                consulta_sql = """
-                    SELECT empresa, base_datos, correo, grupo, auditor as quien_registra
+                # Primero, verificar qué columnas tiene la tabla empresas
+                print(f"[VERIFICACION] Verificando estructura de tabla empresas...", file=sys.stderr, flush=True)
+                cursor.execute("DESCRIBE empresas")
+                columnas_disponibles = [col['Field'] for col in cursor.fetchall()]
+                print(f"[VERIFICACION] Columnas disponibles: {columnas_disponibles}", file=sys.stderr, flush=True)
+
+                # Construir consulta dinámica basada en columnas disponibles
+                columnas_select = ['empresa']
+                if 'base_datos' in columnas_disponibles:
+                    columnas_select.append('base_datos')
+                if 'correo' in columnas_disponibles:
+                    columnas_select.append('correo')
+                if 'grupo' in columnas_disponibles:
+                    columnas_select.append('grupo')
+                if 'auditor' in columnas_disponibles:
+                    columnas_select.append('auditor as quien_registra')
+
+                consulta_sql = f"""
+                    SELECT {', '.join(columnas_select)}
                     FROM empresas
                     WHERE run_rut = %s LIMIT 1
                 """
-                print(f"[CONSULTA] SQL: {consulta_sql}", file=sys.stderr, flush=True)
+                print(f"[CONSULTA] SQL construida: {consulta_sql}", file=sys.stderr, flush=True)
                 print(f"[CONSULTA] Buscando RUT: '{empresa_rut}' en BD: {db_name}", file=sys.stderr, flush=True)
 
                 # Intentar con el RUT tal cual viene
@@ -98,12 +116,19 @@ class BalanceService:
                     # Si no encuentra, buscar similares para debug
                     print(f"\n[ERROR] ❌ No se encontró empresa con ningún formato de RUT", file=sys.stderr, flush=True)
                     print(f"[DEBUG] Buscando empresas similares...", file=sys.stderr, flush=True)
-                    cursor.execute("SELECT run_rut, empresa, base_datos FROM empresas WHERE run_rut LIKE %s OR run_rut LIKE %s LIMIT 10",
+
+                    # Ajustar consulta de búsqueda según columnas disponibles
+                    columnas_busqueda = ['run_rut', 'empresa']
+                    if 'base_datos' in columnas_disponibles:
+                        columnas_busqueda.append('base_datos')
+
+                    cursor.execute(f"SELECT {', '.join(columnas_busqueda)} FROM empresas WHERE run_rut LIKE %s OR run_rut LIKE %s LIMIT 10",
                                    (f"%{empresa_rut.replace('-', '')}%", f"%{empresa_rut}%"))
                     similares = cursor.fetchall()
                     print(f"[DEBUG] Empresas similares: {len(similares)} encontradas", file=sys.stderr, flush=True)
                     for sim in similares:
-                        print(f"  → RUT: '{sim['run_rut']}', Empresa: {sim['empresa']}, BD: {sim.get('base_datos')}", file=sys.stderr, flush=True)
+                        bd_info = f", BD: {sim.get('base_datos')}" if 'base_datos' in sim else ""
+                        print(f"  → RUT: '{sim['run_rut']}', Empresa: {sim['empresa']}{bd_info}", file=sys.stderr, flush=True)
 
                     # Listar todas las empresas si no hay muchas
                     cursor.execute("SELECT COUNT(*) as total FROM empresas")
@@ -111,14 +136,24 @@ class BalanceService:
                     print(f"\n[DEBUG] Total de empresas en BD '{db_name}': {total['total'] if total else 0}", file=sys.stderr, flush=True)
 
                     if total and total['total'] <= 20:
-                        cursor.execute("SELECT run_rut, empresa, base_datos FROM empresas LIMIT 20")
+                        cursor.execute(f"SELECT {', '.join(columnas_busqueda)} FROM empresas LIMIT 20")
                         todas = cursor.fetchall()
                         print(f"[DEBUG] Listado completo de empresas en BD:", file=sys.stderr, flush=True)
                         for emp in todas:
-                            print(f"  → RUT: '{emp['run_rut']}', Empresa: {emp['empresa']}, BD: {emp.get('base_datos')}", file=sys.stderr, flush=True)
+                            bd_info = f", BD: {emp.get('base_datos')}" if 'base_datos' in emp else ""
+                            print(f"  → RUT: '{emp['run_rut']}', Empresa: {emp['empresa']}{bd_info}", file=sys.stderr, flush=True)
                 else:
                     print(f"\n[EXITO] ✓ Empresa encontrada: {empresa_info.get('empresa')}", file=sys.stderr, flush=True)
-                    print(f"[EXITO] ✓ Base de datos empresa: {empresa_info.get('base_datos')}", file=sys.stderr, flush=True)
+
+                    # Si no tiene base_datos, construirla a partir del RUT
+                    if 'base_datos' not in empresa_info or not empresa_info.get('base_datos'):
+                        # Construir nombre de BD: d + RUT sin guión (ej: d77855679)
+                        rut_sin_guion = empresa_rut.replace('-', '')
+                        base_datos_calculada = f"d{rut_sin_guion}"
+                        empresa_info['base_datos'] = base_datos_calculada
+                        print(f"[INFO] ⚠ Columna 'base_datos' no existe o está vacía. Calculada: {base_datos_calculada}", file=sys.stderr, flush=True)
+                    else:
+                        print(f"[EXITO] ✓ Base de datos empresa: {empresa_info.get('base_datos')}", file=sys.stderr, flush=True)
 
                 if empresa_info:
                     # Guardar en cache SOLO si base_datos tiene valor válido
