@@ -143,10 +143,17 @@ def generar_balance_empresa():
                 'timestamp': datetime.now().isoformat()
             })
         else:
+            error_msg = resultado.get('error', 'Error generando balance')
+            error_traceback = resultado.get('traceback', 'No traceback disponible')
+            logger.error(f"[ERROR] Balance falló: {error_msg}")
+            logger.error(f"[TRACEBACK] {error_traceback}")
+            print(f"[ERROR] Balance falló: {error_msg}", file=sys.stderr, flush=True)
+            print(f"[TRACEBACK] {error_traceback}", file=sys.stderr, flush=True)
+            
             return jsonify({
                 'estado': 'error',
-                'mensaje': resultado.get('error', 'Error generando balance'),
-                'detalles': resultado.get('traceback'),
+                'mensaje': error_msg,
+                'detalles': error_traceback,
                 'timestamp': datetime.now().isoformat()
             }), 500
 
