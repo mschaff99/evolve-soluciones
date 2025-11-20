@@ -141,7 +141,7 @@ Sesiones previas cerradas: 2
 4. **`aplicacion/utilidades/manejadores_errores.py`**
    - `log_error_csrf_detallado()` en manejador de CSRFError
 
-## 🔍 Diagnóstico de Problemas
+##  Diagnóstico de Problemas
 
 ### Problema: Usuario con navegador bloqueado
 

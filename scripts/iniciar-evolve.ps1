@@ -8,7 +8,7 @@ Write-Host ""
 # Cambiar al directorio del proyecto
 Set-Location "C:\Users\Administrator\Desktop\evolve-soluciones"
 
-Write-Host "⚡ Iniciando aplicación Flask..." -ForegroundColor Green
+Write-Host " Iniciando aplicación Flask..." -ForegroundColor Green
 Start-Process -FilePath "python" -ArgumentList "aplicacion.py" -WindowStyle Normal
 
 Write-Host "⏳ Esperando 8 segundos para que Flask inicie..." -ForegroundColor Yellow

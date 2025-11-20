@@ -104,7 +104,7 @@ def main():
     rut = sys.argv[1]
 
     print("\n" + "="*70)
-    print(f"🔍 VERIFICACIÓN: Dónde están los datos de {rut}")
+    print(f" VERIFICACIÓN: Dónde están los datos de {rut}")
     print("="*70 + "\n")
 
     # Bases de datos a verificar
@@ -133,7 +133,7 @@ def main():
             else:
                 print(f"   📅 Sin datos")
         else:
-            print(f"   ❌ {resultado['error']}")
+            print(f"   {resultado['error']}")
 
         print()
 
@@ -148,7 +148,7 @@ def main():
             bases_con_datos.append(nombre_db)
 
     if not bases_con_datos:
-        print("❌ NO se encontraron datos en ninguna base de datos")
+        print("NO se encontraron datos en ninguna base de datos")
         print(f"\nPosibles causas:")
         print(f"1. El proceso GCI no se ejecutó correctamente")
         print(f"2. El RUT {rut} no tiene datos")

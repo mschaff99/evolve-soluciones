@@ -195,7 +195,7 @@ Get-Service -Name "EvolveWaitress" | Select-Object Status, DisplayName
   - Revisar velocidad de internet
   - Verificar performance del sitio SII
 
-## 🔍 Troubleshooting
+##  Troubleshooting
 
 ### Proceso sigue haciendo timeout
 1. Verificar logs en `logs/gci_*.log`

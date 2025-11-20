@@ -57,7 +57,7 @@ def verificar_imports():
         print("✅ aplicacion.utilidades.logging_detallado")
     except Exception as e:
         imports_fallidos.append(f"logging_detallado: {e}")
-        print(f"❌ aplicacion.utilidades.logging_detallado: {e}")
+        print(f"aplicacion.utilidades.logging_detallado: {e}")
 
     # Test 2: aplicacion principal
     try:
@@ -84,7 +84,7 @@ def verificar_imports():
             print("⚠️  Carpeta logs/ no creada aún (se creará al ejecutar la app)")
     except Exception as e:
         imports_fallidos.append(f"aplicacion: {e}")
-        print(f"❌ aplicacion.crear_aplicacion: {e}")
+        print(f"aplicacion.crear_aplicacion: {e}")
 
     return len(imports_fallidos) == 0
 
@@ -116,7 +116,7 @@ def verificar_funciones():
 
         return True
     except Exception as e:
-        print(f"❌ Error en verificación de funciones: {e}")
+        print(f"Error en verificación de funciones: {e}")
         return False
 
 
@@ -163,7 +163,7 @@ def verificar_rutas():
 
         return todas_ok
     except Exception as e:
-        print(f"❌ Error verificando rutas: {e}")
+        print(f"Error verificando rutas: {e}")
         return False
 
 

@@ -21,7 +21,7 @@
 #### Comportamiento Problemático
 
 ```python
-# ❌ ANTES - Dependía del directorio de trabajo actual
+# ANTES - Dependía del directorio de trabajo actual
 logs_dir = os.getcwd()  # Puede ser diferente según cómo se ejecute la app
 ```
 
@@ -36,7 +36,7 @@ logs_dir = os.getcwd()  # Puede ser diferente según cómo se ejecute la app
 - `os.getcwd()` en Flask → Podría ser `C:\Windows\System32\` o cualquier otro
 - Logs generados en: `C:\Users\Administrator\Desktop\evolve-soluciones\logs\`
 - Logs buscados en: `C:\Windows\System32\logs\` ❌
-- ❌ **Fallaba** porque buscaba en el directorio incorrecto
+- **Fallaba** porque buscaba en el directorio incorrecto
 
 ---
 
@@ -77,7 +77,7 @@ evolve-soluciones/                     ← dir_base (lo que queremos)
 ```python
 def _ejecutar_gci_opcion(opcion: int, rut: str, password: str, base_datos: str) -> None:
     ahora = datetime.now().strftime("%Y%m%d-%H%M%S")
-    logs_dir = os.path.join(os.getcwd(), "logs")  # ❌ CWD dependiente
+    logs_dir = os.path.join(os.getcwd(), "logs")  # CWD dependiente
     os.makedirs(logs_dir, exist_ok=True)
     log_path = os.path.join(logs_dir, f"gci_opcion{opcion}_{rut}_{ahora}.log")
 ```
@@ -106,7 +106,7 @@ def api_gci_status(base_datos, rut):
     import os
 
     try:
-        logs_dir = os.path.join(os.getcwd(), 'logs')  # ❌ CWD dependiente
+        logs_dir = os.path.join(os.getcwd(), 'logs')  # CWD dependiente
         resultado = {
             'op1': {'exists': False, 'finished': False, 'log': ''},
             'op3': {'exists': False, 'finished': False, 'log': ''}
@@ -199,10 +199,10 @@ Get-Content (Get-ChildItem .\logs\gci_opcion*.log -Recurse | Sort-Object LastWri
 ## 📊 Impacto del Fix
 
 ### Antes del Fix
-- ❌ 100% de fallas en producción para detección de procesos GCI
-- ❌ Modal siempre mostraba "Sin procesos activos"
-- ❌ Imposible saber el progreso real del proceso
-- ❌ Logs generados pero nunca leídos
+- 100% de fallas en producción para detección de procesos GCI
+- Modal siempre mostraba "Sin procesos activos"
+- Imposible saber el progreso real del proceso
+- Logs generados pero nunca leídos
 
 ### Después del Fix
 - ✅ Detección correcta en desarrollo Y producción
@@ -214,7 +214,7 @@ Get-Content (Get-ChildItem .\logs\gci_opcion*.log -Recurse | Sort-Object LastWri
 
 ## 📝 Lecciones Aprendidas
 
-### ❌ No Usar
+### No Usar
 ```python
 os.getcwd()  # Depende del CWD al ejecutar
 os.path.abspath('.')  # Igual que getcwd()

@@ -86,6 +86,7 @@ def registrar_blueprints(aplicacion):
     from aplicacion.controladores.empresas import empresas_bp
     from aplicacion.controladores.erp_audisoft import erp_audisoft_bp
     from aplicacion.controladores.situacion_tributaria import situacion_tributaria_bp
+    from aplicacion.controladores.ia import ia_bp
 
     # Importaciones comentadas - controladores pendientes de crear
     # from aplicacion.controladores.consolidado import consolidado_bp
@@ -103,6 +104,7 @@ def registrar_blueprints(aplicacion):
     aplicacion.register_blueprint(empresas_bp)
     aplicacion.register_blueprint(erp_audisoft_bp)
     aplicacion.register_blueprint(situacion_tributaria_bp)
+    aplicacion.register_blueprint(ia_bp)
 
     # Registros comentados - blueprints pendientes de crear
     # aplicacion.register_blueprint(consolidado_bp)
@@ -137,6 +139,33 @@ def registrar_context_processors(aplicacion):
         return dict(
             current_user=current_user,
             current_year=datetime.now().year
+        )
+
+    @aplicacion.context_processor
+    def inyectar_modulos_disponibles():
+        """
+        Inyecta los módulos habilitados para la BD del usuario actual
+        Permite mostrar/ocultar opciones de menú dinámicamente
+        """
+        from aplicacion.modelos.modulo import Modulo
+
+        modulos_usuario = []
+        tiene_modulo_ia = False
+
+        if current_user.is_authenticated:
+            try:
+                base_datos = current_user.base_datos_mysql
+                if base_datos:
+                    # Obtener módulos habilitados para la BD del usuario
+                    modulos_usuario = Modulo.obtener_modulos_habilitados_bd(base_datos)
+                    # Verificar específicamente si tiene acceso a IA
+                    tiene_modulo_ia = Modulo.verificar_modulo_habilitado(base_datos, 'ia')
+            except Exception as e:
+                print(f"Error obteniendo módulos disponibles: {e}")
+
+        return dict(
+            modulos_disponibles=modulos_usuario,
+            tiene_modulo_ia=tiene_modulo_ia
         )
 
 

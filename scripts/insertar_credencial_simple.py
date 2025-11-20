@@ -36,25 +36,25 @@ def insertar_credencial_interactiva(base_datos: str = 'stratex'):
     print("=" * 80)
     print(f"🗄️  Base de datos: {base_datos}")
     print()
-    
+
     # Solicitar RUT
     rut = input("📋 Ingrese el RUT (formato: XX.XXX.XXX-X o XXXXXXXX-X): ").strip()
     if not rut:
-        print("❌ RUT requerido")
+        print("RUT requerido")
         return False
-    
+
     print()
-    
+
     # Inicializar servicio
     try:
         servicio = ServicioEmpresas(base_datos=base_datos)
         print(f"✅ Conectado a base de datos: {base_datos}")
     except Exception as e:
-        print(f"❌ Error conectando a base de datos: {e}")
+        print(f"Error conectando a base de datos: {e}")
         return False
-    
+
     print()
-    
+
     # Verificar si ya existe
     try:
         credencial_existente = servicio.verificar_credencial_existe(rut)
@@ -63,40 +63,40 @@ def insertar_credencial_interactiva(base_datos: str = 'stratex'):
             print(f"   📅 Fecha creación: {credencial_existente.get('fecha_creacion', 'N/A')}")
             print(f"   📅 Última actualización: {credencial_existente.get('fecha_actualizacion', 'N/A')}")
             print()
-            
+
             respuesta = input("¿Deseas ACTUALIZAR la contraseña? (s/n): ").strip().lower()
             if respuesta not in ['s', 'si', 'sí', 'y', 'yes']:
-                print("❌ Operación cancelada")
+                print("Operación cancelada")
                 return False
             print()
     except Exception as e:
         # Si no existe el método, continuar sin verificar
         pass
-    
+
     # Solicitar contraseña
     password = getpass.getpass("🔑 Ingrese la contraseña del SII: ").strip()
     if not password:
-        print("❌ Contraseña requerida")
+        print("Contraseña requerida")
         return False
-    
+
     password2 = getpass.getpass("🔑 Confirme la contraseña: ").strip()
     if password != password2:
-        print("❌ Las contraseñas no coinciden")
+        print("Las contraseñas no coinciden")
         return False
-    
+
     print()
     print(f"💾 Guardando credencial para {rut} con encriptación reversible (Fernet)...")
-    
+
     # Guardar con encriptación reversible
     try:
         if servicio.guardar_credencial_sii(rut, password):
             print("✅ Credencial guardada exitosamente")
             print()
-            
+
             # Verificar que se puede desencriptar
-            print("🔍 Verificando que se puede desencriptar...")
+            print(" Verificando que se puede desencriptar...")
             password_recuperada = servicio.obtener_credencial_sii_desencriptada(rut)
-            
+
             if password_recuperada:
                 if password_recuperada == password:
                     print("✅ Verificación exitosa - La contraseña se puede recuperar correctamente")
@@ -119,11 +119,11 @@ def insertar_credencial_interactiva(base_datos: str = 'stratex'):
                 print("💡 Posible causa: La contraseña está con bcrypt (no reversible)")
                 return False
         else:
-            print("❌ Error guardando credencial")
+            print("Error guardando credencial")
             return False
-            
+
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -139,16 +139,16 @@ def insertar_credencial_argumentos(rut: str, password: str, base_datos: str = 's
     print(f"📋 RUT: {rut}")
     print(f"🔑 Password: {'*' * len(password)}")
     print()
-    
+
     try:
         servicio = ServicioEmpresas(base_datos=base_datos)
         print(f"✅ Conectado a base de datos: {base_datos}")
     except Exception as e:
-        print(f"❌ Error conectando a base de datos: {e}")
+        print(f"Error conectando a base de datos: {e}")
         return False
-    
+
     print()
-    
+
     # Verificar si ya existe
     try:
         credencial_existente = servicio.verificar_credencial_existe(rut)
@@ -157,18 +157,18 @@ def insertar_credencial_argumentos(rut: str, password: str, base_datos: str = 's
             print()
     except:
         pass
-    
+
     print(f"💾 Guardando credencial...")
-    
+
     try:
         if servicio.guardar_credencial_sii(rut, password):
             print("✅ Credencial guardada exitosamente")
             print()
-            
+
             # Verificar
-            print("🔍 Verificando...")
+            print(" Verificando...")
             password_recuperada = servicio.obtener_credencial_sii_desencriptada(rut)
-            
+
             if password_recuperada and password_recuperada == password:
                 print("✅ Verificación exitosa")
                 print()
@@ -180,11 +180,11 @@ def insertar_credencial_argumentos(rut: str, password: str, base_datos: str = 's
                 print("⚠️  Verificación falló")
                 return False
         else:
-            print("❌ Error guardando credencial")
+            print("Error guardando credencial")
             return False
-            
+
     except Exception as e:
-        print(f"❌ Error: {e}")
+        print(f"Error: {e}")
         import traceback
         traceback.print_exc()
         return False
@@ -201,7 +201,7 @@ Ejemplos:
   %(prog)s --base-datos evolve                  # Usar BD evolve
         """
     )
-    
+
     parser.add_argument(
         '--rut', '-r',
         type=str,
@@ -218,19 +218,19 @@ Ejemplos:
         default='stratex',
         help='Base de datos MySQL a usar (default: stratex)'
     )
-    
+
     args = parser.parse_args()
-    
+
     # Si hay argumentos, usarlos
     if args.rut and args.password:
         return 0 if insertar_credencial_argumentos(args.rut, args.password, args.base_datos) else 1
-    
+
     # Si falta alguno, ir a modo interactivo
     if args.rut or args.password:
         print("⚠️  Si usas --rut también necesitas --password (o viceversa)")
         print("💡 Ejecuta sin argumentos para modo interactivo")
         return 1
-    
+
     # Modo interactivo
     return 0 if insertar_credencial_interactiva(args.base_datos) else 1
 

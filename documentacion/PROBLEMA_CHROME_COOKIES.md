@@ -8,7 +8,7 @@
 
 ---
 
-## 🔍 Sistema de Diagnóstico Implementado
+##  Sistema de Diagnóstico Implementado
 
 ### 1. **Logging Detallado** (`aplicacion/utilidades/logging_detallado.py`)
 

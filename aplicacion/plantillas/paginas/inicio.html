@@ -251,6 +251,30 @@
                             </a>
                         </div>
                         {% endif %}
+
+                        <!-- Agente IA (solo si tiene permisos) -->
+                        {% if tiene_modulo_ia %}
+                        <div class="col-md-3">
+                            <a href="/ia/dashboard" class="quick-access-btn">
+                                <div class="quick-access-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <span class="quick-access-text">Agente IA</span>
+                                <span class="badge bg-warning ms-2" style="font-size: 0.65rem;">PRO</span>
+                                <i class="fas fa-arrow-right quick-access-arrow"></i>
+                            </a>
+                        </div>
+                        {% else %}
+                        <div class="col-md-3">
+                            <div class="quick-access-btn disabled" style="cursor: not-allowed; opacity: 0.6;">
+                                <div class="quick-access-icon" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">
+                                    <i class="fas fa-brain"></i>
+                                </div>
+                                <span class="quick-access-text">Agente IA</span>
+                                <span class="badge bg-secondary ms-2" style="font-size: 0.7rem;">No disponible</span>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </div>

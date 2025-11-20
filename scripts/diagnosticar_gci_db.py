@@ -19,14 +19,14 @@ from pathlib import Path
 def diagnosticar_config_actual():
     """Muestra la configuración actual de .env"""
     print("\n" + "="*60)
-    print("🔍 DIAGNÓSTICO: Configuración Actual")
+    print(" DIAGNÓSTICO: Configuración Actual")
     print("="*60 + "\n")
 
     # Leer .env del proyecto
     env_file = Path(__file__).parent.parent / '.env'
 
     if not env_file.exists():
-        print(f"❌ No se encontró archivo .env en: {env_file}")
+        print(f"No se encontró archivo .env en: {env_file}")
         return
 
     print(f"✅ Archivo .env encontrado: {env_file}\n")
@@ -43,7 +43,7 @@ def diagnosticar_config_actual():
 def diagnosticar_gci_config():
     """Verifica la configuración del script GCI"""
     print("\n" + "="*60)
-    print("🔍 DIAGNÓSTICO: Configuración de GCI")
+    print(" DIAGNÓSTICO: Configuración de GCI")
     print("="*60 + "\n")
 
     # Rutas posibles del GCI
@@ -59,7 +59,7 @@ def diagnosticar_gci_config():
             break
 
     if not dir_gci:
-        print("❌ No se encontró el directorio de GCI")
+        print("No se encontró el directorio de GCI")
         print(f"   Rutas buscadas: {rutas_gci}")
         return
 
@@ -87,7 +87,7 @@ def diagnosticar_gci_config():
         'database/config.py'
     ]
 
-    print("🔍 Buscando archivos de configuración...\n")
+    print(" Buscando archivos de configuración...\n")
     for config_file in config_files:
         config_path = Path(dir_gci) / config_file
         if config_path.exists():
@@ -104,7 +104,7 @@ def diagnosticar_gci_config():
                         if 'DB_NAME' in line and not line.strip().startswith('#'):
                             print(f"         {line.strip()}")
         else:
-            print(f"   ❌ No encontrado: {config_file}")
+            print(f"   No encontrado: {config_file}")
 
     print()
 

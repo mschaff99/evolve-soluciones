@@ -24,7 +24,7 @@ Esto sobrescribe la variable `DB_NAME` del `.env` **solo para el proceso hijo** 
 
 El script `Gestion-Consulta-Integral/main.py` **debe estar configurado** para leer la base de datos desde variables de entorno.
 
-#### ❌ INCORRECTO (hardcodeado):
+#### INCORRECTO (hardcodeado):
 ```python
 # NO HACER ESTO:
 DB_NAME = "stratex"  # ⛔ Siempre usa stratex
@@ -78,8 +78,8 @@ Dentro del script GCI, agrega logging para verificar:
 ```python
 import logging
 
-logging.info(f"🔍 Conectando a base de datos: {DB_NAME}")
-logging.info(f"🔍 Host: {DB_HOST}, User: {DB_USER}")
+logging.info(f" Conectando a base de datos: {DB_NAME}")
+logging.info(f" Host: {DB_HOST}, User: {DB_USER}")
 ```
 
 ### 3. **Test con múltiples bases de datos**
@@ -176,7 +176,7 @@ def get_mysql_connection():
     except Exception as e:
         import logging
         logger = logging.getLogger(__name__)
-        logger.error(f"❌ Error conectando a BD: {e}")
+        logger.error(f"Error conectando a BD: {e}")
         logger.error(f"   Parámetros intentados: {DatabaseConfig.get_connection_params()}")
         raise
 ```

@@ -25,7 +25,7 @@ foreach ($ruta in $rutas_gci) {
 }
 
 if (-not $dir_gci) {
-    Write-Host "❌ ERROR: No se encontró GCI en ninguna ruta:" -ForegroundColor Red
+    Write-Host "ERROR: No se encontró GCI en ninguna ruta:" -ForegroundColor Red
     $rutas_gci | ForEach-Object { Write-Host "   - $_" }
     Write-Host "Define la variable de entorno GCI_PATH si está en otra ubicación" -ForegroundColor Yellow
     exit 1
@@ -47,7 +47,7 @@ foreach ($venv_py in $venv_paths) {
 }
 
 if (-not $python_gci) {
-    Write-Host "❌ ERROR: No se encontró venv de GCI en:" -ForegroundColor Red
+    Write-Host "ERROR: No se encontró venv de GCI en:" -ForegroundColor Red
     $venv_paths | ForEach-Object { Write-Host "   - $_" }
     Write-Host "Asegúrate de que GCI tiene un entorno virtual activado" -ForegroundColor Yellow
     exit 1
@@ -65,7 +65,7 @@ Push-Location $dir_gci
 try {
     # Ejecutar playwright install
     & $python_gci -m playwright install
-    
+
     if ($LASTEXITCODE -eq 0) {
         Write-Host ""
         Write-Host "✅ Playwright instalado exitosamente" -ForegroundColor Green
@@ -75,13 +75,13 @@ try {
     }
     else {
         Write-Host ""
-        Write-Host "❌ Error durante la instalación de Playwright" -ForegroundColor Red
+        Write-Host "Error durante la instalación de Playwright" -ForegroundColor Red
         Write-Host "Exit code: $LASTEXITCODE" -ForegroundColor Red
         exit 1
     }
 }
 catch {
-    Write-Host "❌ Excepción: $_" -ForegroundColor Red
+    Write-Host "Excepción: $_" -ForegroundColor Red
     exit 1
 }
 finally {

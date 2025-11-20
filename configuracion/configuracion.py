@@ -62,7 +62,7 @@ class ConfiguracionBase:
     DB_PORT = int(os.getenv('DB_PORT', 3306))
 
     # Configuración de base de datos remota (para consolidados)
-    REMOTE_DB_HOST = os.getenv('REMOTE_DB_HOST', '192.168.0.2')
+    REMOTE_DB_HOST = os.getenv('REMOTE_DB_HOST', '186.64.113.136')
     REMOTE_DB_USER = os.getenv('REMOTE_DB_USER', 'audytax')
     REMOTE_DB_PASSWORD = os.getenv('REMOTE_DB_PASSWORD', '2904')
     REMOTE_DB_NAME = os.getenv('REMOTE_DB_NAME', 'evolve')
@@ -158,3 +158,12 @@ def obtener_configuracion(nombre_entorno=None):
         nombre_entorno = os.getenv('FLASK_ENV', 'desarrollo')
 
     return configuraciones.get(nombre_entorno, configuraciones['default'])
+
+
+
+    # ================================================================
+    # GOOGLE GEMINI AI
+    # ================================================================
+    GEMINI_API_KEY = os.getenv('GEMINI_API_KEY', '')
+    GEMINI_MODEL = os.getenv('GEMINI_MODEL', 'gemini-2.5-pro')
+    GEMINI_API_URL = 'https://generativelanguage.googleapis.com/v1beta/models'

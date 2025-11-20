@@ -16,7 +16,7 @@ Este documento describe los diferentes estados que puede tener un período tribu
 | `-` | Guión/neutral | 0 | Gris (`bg-secondary`) | `fa-minus` |
 | `` (vacío) | Vacío/futuro/sin datos | 0 | Transparente (`bg-light`) | `fa-circle` |
 
-## 🔍 Detalles de Cada Estado
+##  Detalles de Cada Estado
 
 ### ✓ OK, Sin Observación
 - **Significado**: El período fue procesado por el SII y no tiene observaciones

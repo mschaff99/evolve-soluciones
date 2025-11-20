@@ -1,0 +1,379 @@
+<!-- Modal para mostrar Balance de 8 Columnas -->
+<div class="modal fade" id="modalBalance" tabindex="-1" aria-labelledby="modalBalanceLabel" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen">
+        <div class="modal-content">
+            <div class="modal-header bg-primary text-white">
+                <h4 class="modal-title" id="modalBalanceLabel">
+                    <i class="fas fa-calculator"></i>
+                    Balance de 8 Columnas
+                </h4>
+                <button type="button" class="btn-close btn-close-white" onclick="cerrarModalBalance()" aria-label="Cerrar"></button>
+            </div>
+            
+            <div class="modal-body p-0">
+                <!-- Loading State -->
+                <div id="balanceLoading" class="text-center p-5" style="display: none;">
+                    <div class="spinner-border text-primary" role="status">
+                        <span class="visually-hidden">Generando balance...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Generando balance contable...</p>
+                </div>
+                
+                <!-- Error State -->
+                <div id="balanceError" class="alert alert-danger m-3" style="display: none;">
+                    <h6><i class="fas fa-exclamation-triangle"></i> Error al generar balance</h6>
+                    <div id="balanceErrorMessage"></div>
+                </div>
+                
+                <!-- Balance Content con layout de 2 columnas -->
+                <div id="balanceContent" style="display: none;">
+                    <!-- Header con información de la empresa -->
+                    <div class="bg-light border-bottom p-3">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <h5 class="mb-1" id="balanceEmpresaNombre">-</h5>
+                                <small class="text-muted">RUT: <span id="balanceEmpresaRut">-</span></small>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <h6 class="mb-1">Período</h6>
+                                <small class="text-muted">
+                                    <span id="balancePeriodoInicio">-</span> a <span id="balancePeriodoFin">-</span>
+                                </small>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Layout de 2 columnas: Balance + Análisis IA -->
+                    <div class="row g-0 h-100">
+                        <!-- Columna izquierda: Balance -->
+                        <div id="balanceColumn" class="col-12 border-end h-100 d-flex flex-column">
+                            <!-- Indicador de scroll -->
+                            <div class="bg-light px-3 py-2 border-bottom d-flex justify-content-between align-items-center">
+                                <small class="text-muted">
+                                    <i class="fas fa-arrows-alt"></i>
+                                    Use scroll horizontal y vertical para ver todo el balance
+                                </small>
+                                <small class="text-muted" id="scrollIndicator">
+                                    <i class="fas fa-mouse"></i>
+                                    Desplázate para ver más cuentas
+                                </small>
+                            </div>
+                            
+                            <!-- Contenedor de tabla con scroll -->
+                            <div class="flex-grow-1" style="position: relative; overflow: hidden;">
+                                <div class="table-responsive h-100" style="overflow-x: auto; overflow-y: auto;">
+                                    <table class="table table-sm table-bordered mb-0" id="tablaBalance" style="min-width: 1200px;">
+                                        <thead class="table-dark sticky-top">
+                                            <tr>
+                                                <th style="min-width: 60px;">Cuenta</th>
+                                                <th style="min-width: 200px;">Nombre</th>
+                                                <th style="min-width: 60px;">Tipo</th>
+                                                <th class="text-end" style="min-width: 100px;">S.I. Deudor</th>
+                                                <th class="text-end" style="min-width: 100px;">S.I. Acreedor</th>
+                                                <th class="text-end" style="min-width: 100px;">Mov. Débitos</th>
+                                                <th class="text-end" style="min-width: 100px;">Mov. Créditos</th>
+                                                <th class="text-end" style="min-width: 100px;">S.F. Activos</th>
+                                                <th class="text-end" style="min-width: 100px;">S.F. Pasivos</th>
+                                                <th class="text-end" style="min-width: 100px;">P&G Pérdida</th>
+                                                <th class="text-end" style="min-width: 100px;">P&G Ganancia</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="balanceTableBody">
+                                            <!-- Se llenará dinámicamente -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Columna derecha: Análisis IA (inicialmente oculta) -->
+                        <div id="analisisColumn" class="col-6 bg-light" style="display: none;">
+                            <div class="h-100 d-flex flex-column">
+                                <!-- Header del análisis -->
+                                <div class="bg-primary text-white p-3 border-bottom">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <h6 class="mb-0">
+                                            <i class="fas fa-brain"></i>
+                                            Análisis IA Profesional
+                                        </h6>
+                                        <button class="btn btn-sm btn-outline-light" onclick="cerrarAnalisisIA()">
+                                            <i class="fas fa-times"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <!-- Loading del análisis IA -->
+                                <div id="analisisLoading" class="flex-grow-1 d-flex align-items-center justify-content-center" style="display: none !important;">
+                                    <div class="text-center">
+                                        <div class="spinner-border text-primary mb-3" role="status">
+                                            <span class="visually-hidden">Analizando...</span>
+                                        </div>
+                                        <p class="text-muted">Analizando balance con IA...</p>
+                                        <small class="text-muted">Esto puede tomar algunos minutos</small>
+                                    </div>
+                                </div>
+                                
+                                <!-- Contenido del análisis IA -->
+                                <div id="analisisContent" class="flex-grow-1 overflow-auto p-4" style="display: none !important;">
+                                    <div id="analisisText" class="ap-typography">
+                                        <!-- Se llenará con el análisis -->
+                                    </div>
+                                </div>
+                                
+                                <!-- Footer del análisis -->
+                                <div id="analisisFooter" class="border-top p-3" style="display: none !important;">
+                                    <button class="btn btn-success btn-sm me-2" onclick="descargarAnalisisDesdeModal()">
+                                        <i class="fas fa-download"></i> Descargar Análisis
+                                    </button>
+                                    <button class="btn btn-outline-secondary btn-sm" onclick="cerrarAnalisisIA()">
+                                        <i class="fas fa-eye-slash"></i> Ocultar Análisis
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="modal-footer">
+                <div class="flex-grow-1">
+                    <small class="text-muted">
+                        Generado el <span id="balanceFechaGeneracion">-</span>
+                    </small>
+                </div>
+                <button type="button" class="btn btn-outline-secondary" onclick="imprimirBalance()">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+                <button type="button" class="btn btn-outline-primary" onclick="exportarBalanceExcel()">
+                    <i class="fas fa-file-excel"></i> Exportar Excel
+                </button>
+                <button type="button" class="btn btn-primary" onclick="analizarBalanceEnModal()">
+                    <i class="fas fa-brain"></i> Analizar con IA
+                </button>
+                <button type="button" class="btn btn-secondary" onclick="cerrarModalBalance()">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+/* Estilos específicos para el modal de balance */
+#modalBalance .modal-dialog {
+    margin: 0.5rem;
+    max-width: 98vw;
+    width: 98vw;
+}
+
+#modalBalance .modal-content {
+    height: 95vh;
+    display: flex;
+    flex-direction: column;
+}
+
+#modalBalance .modal-body {
+    flex: 1;
+    overflow: auto;
+    padding: 0;
+    position: relative;
+}
+
+#modalBalance .table th {
+    background-color: var(--bs-dark) !important;
+    color: white !important;
+    font-size: 0.75rem;
+    vertical-align: middle;
+    text-align: center;
+    padding: 4px 2px;
+    white-space: nowrap;
+}
+
+#modalBalance .table td {
+    font-size: 0.8rem;
+    vertical-align: middle;
+    border: 1px solid #dee2e6;
+    padding: 2px 4px;
+}
+
+#modalBalance .table td.text-end {
+    font-family: 'Courier New', monospace;
+    font-weight: 500;
+    text-align: right;
+}
+
+/* Estilos para filas especiales */
+#modalBalance .balance-sumas {
+    background-color: #f8f9fa !important;
+    font-weight: 600;
+    border-top: 2px solid #6c757d !important;
+}
+
+#modalBalance .balance-resultado {
+    background-color: #e3f2fd !important;
+    font-weight: 600;
+}
+
+#modalBalance .balance-sumas-iguales {
+    background-color: #e8f5e8 !important;
+    font-weight: 700;
+    border-top: 3px solid #28a745 !important;
+    border-bottom: 3px solid #28a745 !important;
+}
+
+/* Scroll mejorado */
+#modalBalance .table-responsive {
+    overflow-x: auto !important;
+    overflow-y: auto !important;
+    max-height: 100% !important;
+    border: 1px solid #dee2e6;
+    border-radius: 0.375rem;
+    position: relative;
+}
+
+/* Scrollbar personalizado más visible */
+#modalBalance .table-responsive::-webkit-scrollbar {
+    width: 12px;
+    height: 12px;
+}
+
+#modalBalance .table-responsive::-webkit-scrollbar-track {
+    background: #f8f9fa;
+    border-radius: 6px;
+    border: 1px solid #e9ecef;
+}
+
+#modalBalance .table-responsive::-webkit-scrollbar-thumb {
+    background: #6c757d;
+    border-radius: 6px;
+    border: 2px solid #f8f9fa;
+}
+
+#modalBalance .table-responsive::-webkit-scrollbar-thumb:hover {
+    background: #495057;
+}
+
+#modalBalance .table-responsive::-webkit-scrollbar-corner {
+    background: #f8f9fa;
+}
+
+/* Asegurar que la tabla tenga un ancho mínimo */
+#modalBalance #tablaBalance {
+    min-width: 1200px !important;
+    width: auto !important;
+}
+
+/* Layout principal */
+#modalBalance .row.g-0 {
+    height: calc(100vh - 160px) !important;
+    min-height: 500px;
+}
+
+/* Valores en cero con menor opacidad */
+#modalBalance .valor-cero {
+    opacity: 0.5;
+    color: #6c757d;
+}
+
+/* Header sticky mejorado */
+#modalBalance .sticky-top {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+/* Responsive para tablas grandes */
+@media (max-width: 1200px) {
+    #modalBalance .table th,
+    #modalBalance .table td {
+        font-size: 0.7rem;
+        padding: 1px 2px;
+    }
+    
+    #modalBalance .table th {
+        min-width: 60px !important;
+    }
+}
+
+/* Estilos para análisis IA */
+#modalBalance #analisisColumn {
+    max-height: 100%;
+    overflow-y: auto;
+}
+
+#modalBalance #analisisContent {
+    font-size: 0.95rem;
+    line-height: 1.6;
+    max-height: calc(100vh - 300px);
+    overflow-y: auto;
+}
+
+/* Scrollbar para análisis IA */
+#modalBalance #analisisContent::-webkit-scrollbar {
+    width: 6px;
+}
+
+#modalBalance #analisisContent::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 3px;
+}
+
+#modalBalance #analisisContent::-webkit-scrollbar-thumb {
+    background: #007bff;
+    border-radius: 3px;
+}
+
+#modalBalance #analisisContent::-webkit-scrollbar-thumb:hover {
+    background: #0056b3;
+}
+
+/* Tipografía y estilo del análisis profesional */
+#modalBalance .ap-typography h3, 
+#modalBalance .ap-typography h4 {
+    font-weight: 700;
+    color: #0d6efd;
+    margin: 0 0 8px 0;
+}
+
+#modalBalance .ap-typography h5.ap-cuenta {
+    font-weight: 700;
+    color: #343a40;
+    margin: 6px 0 6px 0;
+}
+
+#modalBalance .ap-typography .ap-section {
+    font-weight: 800;
+    color: #0d6efd;
+    margin: 10px 0 6px 0;
+    text-transform: uppercase;
+}
+
+#modalBalance .ap-typography p {
+    margin: 0 0 10px 0;
+}
+
+#modalBalance .ap-typography ul {
+    padding-left: 1.2rem;
+    margin: 0 0 10px 0;
+}
+
+#modalBalance .ap-typography li {
+    margin-bottom: 6px;
+}
+
+#modalBalance .ap-typography .ap-sep {
+    border-color: #e9ecef;
+    margin: 12px 0;
+}
+
+#modalBalance .ap-typography .ap-gap {
+    height: 8px;
+}
+
+#modalBalance .ap-typography .ap-label {
+    font-weight: 700;
+    color: #495057;
+}
+</style>
+
+<!-- Las funciones JavaScript ahora están en el archivo principal del dashboard -->

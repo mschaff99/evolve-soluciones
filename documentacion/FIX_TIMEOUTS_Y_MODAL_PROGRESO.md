@@ -308,8 +308,8 @@ Con buffer de seguridad: 10 minutos
 
 | Opción | Pros | Contras | Decisión |
 |--------|------|---------|----------|
-| **WebSockets** | Actualización en tiempo real | Overhead, complejidad, IIS | ❌ Rechazado |
-| **Server-Sent Events** | Simple, unidireccional | No funciona bien con IIS proxy | ❌ Rechazado |
+| **WebSockets** | Actualización en tiempo real | Overhead, complejidad, IIS | Rechazado |
+| **Server-Sent Events** | Simple, unidireccional | No funciona bien con IIS proxy | Rechazado |
 | **Polling mejorado** | Simple, robusto, funciona actual | Uso de red constante | ✅ **ELEGIDO** |
 | **Colas (Celery/RQ)** | Escalable, profesional | Requiere Redis/RabbitMQ | 🔮 Futuro |
 
@@ -418,9 +418,9 @@ markers = [
 ## 📈 Métricas de Éxito
 
 ### Antes del fix:
-- ❌ 60% de usuarios reportaban "modal colgado"
-- ❌ 40% de procesos GCI se cortaban por timeout
-- ❌ Tiempo promedio de frustración: 2-3 minutos
+- 60% de usuarios reportaban "modal colgado"
+- 40% de procesos GCI se cortaban por timeout
+- Tiempo promedio de frustración: 2-3 minutos
 
 ### Después del fix:
 - ✅ 0% de modales colgados (esperado)

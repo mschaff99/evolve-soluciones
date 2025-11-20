@@ -179,7 +179,7 @@ COOKIES ACTUALES:
 - Permite identificar patrones de usuarios afectados
 - Ayuda a diagnosticar si hay un problema mayor
 
-## 🔍 Monitoreo y Diagnóstico
+##  Monitoreo y Diagnóstico
 
 ### Ver usuarios afectados por el problema
 ```bash
