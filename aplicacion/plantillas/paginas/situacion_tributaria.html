@@ -162,7 +162,7 @@
                       <td class="nombre-mes-integrado text-center fw-bold">{{ dj_num }}</td>
                       <td class="ps-4 nombre-mes">
                         <i class="fas fa-file-contract me-2 text-primary"></i>
-                        <strong>{{ encontrado.titulo | default(encontrado.descripcion | default('Sin descripción')) }}</strong>
+                        <strong>{{ encontrado.titulo if encontrado and encontrado.titulo else 'Sin descripción' }}</strong>
                       </td>
 
                       {% for anio in datos.dj.resumen_anual.keys()|sort(reverse=true) %}
