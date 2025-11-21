@@ -127,6 +127,69 @@
 }
 
 /* ============================================
+   CAROUSEL CON ALTURA FIJA Y SCROLL
+   ============================================ */
+#dashboardCarousel {
+  height: 100%;
+}
+
+#dashboardCarousel .carousel-inner {
+  height: 600px;
+  /* Altura fija para el carousel */
+}
+
+#dashboardCarousel .carousel-item {
+  height: 100%;
+}
+
+#dashboardCarousel .carousel-item .dashboard-card {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#dashboardCarousel .carousel-item .dashboard-card-body {
+  flex: 1;
+  overflow-y: auto;
+  /* Scroll vertical si el contenido es muy largo */
+  overflow-x: hidden;
+  max-height: calc(600px - 65px);
+  /* Altura total menos header */
+}
+
+/* Estilizar scrollbar para el carousel */
+#dashboardCarousel .dashboard-card-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+#dashboardCarousel .dashboard-card-body::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 4px;
+}
+
+#dashboardCarousel .dashboard-card-body::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
+}
+
+#dashboardCarousel .dashboard-card-body::-webkit-scrollbar-thumb:hover {
+  background: var(--text-secondary);
+}
+
+/* Controles del carousel */
+#dashboardCarousel .carousel-control-prev,
+#dashboardCarousel .carousel-control-next {
+  width: 40px;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+#dashboardCarousel .carousel-control-prev:hover,
+#dashboardCarousel .carousel-control-next:hover {
+  opacity: 1;
+}
+
+/* ============================================
    BOTONES DE ACCESO RÁPIDO
    ============================================ */
 .quick-access-btn {

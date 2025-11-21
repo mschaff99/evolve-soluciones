@@ -15,14 +15,15 @@
 }
 
 .f29-card .card-header {
-  background: linear-gradient(90deg, #7A007B 0%, #E13278 100%);
+  background: #7A007B;
   color: white;
   font-weight: 700;
   padding: 12px 18px;
 }
 
 .f29-card .card-body {
-  background: #ffffff;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
   padding: 18px;
   display: flex;
   flex-direction: column;
@@ -63,7 +64,7 @@
 
 .f29-card .tabla-periodos-integrada thead th {
   background: transparent;
-  color: #0f172a;
+  color: var(--text-primary);
   font-weight: 800;
   padding: 6px 10px;
   font-size: 0.95rem;
@@ -76,7 +77,7 @@
 
 .f29-card .nombre-mes {
   width: 220px;
-  color: #111827;
+  color: var(--text-primary);
   font-weight: 700;
 }
 
@@ -86,11 +87,15 @@
   border-collapse: separate;
   border-spacing: 8px 6px;
   display: table;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  margin: 10px 0;
 }
 
 .detalle-dj-contenedor thead th {
   background: transparent;
-  color: #0f172a;
+  color: var(--text-primary);
   font-weight: 800;
   padding: 6px 10px;
   font-size: 0.95rem;
@@ -230,7 +235,7 @@
 }
 
 .f29-card .text-muted {
-  color: #6b7280 !important;
+  opacity: 0.6;
 }
 
 /* Responsividad */
@@ -259,6 +264,8 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  background-color: var(--bg-card);
+  color: var(--text-primary);
 }
 
 .row.g-2 {
@@ -371,4 +378,103 @@
 .progress-bar {
   background: linear-gradient(90deg, #16A39A 0%, #0891B2 100%);
   font-weight: 600;
+}
+
+/* Estilos para información de Renta con tema adaptable */
+.bg-renta-info {
+  background-color: var(--bg-tertiary);
+  border-color: var(--color-evolve-pink) !important;
+}
+
+.text-renta-desc {
+  color: var(--text-primary);
+}
+
+/* Override de clases Bootstrap para tema */
+[data-theme='dark'] .text-primary {
+  color: var(--color-evolve-pink) !important;
+}
+
+[data-theme='light'] .text-primary {
+  color: var(--color-evolve-pink) !important;
+}
+
+/* Fix para text-muted en modo oscuro */
+[data-theme='dark'] .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme='light'] .text-muted {
+  color: var(--text-muted) !important;
+}
+
+/* Estilos para tabla de historial de Renta - mayor especificidad que estilos-base */
+.table.table-sm.table-hover thead.table-renta-header {
+  background: var(--bg-tertiary);
+}
+
+.table.table-sm.table-hover thead.table-renta-header th {
+  color: white;
+  background: #7A007B;
+  font-weight: 600;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 0.75rem 1rem;
+  border-bottom: 2px solid rgba(102, 126, 234, 0.2);
+  border-top: none;
+}
+
+/* Modo oscuro: ajuste de colores */
+[data-theme='dark'] .table.table-sm.table-hover thead.table-renta-header th {
+  color: white;
+  border-bottom-color: rgba(165, 180, 252, 0.1);
+}
+
+/* Filas de la tabla de eventos */
+.table.table-sm.table-hover thead.table-renta-header+tbody tr {
+  transition: background-color 0.2s ease;
+  background-color: var(--bg-card);
+  --bs-table-bg: var(--bg-card);
+  --bs-table-color: var(--text-primary);
+}
+
+.table.table-sm.table-hover thead.table-renta-header+tbody tr:hover {
+  background-color: var(--bg-hover);
+  --bs-table-hover-bg: var(--bg-hover);
+}
+
+.table.table-sm.table-hover thead.table-renta-header+tbody td {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+/* Modo oscuro: filas de tabla de Renta */
+[data-theme='dark'] .table.table-sm.table-hover thead.table-renta-header+tbody tr {
+  background-color: var(--bg-card);
+  --bs-table-bg: var(--bg-card);
+  --bs-table-color: var(--text-primary);
+}
+
+[data-theme='dark'] .table.table-sm.table-hover thead.table-renta-header+tbody tr:hover {
+  background-color: var(--bg-hover);
+  --bs-table-hover-bg: var(--bg-hover);
+}
+
+[data-theme='dark'] .table.table-sm.table-hover thead.table-renta-header+tbody td {
+  color: var(--text-primary);
+  border-bottom-color: var(--border-color);
+}
+
+/* Fix para tablas en general */
+[data-theme='dark'] .table {
+  color: var(--text-primary);
+}
+
+[data-theme='dark'] .table tbody tr {
+  border-bottom-color: var(--border-color);
+}
+
+[data-theme='dark'] .table-hover tbody tr:hover {
+  background-color: var(--bg-hover);
 }

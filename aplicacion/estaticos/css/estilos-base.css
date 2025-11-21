@@ -167,7 +167,7 @@ body {
 }
 
 .card-header {
-    background: linear-gradient(135deg, #7A007B 0%, #E13278 100%);
+    background: #7A007B;
     color: white;
     border-radius: var(--radio-borde-lg) var(--radio-borde-lg) 0 0 !important;
     border-bottom: none;
@@ -313,7 +313,7 @@ body {
 }
 
 .table thead th {
-    background: var(--bg-tertiary) !important;
+    background: var(--bg-tertiary);
     color: white;
     border: none;
     font-weight: 600;
@@ -537,7 +537,7 @@ body {
     }
 
     .table thead th {
-        background: #f8f9fa !important;
+        background: #f8f9fa;
         color: #333 !important;
     }
 }

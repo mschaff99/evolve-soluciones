@@ -379,6 +379,25 @@ class ServicioConsultaIntegral:
         """
         conexion = None
         try:
+            # PASO 1: Obtener catálogo de códigos de PostgreSQL
+            from aplicacion.modelos.base_datos import ejecutar_consulta_postgres
+
+            consulta_catalogo = """
+                SELECT codigo, descripcion
+                FROM codigos_observaciones_f29
+                WHERE activo = TRUE
+            """
+            catalogo_codigos = {}
+            try:
+                resultados_catalogo = ejecutar_consulta_postgres(consulta_catalogo)
+                for fila in resultados_catalogo:
+                    catalogo_codigos[fila['codigo']] = fila['descripcion']
+                print(f"[OK] Catálogo de códigos cargado: {len(catalogo_codigos)} códigos")
+            except Exception as e:
+                print(f"[WARN] No se pudo cargar catálogo de códigos: {e}")
+                # Continuar sin catálogo
+
+            # PASO 2: Obtener observaciones de MySQL
             conexion = self.obtener_conexion_evolve()
 
             # Consulta para obtener observaciones
@@ -454,9 +473,9 @@ class ServicioConsultaIntegral:
 
             # Headers (agregar columna Auditor si es administrador)
             if es_administrador:
-                headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Descripción', 'Monto', 'Auditor']
+                headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Nombre Código', 'Descripción', 'Monto', 'Auditor']
             else:
-                headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Descripción', 'Monto']
+                headers = ['Empresa', 'RUT', 'Período', 'Año', 'Mes', 'Código', 'Nombre Código', 'Descripción', 'Monto']
 
             for col, header in enumerate(headers, 1):
                 cell = ws.cell(row=1, column=col, value=header)  # type: ignore
@@ -474,13 +493,23 @@ class ServicioConsultaIntegral:
                 # Mes ya viene como nombre desde la BD (Enero, Febrero, etc.)
                 ws.cell(row=row_idx, column=5, value=fila.get('mes', '')).border = border  # type: ignore
 
-                ws.cell(row=row_idx, column=6, value=fila['codigo']).border = border  # type: ignore
-                ws.cell(row=row_idx, column=7, value=fila['descripcion']).border = border  # type: ignore
-                ws.cell(row=row_idx, column=8, value=fila['monto']).border = border  # type: ignore
+                # Código
+                codigo = fila['codigo']
+                ws.cell(row=row_idx, column=6, value=codigo).border = border  # type: ignore
+
+                # Nombre Código (del catálogo)
+                nombre_codigo = catalogo_codigos.get(codigo, '')
+                ws.cell(row=row_idx, column=7, value=nombre_codigo).border = border  # type: ignore
+
+                # Descripción (original de la observación)
+                ws.cell(row=row_idx, column=8, value=fila['descripcion']).border = border  # type: ignore
+
+                # Monto
+                ws.cell(row=row_idx, column=9, value=fila['monto']).border = border  # type: ignore
 
                 # Agregar columna Auditor si es administrador
                 if es_administrador:
-                    ws.cell(row=row_idx, column=9, value=fila.get('auditor', '')).border = border  # type: ignore
+                    ws.cell(row=row_idx, column=10, value=fila.get('auditor', '')).border = border  # type: ignore
 
             # Ajustar ancho de columnas
             if es_administrador:
@@ -491,9 +520,10 @@ class ServicioConsultaIntegral:
                     4: 10,  # Año
                     5: 12,  # Mes
                     6: 12,  # Código
-                    7: 50,  # Descripción
-                    8: 15,  # Monto
-                    9: 20   # Auditor
+                    7: 35,  # Nombre Código
+                    8: 50,  # Descripción
+                    9: 15,  # Monto
+                    10: 20  # Auditor
                 }
             else:
                 column_widths = {
@@ -503,8 +533,9 @@ class ServicioConsultaIntegral:
                     4: 10,  # Año
                     5: 12,  # Mes
                     6: 12,  # Código
-                    7: 50,  # Descripción
-                    8: 15   # Monto
+                    7: 35,  # Nombre Código
+                    8: 50,  # Descripción
+                    9: 15   # Monto
                 }
 
             for col, width in column_widths.items():

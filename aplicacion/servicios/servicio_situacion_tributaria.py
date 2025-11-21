@@ -186,6 +186,8 @@ class ServicioSituacionTributaria:
             anio_actual = datetime.now().year
             periodos_renta = [anio_actual, anio_actual - 1, anio_actual - 2]  # 2025, 2024, 2023
 
+            print(f"DEBUG RENTA: Buscando datos para RUT={rut}, periodos={periodos_renta}")
+
             conexion_renta = self.servicio_f29.obtener_conexion_evolve()
             with conexion_renta.cursor(pymysql.cursors.DictCursor) as cursor:
                 # Obtener glosas (Situación Renta Actual)
@@ -196,8 +198,11 @@ class ServicioSituacionTributaria:
                     WHERE rut = %s AND periodo IN ({placeholders})
                     ORDER BY periodo DESC
                 """
+                print(f"DEBUG RENTA: Ejecutando SQL glosas: {sql_glosas}")
+                print(f"DEBUG RENTA: Parámetros glosas: {(rut, *periodos_renta)}")
                 cursor.execute(sql_glosas, (rut, *periodos_renta))
                 glosas = cursor.fetchall()
+                print(f"DEBUG RENTA: Glosas encontradas: {len(glosas)}")
                 resultado['renta']['glosas'] = [
                     {
                         'periodo': g['periodo'],
@@ -212,10 +217,15 @@ class ServicioSituacionTributaria:
                     FROM {self.base_datos}.renta_eventos
                     WHERE rut = %s AND periodo IN ({placeholders})
                     ORDER BY periodo DESC,
-                             STR_TO_DATE(fecha_evento, '%d/%m/%Y') DESC
+                             STR_TO_DATE(fecha_evento, '%%d/%%m/%%Y') DESC
                 """
+                print(f"DEBUG RENTA: Ejecutando SQL eventos: {sql_eventos}")
+                print(f"DEBUG RENTA: Parámetros eventos: {(rut, *periodos_renta)}")
                 cursor.execute(sql_eventos, (rut, *periodos_renta))
                 eventos = cursor.fetchall()
+                print(f"DEBUG RENTA: Eventos encontrados: {len(eventos)}")
+                for i, e in enumerate(eventos[:3]):
+                    print(f"DEBUG RENTA: Evento {i+1}: periodo={e.get('periodo')}, folio={e.get('folio')}, nombre={e.get('nombre', '')[:50]}")
                 resultado['renta']['eventos'] = [
                     {
                         'periodo': e['periodo'],
@@ -225,8 +235,11 @@ class ServicioSituacionTributaria:
                     }
                     for e in eventos
                 ]
+                print(f"DEBUG RENTA: Total eventos en resultado: {len(resultado['renta']['eventos'])}")
         except Exception as e:
             print(f"ERROR: Situación Tributaria - obteniendo Renta: {e}")
+            import traceback
+            traceback.print_exc()
         finally:
             try:
                 if 'conexion_renta' in locals() and conexion_renta:
