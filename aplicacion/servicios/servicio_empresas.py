@@ -598,12 +598,13 @@ class ServicioEmpresas:
 
                 if usuario_actual.es_administrador():
                     # Lógica para administradores: pivot dinámico
-                    # 1. Obtener lista de auditores para las columnas
+                    # 1. Obtener lista de auditores para las columnas (SOLO los que tienen empresas asignadas)
                     cursor.execute(f"""
-                        SELECT DISTINCT COALESCE(c.auditor, '(Sin Asignar)') as auditor
+                        SELECT DISTINCT c.auditor as auditor
                         FROM {self.base_datos}.observaciones a
-                        LEFT JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
-                        LEFT JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
+                        INNER JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
+                        INNER JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
+                        WHERE c.auditor IS NOT NULL AND c.auditor != ''
                         ORDER BY 1
                     """)
                     auditores = [row['auditor'] for row in cursor.fetchall()]
@@ -621,14 +622,17 @@ class ServicioEmpresas:
                         for auditor in auditores
                     ])
 
-                    # 3. Construir y ejecutar la consulta final
+                    # 3. Construir y ejecutar la consulta final (SOLO observaciones con empresas y auditores)
                     consulta_final = f"""
                         SELECT
                             a.codigo,
                             {columnas_pivot}
                         FROM {self.base_datos}.observaciones a
-                        LEFT JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
-                        LEFT JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
+                        INNER JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
+                        INNER JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
+                        WHERE b.estado='V'
+                        AND c.auditor IS NOT NULL
+                        AND c.auditor != ''
                         GROUP BY a.codigo
                         ORDER BY a.codigo
                     """
@@ -648,6 +652,7 @@ class ServicioEmpresas:
                         LEFT JOIN {self.base_datos}.consulta_integral b ON a.consulta_id = b.id
                         LEFT JOIN {self.base_datos}.empresas c ON b.rut = c.run_rut
                         WHERE c.auditor = %s
+                        AND b.estado='V'
                         GROUP BY a.codigo
                         ORDER BY a.codigo
                     """
@@ -713,11 +718,12 @@ class ServicioEmpresas:
                 totals = {}
 
                 if usuario_actual.es_administrador():
-                    # Lógica para administradores: pivot dinámico
+                    # Lógica para administradores: pivot dinámico (SOLO auditores con empresas asignadas)
                     cursor.execute(f"""
-                        SELECT DISTINCT COALESCE(c.auditor, '(Sin Asignar)') as auditor
+                        SELECT DISTINCT c.auditor as auditor
                         FROM {self.base_datos}.dj_integral_observaciones a
-                        LEFT JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
+                        INNER JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
+                        WHERE c.auditor IS NOT NULL AND c.auditor != ''
                         ORDER BY 1
                     """)
                     auditores = [row['auditor'] for row in cursor.fetchall()]
@@ -730,7 +736,7 @@ class ServicioEmpresas:
                     headers = ['Código'] + auditores
 
                     columnas_pivot = ", ".join([
-                        f"COUNT(CASE WHEN COALESCE(c.auditor, '(Sin Asignar)') = '{auditor}' THEN a.observacion_code END) AS `{auditor}`"
+                        f"COUNT(CASE WHEN c.auditor = '{auditor}' THEN a.observacion_code END) AS `{auditor}`"
                         for auditor in auditores
                     ])
 
@@ -739,7 +745,11 @@ class ServicioEmpresas:
                             a.observacion_code as codigo,
                             {columnas_pivot}
                         FROM {self.base_datos}.dj_integral_observaciones a
-                        LEFT JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
+                        INNER JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
+                        INNER JOIN {self.base_datos}.dj_integral b  ON a.rut=b.rut AND a.dj_numero=b.dj_numero
+                        WHERE b.estado='T'
+                        AND c.auditor IS NOT NULL
+                        AND c.auditor != ''
                         GROUP BY a.observacion_code
                         ORDER BY a.observacion_code
                     """
@@ -757,7 +767,9 @@ class ServicioEmpresas:
                             COUNT(a.observacion_code) as total_auditor
                         FROM {self.base_datos}.dj_integral_observaciones a
                         LEFT JOIN {self.base_datos}.empresas c ON a.rut = c.run_rut
+                        LEFT JOIN {self.base_datos}.dj_integral b  ON a.rut=b.rut AND a.dj_numero=b.dj_numero
                         WHERE c.auditor = %s
+                        AND b.estado='T'
                         GROUP BY a.observacion_code
                         ORDER BY a.observacion_code
                     """
