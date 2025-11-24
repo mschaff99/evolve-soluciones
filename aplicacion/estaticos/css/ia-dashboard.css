@@ -1,0 +1,1263 @@
+/*
+ * Estilos para Dashboard de Inteligencia Artificial
+ * ==================================================
+ * Diseño moderno y profesional para el módulo de análisis IA
+ */
+
+/* ============================================
+   CONTENEDOR PRINCIPAL Y CARDS
+   ============================================ */
+
+.ia-dashboard {
+  padding: 20px;
+  min-height: 100vh;
+}
+
+/* Card de filtros mejorado */
+.ia-filtros-card {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radio-borde-lg, 12px);
+  box-shadow: var(--shadow-md);
+  margin-bottom: 24px;
+  transition: all 0.3s ease;
+}
+
+.ia-filtros-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.ia-filtros-card .card-header {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%);
+  color: white;
+  border-radius: var(--radio-borde-lg, 12px) var(--radio-borde-lg, 12px) 0 0 !important;
+  padding: 16px 20px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+}
+
+.ia-filtros-card .card-header h5 {
+  margin: 0;
+  font-weight: 600;
+  font-size: 1.1rem;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.ia-filtros-card .card-header i {
+  font-size: 1.2rem;
+  opacity: 0.9;
+}
+
+.ia-filtros-card .card-body {
+  padding: 24px;
+  background-color: var(--bg-card);
+}
+
+/* ============================================
+   TABLA DE EMPRESAS MEJORADA
+   ============================================ */
+
+.ia-tabla-empresas {
+  background: var(--bg-card);
+  border-radius: var(--radio-borde-lg, 12px);
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+}
+
+/* Tabla con diseño moderno */
+.table-ia-empresas {
+  width: 100%;
+  margin-bottom: 0;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: 0.95rem;
+  --bs-table-color: var(--text-primary);
+  --bs-table-bg: var(--bg-card);
+  --bs-table-border-color: var(--border-color);
+}
+
+/* Encabezado de tabla estilizado */
+.table-ia-empresas thead {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%);
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.table-ia-empresas thead th {
+  padding: 16px 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.5px;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.2);
+  white-space: nowrap;
+}
+
+.table-ia-empresas thead th:first-child {
+  border-top-left-radius: var(--radio-borde-lg, 12px);
+  padding-left: 20px;
+}
+
+.table-ia-empresas thead th:last-child {
+  border-top-right-radius: var(--radio-borde-lg, 12px);
+  padding-right: 20px;
+}
+
+/* Cuerpo de la tabla */
+.table-ia-empresas tbody {
+  background-color: var(--bg-card);
+}
+
+.table-ia-empresas tbody tr {
+  border-bottom: 1px solid var(--border-color);
+  transition: all 0.2s ease;
+}
+
+.table-ia-empresas tbody tr:hover {
+  background-color: var(--bg-hover, rgba(122, 0, 123, 0.05)) !important;
+  transform: scale(1.002);
+  box-shadow: 0 2px 8px rgba(122, 0, 123, 0.1);
+}
+
+.table-ia-empresas tbody tr:hover td {
+  background-color: transparent !important;
+}
+
+.table-ia-empresas tbody tr:last-child {
+  border-bottom: none;
+}
+
+.table-ia-empresas tbody td {
+  padding: 16px 14px;
+  vertical-align: middle;
+  color: var(--text-primary) !important;
+  background-color: transparent !important;
+  border-color: var(--border-color) !important;
+  transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+}
+
+.table-ia-empresas tbody td:first-child {
+  padding-left: 24px;
+}
+
+.table-ia-empresas tbody td:last-child {
+  padding-right: 24px;
+}
+
+/* ============================================
+   BADGES Y ETIQUETAS
+   ============================================ */
+
+.badge-rut {
+  background: linear-gradient(135deg, #2268AD 0%, #1a5287 100%) !important;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(34, 104, 173, 0.2);
+  display: inline-block;
+}
+
+.badge-empresa {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(122, 0, 123, 0.2);
+  display: inline-block;
+}
+
+.badge-usuario {
+  background: linear-gradient(135deg, #16A39A 0%, #128f87 100%) !important;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(22, 163, 154, 0.2);
+  display: inline-block;
+}
+
+.badge-grupo {
+  background: linear-gradient(135deg, #E13278 0%, #c1285f 100%) !important;
+  color: white !important;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  box-shadow: 0 2px 4px rgba(225, 50, 120, 0.2);
+  display: inline-block;
+}
+
+/* ============================================
+   BOTONES DE ACCIÓN
+   ============================================ */
+
+.btn-ia-action {
+  padding: 8px 16px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-ia-action:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.btn-ia-action:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+/* Botón de Balance */
+.btn-ia-balance {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%);
+  color: white;
+}
+
+.btn-ia-balance:hover {
+  background: linear-gradient(135deg, #5a005a 0%, #3d003d 100%);
+  color: white;
+}
+
+/* Botón de Análisis IA */
+.btn-ia-analizar {
+  background: linear-gradient(135deg, #16A39A 0%, #128f87 100%);
+  color: white;
+}
+
+.btn-ia-analizar:hover {
+  background: linear-gradient(135deg, #128f87 0%, #0e6b65 100%);
+  color: white;
+}
+
+/* Contenedor de botones */
+.ia-action-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ============================================
+   FILTROS Y CONTROLES
+   ============================================ */
+
+.form-label {
+  font-weight: 600;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.form-select,
+.form-control {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.form-select:focus,
+.form-control:focus {
+  background-color: var(--bg-secondary);
+  border-color: #7A007B;
+  box-shadow: 0 0 0 3px rgba(122, 0, 123, 0.15);
+  color: var(--text-primary);
+  outline: none;
+}
+
+.form-select:hover,
+.form-control:hover {
+  border-color: var(--border-hover);
+}
+
+/* ============================================
+   ESTADOS DE CARGA Y MENSAJES
+   ============================================ */
+
+.ia-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.ia-loading .spinner-border {
+  width: 3rem;
+  height: 3rem;
+  border-width: 0.3rem;
+  color: #7A007B;
+  margin-bottom: 20px;
+}
+
+.ia-loading p {
+  color: var(--text-secondary);
+  font-size: 1rem;
+  margin-top: 10px;
+}
+
+.ia-empty-state {
+  text-align: center;
+  padding: 60px 20px;
+}
+
+.ia-empty-state i {
+  font-size: 4rem;
+  color: var(--text-tertiary);
+  margin-bottom: 20px;
+  opacity: 0.5;
+}
+
+.ia-empty-state h5 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.ia-empty-state p {
+  color: var(--text-secondary);
+  font-size: 0.95rem;
+}
+
+/* ============================================
+   TABLA RESPONSIVE
+   ============================================ */
+
+.table-responsive {
+  border-radius: var(--radio-borde-lg, 12px);
+  overflow-x: auto;
+  overflow-y: visible;
+  -webkit-overflow-scrolling: touch;
+}
+
+.table-responsive::-webkit-scrollbar {
+  height: 10px;
+}
+
+.table-responsive::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 5px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%);
+  border-radius: 5px;
+}
+
+.table-responsive::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a005a 0%, #3d003d 100%);
+}
+
+/* ============================================
+   HEADER DEL DASHBOARD
+   ============================================ */
+
+.ia-dashboard-header {
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--border-color);
+}
+
+.ia-dashboard-title {
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 5px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ia-dashboard-title i {
+  color: #7A007B;
+  font-size: 1.6rem;
+}
+
+.ia-dashboard-subtitle {
+  color: var(--text-secondary);
+  font-weight: 400;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.ia-status-badge {
+  background: linear-gradient(135deg, #16A39A 0%, #128f87 100%);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.85rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  box-shadow: 0 2px 6px rgba(22, 163, 154, 0.3);
+}
+
+.ia-status-badge i {
+  font-size: 1rem;
+}
+
+/* ============================================
+   ANIMACIONES SUTILES
+   ============================================ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.table-ia-empresas tbody tr {
+  animation: fadeIn 0.3s ease forwards;
+}
+
+.table-ia-empresas tbody tr:nth-child(1) {
+  animation-delay: 0.05s;
+}
+
+.table-ia-empresas tbody tr:nth-child(2) {
+  animation-delay: 0.1s;
+}
+
+.table-ia-empresas tbody tr:nth-child(3) {
+  animation-delay: 0.15s;
+}
+
+.table-ia-empresas tbody tr:nth-child(4) {
+  animation-delay: 0.2s;
+}
+
+.table-ia-empresas tbody tr:nth-child(5) {
+  animation-delay: 0.25s;
+}
+
+/* ============================================
+   MEJORAS PARA MODO CLARO
+   ============================================ */
+
+[data-theme='light'] .table-ia-empresas tbody tr:hover {
+  background-color: rgba(122, 0, 123, 0.03);
+  box-shadow: 0 2px 8px rgba(122, 0, 123, 0.08);
+}
+
+[data-theme='light'] .badge-rut,
+[data-theme='light'] .badge-empresa,
+[data-theme='light'] .badge-usuario,
+[data-theme='light'] .badge-grupo {
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+/* ============================================
+   RESPONSIVE DESIGN
+   ============================================ */
+
+@media (max-width: 992px) {
+  .ia-dashboard-title {
+    font-size: 1.5rem;
+  }
+
+  .table-ia-empresas thead th {
+    padding: 12px 10px;
+    font-size: 0.8rem;
+  }
+
+  .table-ia-empresas tbody td {
+    padding: 12px 10px;
+  }
+
+  .btn-ia-action {
+    padding: 6px 12px;
+    font-size: 0.8rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .ia-action-buttons {
+    flex-direction: column;
+  }
+
+  .btn-ia-action {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .ia-filtros-card .card-body {
+    padding: 16px;
+  }
+
+  .table-ia-empresas {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .ia-dashboard-header {
+    text-align: center;
+  }
+
+  .ia-dashboard-title {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .table-responsive {
+    border-radius: 8px;
+  }
+}
+
+/* ============================================
+   ACCESIBILIDAD
+   ============================================ */
+
+/* Mejoras de contraste para WCAG AA */
+.btn-ia-action:focus {
+  outline: 3px solid rgba(122, 0, 123, 0.5);
+  outline-offset: 2px;
+}
+
+.form-select:focus,
+.form-control:focus {
+  outline: 3px solid rgba(122, 0, 123, 0.5);
+  outline-offset: 2px;
+}
+
+/* Indicadores visuales para interacción */
+.table-ia-empresas tbody tr:focus-within {
+  background-color: var(--bg-hover);
+  outline: 2px solid rgba(122, 0, 123, 0.3);
+  outline-offset: -2px;
+}
+
+/* ============================================
+   UTILIDADES ESPECÍFICAS
+   ============================================ */
+
+.text-empresa {
+  font-weight: 600;
+  color: var(--text-primary) !important;
+  font-size: 0.95rem;
+}
+
+.text-rut {
+  font-family: 'Courier New', monospace;
+  font-weight: 600;
+  color: var(--text-secondary) !important;
+}
+
+.icon-ia {
+  color: #7A007B;
+  margin-right: 6px;
+}
+
+.icon-balance {
+  color: #2268AD;
+  margin-right: 6px;
+}
+
+.icon-analizar {
+  color: #16A39A;
+  margin-right: 6px;
+}
+
+/* ============================================
+   SWEETALERT2 - MODO OSCURO/CLARO
+   ============================================ */
+
+/* Popup principal */
+.swal2-popup {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Título */
+.swal2-title {
+  color: var(--text-primary) !important;
+}
+
+/* Contenedor HTML */
+.swal2-html-container {
+  color: var(--text-primary) !important;
+}
+
+.swal2-html-container p {
+  color: var(--text-primary) !important;
+}
+
+.swal2-html-container strong {
+  color: var(--text-primary) !important;
+}
+
+.swal2-html-container hr {
+  border-color: var(--border-color) !important;
+  opacity: 0.3;
+}
+
+/* Labels de formulario */
+.swal2-html-container .form-label {
+  color: var(--text-primary) !important;
+  font-weight: 600;
+}
+
+/* Selects y inputs dentro de SweetAlert */
+.swal2-html-container .form-select,
+.swal2-html-container .form-control,
+.swal2-select,
+.swal2-input,
+.swal2-textarea {
+  background-color: var(--bg-secondary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+.swal2-html-container .form-select:focus,
+.swal2-html-container .form-control:focus,
+.swal2-select:focus,
+.swal2-input:focus,
+.swal2-textarea:focus {
+  background-color: var(--bg-secondary) !important;
+  border-color: #7A007B !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 3px rgba(122, 0, 123, 0.15) !important;
+}
+
+/* Options de los selects */
+.swal2-html-container .form-select option,
+.swal2-select option {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Botones personalizados */
+.swal2-confirm {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.swal2-confirm:hover {
+  background: linear-gradient(135deg, #5a005a 0%, #3d003d 100%) !important;
+}
+
+.swal2-cancel {
+  background-color: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  font-weight: 600 !important;
+}
+
+.swal2-cancel:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+.swal2-deny {
+  background: linear-gradient(135deg, #dc3741 0%, #b02a37 100%) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+.swal2-deny:hover {
+  background: linear-gradient(135deg, #b02a37 0%, #8e1f2e 100%) !important;
+}
+
+/* Validación de mensajes */
+.swal2-validation-message {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border: 1px solid var(--border-color) !important;
+}
+
+/* Footer */
+.swal2-footer {
+  background-color: var(--bg-tertiary) !important;
+  border-top: 1px solid var(--border-color) !important;
+  color: var(--text-secondary) !important;
+}
+
+/* Iconos */
+.swal2-icon.swal2-success [class^='swal2-success-line'] {
+  background-color: #16A39A !important;
+}
+
+.swal2-icon.swal2-success .swal2-success-ring {
+  border-color: rgba(22, 163, 154, 0.3) !important;
+}
+
+.swal2-icon.swal2-error {
+  border-color: #dc3741 !important;
+  color: #dc3741 !important;
+}
+
+.swal2-icon.swal2-warning {
+  border-color: #F59E0B !important;
+  color: #F59E0B !important;
+}
+
+.swal2-icon.swal2-info {
+  border-color: #3B82F6 !important;
+  color: #3B82F6 !important;
+}
+
+/* Loader/Spinner */
+.swal2-loader {
+  border-color: #7A007B transparent #7A007B transparent !important;
+}
+
+/* Progress bar */
+.swal2-timer-progress-bar {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+}
+
+/* Close button */
+.swal2-close {
+  color: var(--text-secondary) !important;
+}
+
+.swal2-close:hover {
+  color: var(--text-primary) !important;
+}
+
+/* Backdrop */
+.swal2-container {
+  background-color: var(--overlay-bg) !important;
+}
+
+/* Ajustes específicos para modo claro */
+[data-theme='light'] .swal2-popup {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme='light'] .swal2-html-container .form-select,
+[data-theme='light'] .swal2-html-container .form-control,
+[data-theme='light'] .swal2-select,
+[data-theme='light'] .swal2-input,
+[data-theme='light'] .swal2-textarea {
+  background-color: #ffffff !important;
+}
+
+[data-theme='light'] .swal2-cancel {
+  background-color: #f1f3f5 !important;
+  color: #1a1a1a !important;
+}
+
+[data-theme='light'] .swal2-cancel:hover {
+  background-color: #e9ecef !important;
+}
+
+/* ============================================
+   MODAL DE BALANCE - MODO OSCURO/CLARO
+   ============================================ */
+
+/* Modal principal */
+#modalBalance .modal-content {
+  background-color: var(--bg-card) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+/* Header del modal */
+#modalBalance .modal-header {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+  color: white !important;
+  border-bottom: 2px solid rgba(255, 255, 255, 0.1) !important;
+}
+
+#modalBalance .modal-header .modal-title {
+  color: white !important;
+  font-weight: 600;
+}
+
+#modalBalance .modal-header .btn-close {
+  filter: brightness(0) invert(1);
+  opacity: 0.8;
+}
+
+#modalBalance .modal-header .btn-close:hover {
+  opacity: 1;
+}
+
+/* Body del modal */
+#modalBalance .modal-body {
+  background-color: var(--bg-card) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Footer del modal */
+#modalBalance .modal-footer {
+  background-color: var(--bg-secondary) !important;
+  border-top: 1px solid var(--border-color) !important;
+}
+
+/* Cards dentro del modal */
+#modalBalance .card {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+#modalBalance .card-header {
+  background-color: var(--bg-tertiary) !important;
+  color: var(--text-primary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+#modalBalance .card-body {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Textos y labels */
+#modalBalance .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+#modalBalance label,
+#modalBalance .form-label {
+  color: var(--text-primary) !important;
+}
+
+#modalBalance p,
+#modalBalance span,
+#modalBalance div {
+  color: var(--text-primary) !important;
+}
+
+#modalBalance strong {
+  color: var(--text-primary) !important;
+}
+
+/* Sobrescribir estilos específicos de Bootstrap para el contenido del modal */
+#modalBalance .row,
+#modalBalance .col,
+#modalBalance .col-md-6,
+#modalBalance .col-12,
+#modalBalance [class*="col-"] {
+  color: var(--text-primary) !important;
+}
+
+#modalBalance .row>*,
+#modalBalance .container,
+#modalBalance .container-fluid {
+  color: var(--text-primary) !important;
+}
+
+/* Asegurar que todos los elementos de texto hereden el color correcto */
+#modalBalance * {
+  color: inherit !important;
+}
+
+/* Forzar color en celdas con clases específicas */
+#modalBalance table td,
+#modalBalance table td.text-end,
+#modalBalance table td.text-start,
+#modalBalance table td.text-center,
+#modalBalance .table td,
+#modalBalance .table td.text-end,
+#modalBalance .table td.text-start,
+#modalBalance .table td.text-center {
+  color: var(--text-primary) !important;
+}
+
+/* Excepciones importantes que deben mantener su color */
+#modalBalance .modal-header,
+#modalBalance .modal-header *,
+#modalBalance table thead,
+#modalBalance table thead th,
+#modalBalance .btn,
+#modalBalance .badge {
+  color: white !important;
+}
+
+#modalBalance .btn-secondary,
+#modalBalance .btn-outline-secondary {
+  color: var(--text-primary) !important;
+}
+
+/* Forzar color en elementos específicos de Bootstrap */
+#modalBalance .card-text,
+#modalBalance .small,
+#modalBalance .text-sm,
+#modalBalance .lead {
+  color: var(--text-primary) !important;
+}
+
+/* Tabla dentro del modal */
+#modalBalance table {
+  background-color: transparent !important;
+  color: var(--text-primary) !important;
+}
+
+#modalBalance table thead {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+  color: white !important;
+}
+
+#modalBalance table thead th {
+  color: white !important;
+  border-color: rgba(255, 255, 255, 0.2) !important;
+  padding: 12px 8px !important;
+  font-size: 0.85rem !important;
+}
+
+#modalBalance table tbody {
+  background-color: transparent !important;
+}
+
+#modalBalance table tbody tr {
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+#modalBalance table tbody tr:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+#modalBalance table tbody td,
+#modalBalance .table td {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+  padding: 8px 6px !important;
+  font-size: 0.875rem !important;
+  vertical-align: middle !important;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+/* Filas especiales del balance */
+#modalBalance .balance-sumas {
+  background-color: rgba(122, 0, 123, 0.15) !important;
+  font-weight: 700 !important;
+}
+
+#modalBalance .balance-sumas td {
+  color: var(--text-primary) !important;
+  border-top: 2px solid var(--border-color) !important;
+}
+
+#modalBalance .balance-resultado {
+  background-color: rgba(22, 163, 154, 0.15) !important;
+  font-weight: 700 !important;
+}
+
+#modalBalance .balance-resultado td {
+  color: var(--text-primary) !important;
+}
+
+#modalBalance .balance-sumas-iguales {
+  background-color: rgba(34, 104, 173, 0.15) !important;
+  font-weight: 700 !important;
+}
+
+#modalBalance .balance-sumas-iguales td {
+  color: var(--text-primary) !important;
+  border-bottom: 3px double var(--border-color) !important;
+}
+
+/* Botones dentro del modal */
+#modalBalance .btn {
+  font-weight: 600;
+}
+
+#modalBalance .btn-primary {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+#modalBalance .btn-primary:hover {
+  background: linear-gradient(135deg, #5a005a 0%, #3d003d 100%) !important;
+}
+
+#modalBalance .btn-success {
+  background: linear-gradient(135deg, #16A39A 0%, #128f87 100%) !important;
+  border: none !important;
+  color: white !important;
+}
+
+#modalBalance .btn-success:hover {
+  background: linear-gradient(135deg, #128f87 0%, #0e6b65 100%) !important;
+}
+
+#modalBalance .btn-secondary {
+  background-color: var(--bg-tertiary) !important;
+  border: 1px solid var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+#modalBalance .btn-secondary:hover {
+  background-color: var(--bg-hover) !important;
+}
+
+#modalBalance .btn-outline-secondary {
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+#modalBalance .btn-outline-secondary:hover {
+  background-color: var(--bg-hover) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Badges dentro del modal */
+#modalBalance .badge {
+  font-weight: 600;
+}
+
+#modalBalance .badge-primary {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+  color: white !important;
+}
+
+#modalBalance .badge-info {
+  background: linear-gradient(135deg, #3B82F6 0%, #2563eb 100%) !important;
+  color: white !important;
+}
+
+#modalBalance .badge-success {
+  background: linear-gradient(135deg, #16A39A 0%, #128f87 100%) !important;
+  color: white !important;
+}
+
+/* Alerts dentro del modal */
+#modalBalance .alert {
+  border-color: var(--border-color) !important;
+}
+
+#modalBalance .alert-info {
+  background-color: rgba(59, 130, 246, 0.1) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(59, 130, 246, 0.3) !important;
+}
+
+#modalBalance .alert-success {
+  background-color: rgba(22, 163, 154, 0.1) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(22, 163, 154, 0.3) !important;
+}
+
+#modalBalance .alert-warning {
+  background-color: rgba(245, 158, 11, 0.1) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(245, 158, 11, 0.3) !important;
+}
+
+#modalBalance .alert-danger {
+  background-color: rgba(239, 68, 68, 0.1) !important;
+  color: var(--text-primary) !important;
+  border-color: rgba(239, 68, 68, 0.3) !important;
+}
+
+/* Loading state */
+#modalBalance .spinner-border {
+  color: #7A007B !important;
+}
+
+#modalBalance .text-center {
+  color: var(--text-primary) !important;
+}
+
+/* Scrollbar dentro del modal */
+#modalBalance .table-responsive::-webkit-scrollbar {
+  height: 10px;
+  width: 10px;
+}
+
+#modalBalance .table-responsive::-webkit-scrollbar-track {
+  background: var(--bg-tertiary);
+  border-radius: 5px;
+}
+
+#modalBalance .table-responsive::-webkit-scrollbar-thumb {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%);
+  border-radius: 5px;
+}
+
+#modalBalance .table-responsive::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(135deg, #5a005a 0%, #3d003d 100%);
+}
+
+/* Divisores/separadores */
+#modalBalance hr {
+  border-color: var(--border-color) !important;
+  opacity: 0.3;
+}
+
+/* Inputs y selects dentro del modal */
+#modalBalance .form-control,
+#modalBalance .form-select {
+  background-color: var(--bg-secondary) !important;
+  border-color: var(--border-color) !important;
+  color: var(--text-primary) !important;
+}
+
+#modalBalance .form-control:focus,
+#modalBalance .form-select:focus {
+  background-color: var(--bg-secondary) !important;
+  border-color: #7A007B !important;
+  color: var(--text-primary) !important;
+  box-shadow: 0 0 0 3px rgba(122, 0, 123, 0.15) !important;
+}
+
+/* Backdrop del modal */
+.modal-backdrop {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+}
+
+/* Ajustes específicos para modo claro */
+[data-theme='light'] #modalBalance .modal-content {
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.12) !important;
+}
+
+[data-theme='light'] #modalBalance .balance-sumas {
+  background-color: rgba(122, 0, 123, 0.08) !important;
+}
+
+[data-theme='light'] #modalBalance .balance-resultado {
+  background-color: rgba(22, 163, 154, 0.08) !important;
+}
+
+[data-theme='light'] #modalBalance .balance-sumas-iguales {
+  background-color: rgba(34, 104, 173, 0.08) !important;
+}
+
+[data-theme='light'] #modalBalance .form-control,
+[data-theme='light'] #modalBalance .form-select {
+  background-color: #ffffff !important;
+}
+
+/* ============================================
+   SOLUCIÓN DEFINITIVA - MÁXIMA ESPECIFICIDAD
+   ============================================ */
+
+/* Sobrescribir variables CSS de Bootstrap en el contexto del modal */
+#modalBalance {
+  --bs-body-color: var(--text-primary) !important;
+  --bs-body-bg: var(--bg-card) !important;
+  --bs-modal-color: var(--text-primary) !important;
+  --bs-modal-bg: var(--bg-card) !important;
+  --bs-table-color: var(--text-primary) !important;
+  --bs-table-bg: transparent !important;
+  --bs-table-striped-color: var(--text-primary) !important;
+  --bs-table-hover-color: var(--text-primary) !important;
+  --bs-border-color: var(--border-color) !important;
+  --bs-emphasis-color: var(--text-primary) !important;
+  --bs-secondary-color: var(--text-secondary) !important;
+  --bs-light-rgb: 26, 26, 26 !important;
+  /* Forzar bg-light a color oscuro */
+  --bs-bg-opacity: 1 !important;
+}
+
+/* Forzar todos los elementos básicos a heredar color */
+#modalBalance p,
+#modalBalance span,
+#modalBalance div,
+#modalBalance label,
+#modalBalance strong,
+#modalBalance em,
+#modalBalance small {
+  color: var(--text-primary) !important;
+}
+
+/* Sobrescribir clase .bg-light de Bootstrap dentro del modal */
+#modalBalance .bg-light {
+  background-color: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+}
+
+/* Sobrescribir .text-muted y otras clases de utilidad de Bootstrap */
+#modalBalance .text-muted {
+  color: var(--text-secondary) !important;
+}
+
+#modalBalance .text-dark {
+  color: var(--text-primary) !important;
+}
+
+/* Forzar color en TODOS los elementos dentro de tablas */
+#modalBalance table,
+#modalBalance table *,
+#modalBalance .table,
+#modalBalance .table * {
+  color: var(--text-primary) !important;
+}
+
+/* Reglas específicas para todas las variantes de celdas */
+#modalBalance table td,
+#modalBalance table th,
+#modalBalance .table td,
+#modalBalance .table th,
+#modalBalance .table-bordered td,
+#modalBalance .table-bordered th,
+#modalBalance .table-sm td,
+#modalBalance .table-sm th,
+#modalBalance table.table tbody tr td,
+#modalBalance table.table tbody tr th,
+#modalBalance .table> :not(caption)>*>* {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+  background-color: transparent !important;
+}
+
+/* Forzar en clases de alineación (text-end, text-start, text-center) */
+#modalBalance .text-end,
+#modalBalance .text-start,
+#modalBalance .text-center,
+#modalBalance td.text-end,
+#modalBalance td.text-start,
+#modalBalance td.text-center,
+#modalBalance th.text-end,
+#modalBalance th.text-start,
+#modalBalance th.text-center,
+#modalBalance .table .text-end,
+#modalBalance .table .text-start,
+#modalBalance .table .text-center {
+  color: var(--text-primary) !important;
+}
+
+/* Forzar en elementos con atributos class que contengan "text-" */
+#modalBalance td[class*="text-"],
+#modalBalance th[class*="text-"],
+#modalBalance .table td[class*="text-"],
+#modalBalance .table th[class*="text-"] {
+  color: var(--text-primary) !important;
+}
+
+/* Forzar en elementos anidados (excepto botones y badges) */
+#modalBalance table td *:not(.btn):not(.badge):not(.text-success):not(.text-danger):not(.text-warning),
+#modalBalance table th *:not(.btn):not(.badge):not(.text-success):not(.text-danger):not(.text-warning),
+#modalBalance .table td *:not(.btn):not(.badge):not(.text-success):not(.text-danger):not(.text-warning),
+#modalBalance .table th *:not(.btn):not(.badge):not(.text-success):not(.text-danger):not(.text-warning) {
+  color: var(--text-primary) !important;
+}
