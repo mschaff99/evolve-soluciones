@@ -61,7 +61,7 @@ class ServicioSituacionTributaria:
             conexion = self.servicio_f29.obtener_conexion_evolve()
             with conexion.cursor(pymysql.cursors.DictCursor) as cursor:
                 sql = f"""
-                    SELECT id, periodo, tabla_resultados, estado, fechaproceso
+                    SELECT id, periodo, tabla_resultados, estado, fechaproceso, total_observaciones
                     FROM {self.base_datos}.consulta_integral
                     WHERE rut = %s
                     ORDER BY periodo DESC
@@ -69,10 +69,16 @@ class ServicioSituacionTributaria:
                 cursor.execute(sql, (rut,))
                 periodos = cursor.fetchall()
 
-                # Contar observaciones por periodo (usar una sola consulta agrupada para evitar N+1)
+                # Usar total_observaciones de la tabla consulta_integral directamente
+                # Si no existe, hacer fallback a contar desde tabla observaciones
                 consulta_ids = [p['id'] for p in periodos if p.get('id')]
                 conteos_por_consulta = {}
-                if consulta_ids:
+
+                # Primero intentar usar el campo total_observaciones de consulta_integral
+                usa_campo_directo = any(p.get('total_observaciones') is not None for p in periodos)
+
+                if not usa_campo_directo and consulta_ids:
+                    # Fallback: contar desde tabla observaciones
                     placeholders = ','.join(['%s'] * len(consulta_ids))
                     sql_obs_agg = f"SELECT consulta_id, COUNT(*) as total FROM {self.base_datos}.observaciones WHERE consulta_id IN ({placeholders}) GROUP BY consulta_id"
                     cursor.execute(sql_obs_agg, tuple(consulta_ids))
@@ -82,7 +88,8 @@ class ServicioSituacionTributaria:
 
                 for p in periodos:
                     p_id = p.get('id')
-                    total_obs = conteos_por_consulta.get(p_id, 0)
+                    # Priorizar total_observaciones de la tabla, si no usar el conteo
+                    total_obs = p.get('total_observaciones') or conteos_por_consulta.get(p_id, 0) or 0
                     resultado['f29']['periodos'].append({
                         'periodo': p.get('periodo'),
                         'resultado': p.get('tabla_resultados') or '',
