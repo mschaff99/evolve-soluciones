@@ -97,6 +97,7 @@ def obtener_observaciones(rut, periodo):
             SELECT id, rut, periodo
             FROM {base_datos}.consulta_integral
             WHERE rut = %s AND periodo = %s
+            AND estado = 'V'
             """
 
             # Probar diferentes formatos de RUT
@@ -137,6 +138,7 @@ def obtener_observaciones(rut, periodo):
             FROM {base_datos}.observaciones a
             INNER JOIN {base_datos}.consulta_integral b ON a.consulta_id = b.id
             WHERE a.consulta_id = %s
+            AND estado = 'V'
             ORDER BY a.fecha_creacion DESC
             """
 
