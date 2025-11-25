@@ -1000,6 +1000,24 @@
   background: linear-gradient(135deg, #5a005a 0%, #3d003d 100%) !important;
 }
 
+/* Botón Exportar Excel - Estilo morado outline */
+#modalBalance .btn-outline-primary {
+  background: transparent !important;
+  border: 2px solid #7A007B !important;
+  color: #7A007B !important;
+  font-weight: 600 !important;
+}
+
+#modalBalance .btn-outline-primary:hover {
+  background: linear-gradient(135deg, #7A007B 0%, #5a005a 100%) !important;
+  border-color: #7A007B !important;
+  color: white !important;
+}
+
+#modalBalance .btn-outline-primary:focus {
+  box-shadow: 0 0 0 3px rgba(122, 0, 123, 0.25) !important;
+}
+
 #modalBalance .btn-success {
   background: linear-gradient(135deg, #16A39A 0%, #128f87 100%) !important;
   border: none !important;

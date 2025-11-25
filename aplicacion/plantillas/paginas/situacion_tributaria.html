@@ -409,6 +409,7 @@
 
 {# Reutilizar estilos de DJ Integral para mantener diseño consistente #}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/dj-integral.css') }}">
+<link rel="stylesheet" href="{{ url_for('static', filename='css/modal-observaciones.css') }}">
 <link rel="stylesheet" href="/static/css/estilos-base.css">
 <link rel="stylesheet" href="/static/css/situacion-tributaria.css">
 
@@ -418,9 +419,17 @@
   window.csrfToken = '{{ csrf_token() }}';
 </script>
 
-<!-- Scripts: cargar situacion-tributaria.js PRIMERO para evitar conflictos -->
+<!-- Script para manejar observaciones F29 - DEBE CARGARSE ANTES del modal -->
+<script src="{{ url_for('static', filename='js/consulta-integral-f29.js') }}"></script>
+
+<!-- Scripts: cargar situacion-tributaria.js y dj-integral.js -->
 <script src="/static/js/situacion-tributaria.js"></script>
 <script src="/static/js/dj-integral.js"></script>
+{% endblock %}
+
+{# Modal de observaciones - FUERA de main-content para que position:fixed funcione correctamente #}
+{% block modales %}
+{% include 'componentes/modal-observaciones.html' %}
 {% endblock %}
 
 

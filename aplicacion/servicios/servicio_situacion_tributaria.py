@@ -196,6 +196,7 @@ class ServicioSituacionTributaria:
                     SELECT periodo, descripcion
                     FROM {self.base_datos}.renta_glosas
                     WHERE rut = %s AND periodo IN ({placeholders})
+                    AND estado='T'
                     ORDER BY periodo DESC
                 """
                 print(f"DEBUG RENTA: Ejecutando SQL glosas: {sql_glosas}")
@@ -216,6 +217,7 @@ class ServicioSituacionTributaria:
                     SELECT periodo, folio, nombre, fecha_evento
                     FROM {self.base_datos}.renta_eventos
                     WHERE rut = %s AND periodo IN ({placeholders})
+                    AND estado='T'
                     ORDER BY periodo DESC,
                              STR_TO_DATE(fecha_evento, '%%d/%%m/%%Y') DESC
                 """

@@ -153,18 +153,18 @@
 
 <!-- Script para asegurar que el modal esté oculto al cargar -->
 <script>
-    // Forzar el modal oculto al cargar la página
-    document.addEventListener('DOMContentLoaded', function() {
+    // Forzar el modal oculto inmediatamente (sin esperar DOMContentLoaded)
+    (function() {
         const modal = document.getElementById('modalObservaciones');
         if (modal) {
             modal.style.display = 'none';
-            console.log('OK: Modal de observaciones inicializado correctamente (oculto)');
+            console.log('✓ Modal de observaciones inicializado (oculto)');
         }
 
         const modalProveedores = document.getElementById('modalProveedores');
         if (modalProveedores) {
             modalProveedores.style.display = 'none';
-            console.log('OK: Modal de proveedores inicializado correctamente (oculto)');
+            console.log('✓ Modal de proveedores inicializado (oculto)');
         }
-    });
+    })();
 </script>
