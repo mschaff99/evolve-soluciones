@@ -52,7 +52,13 @@ function mostrarObservaciones(rut, periodo) {
 
     // Codificar el RUT para la URL (importante para RUTs con guiones)
     const rutCodificado = encodeURIComponent(rut);
-    const url = `/consulta-integral-f29/api/observaciones/${rutCodificado}/${periodo}`;
+
+    // Obtener base de datos desde window.baseDatos (definido en situacion_tributaria.html)
+    // o usar string vacío para que la API use la BD del usuario
+    const baseDatos = window.baseDatos || '';
+    const bdParam = baseDatos ? `?bd=${encodeURIComponent(baseDatos)}` : '';
+
+    const url = `/consulta-integral-f29/api/observaciones/${rutCodificado}/${periodo}${bdParam}`;
     console.log(`Haciendo petición a: ${url}`);
 
     fetch(url)

@@ -74,9 +74,15 @@ def inicio_consulta_integral():
 def obtener_observaciones(rut, periodo):
     """Obtener observaciones de un período específico"""
     try:
-        # Obtener base de datos del usuario autenticado
+        # Obtener base de datos: priorizar query param, luego usuario autenticado
         from flask_login import current_user
-        base_datos = current_user.base_datos_mysql
+        from flask import request
+
+        # Permitir especificar base de datos via query param (útil para situación tributaria)
+        base_datos = request.args.get('bd') or current_user.base_datos_mysql
+
+        print(f"[DEBUG] API Observaciones - Base de datos: {base_datos}")
+
         servicio_consulta = ServicioConsultaIntegral(base_datos)
         conexion = servicio_consulta.obtener_conexion_evolve()
 
