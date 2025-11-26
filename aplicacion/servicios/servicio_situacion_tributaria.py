@@ -64,6 +64,7 @@ class ServicioSituacionTributaria:
                     SELECT id, periodo, tabla_resultados, estado, fechaproceso, total_observaciones
                     FROM {self.base_datos}.consulta_integral
                     WHERE rut = %s
+                    AND estado = 'V'
                     ORDER BY periodo DESC
                 """
                 cursor.execute(sql, (rut,))
