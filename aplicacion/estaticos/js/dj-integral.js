@@ -9,7 +9,7 @@
   console.log('Cargando dj-integral.js...');
 
   // Variables locales del módulo
-  var empresasExpandidasDJDJ = new Set();
+  var empresasExpandidasDJ = new Set();
 
   /**
    * Alterna la expansión de una empresa (mostrar/ocultar DJ)
@@ -172,6 +172,16 @@
   }
 
   /**
+   * Normaliza un texto removiendo guiones, puntos y espacios para comparación
+   * @param {string} texto - Texto a normalizar
+   * @returns {string} Texto normalizado
+   */
+  function normalizarTexto(texto) {
+    if (!texto) return '';
+    return texto.toLowerCase().replace(/[-.\s]/g, '').trim();
+  }
+
+  /**
    * Filtra las empresas según los criterios seleccionados
    */
   function filtrarEmpresas() {
@@ -188,7 +198,8 @@
         const usuario = (fila.dataset.usuario || '').toLowerCase();
         const grupo = (fila.dataset.grupo || '').toLowerCase();
         const nombreEmpresa = (fila.querySelector('.nombre-empresa .fw-semibold')?.textContent || '').toLowerCase();
-        const rut = fila.dataset.rut;
+        const rut = (fila.dataset.rut || '').toLowerCase();
+        const rutNormalizado = normalizarTexto(rut);
 
         let mostrarFila = true;
 
@@ -202,9 +213,15 @@
           mostrarFila = false;
         }
 
-        // Filtro de empresa
-        if (empresaFiltro && !nombreEmpresa.includes(empresaFiltro)) {
-          mostrarFila = false;
+        // Filtro de empresa: busca por nombre O por RUT
+        if (empresaFiltro) {
+          const filtroNormalizado = normalizarTexto(empresaFiltro);
+          const coincideNombre = nombreEmpresa.includes(empresaFiltro);
+          const coincideRut = rut.includes(empresaFiltro) || rutNormalizado.includes(filtroNormalizado);
+
+          if (!coincideNombre && !coincideRut) {
+            mostrarFila = false;
+          }
         }
 
         // Filtro de estado (buscar en la fila de detalle)

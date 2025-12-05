@@ -474,7 +474,8 @@ class ServicioDJIntegral:
                 # Si no es admin, filtrar por auditor/usuario en la tabla empresas
                 if not es_administrador:
                     sql = f"""
-                        SELECT b.rut, b.dj_numero, b.periodo, b.observacion_code, b.glosa_observacion, b.descripcion, b.orientacion
+                        SELECT b.rut, e.empresa as nombre_empresa, b.dj_numero, b.periodo,
+                               b.observacion_code, b.glosa_observacion, b.descripcion, b.orientacion
                         FROM {self.base_datos}.dj_integral_observaciones b
                         INNER JOIN {self.base_datos}.empresas e ON e.run_rut = b.rut
                         WHERE e.auditor = %s
@@ -483,8 +484,10 @@ class ServicioDJIntegral:
                     cursor.execute(sql, (nombre_usuario,))
                 else:
                     sql = f"""
-                        SELECT b.rut, b.dj_numero, b.periodo, b.observacion_code, b.glosa_observacion, b.descripcion, b.orientacion
+                        SELECT b.rut, e.empresa as nombre_empresa, b.dj_numero, b.periodo,
+                               b.observacion_code, b.glosa_observacion, b.descripcion, b.orientacion
                         FROM {self.base_datos}.dj_integral_observaciones b
+                        LEFT JOIN {self.base_datos}.empresas e ON e.run_rut = b.rut
                         ORDER BY b.rut, b.dj_numero, b.periodo, b.observacion_code
                     """
                     cursor.execute(sql)
@@ -506,13 +509,14 @@ class ServicioDJIntegral:
             ws = cast(Worksheet, wb.active)
             ws.title = 'Observaciones DJ'
 
-            # Encabezados (agregamos Glosa_Observacion después de Observacion_Code)
-            headers = ['RUT', 'DJ_Numero', 'Periodo', 'Observacion', 'Glosa_Observacion', 'Descripcion', 'Orientacion']
+            # Encabezados: RUT, Nombre, DJ_Numero, Periodo, Observacion, Glosa, Descripcion, Orientacion
+            headers = ['RUT', 'Nombre', 'DJ_Numero', 'Periodo', 'Observacion', 'Glosa_Observacion', 'Descripcion', 'Orientacion']
             ws.append(headers)
 
             for fila in filas:
                 ws.append([
                     fila.get('rut'),
+                    fila.get('nombre_empresa') or '',
                     fila.get('dj_numero'),
                     fila.get('periodo'),
                     fila.get('observacion_code'),
@@ -521,22 +525,10 @@ class ServicioDJIntegral:
                     fila.get('orientacion')
                 ])
 
-            # Autoajustar anchos (simple) usando get_column_letter para evitar problemas con MergedCell
-            for idx, column_cells in enumerate(ws.columns, start=1):
-                # Calcular largo máximo en la columna
-                length = 0
-                for cell in column_cells:
-                    try:
-                        val = cell.value
-                        l = len(str(val)) if val is not None else 0
-                    except Exception:
-                        l = 0
-                    if l > length:
-                        length = l
-
-                adjusted_width = length + 2
+            # Establecer ancho fijo de 14 para todas las columnas
+            for idx in range(1, len(headers) + 1):
                 col_letter = get_column_letter(idx)
-                ws.column_dimensions[col_letter].width = adjusted_width
+                ws.column_dimensions[col_letter].width = 14
 
             buffer = BytesIO()
             wb.save(buffer)
