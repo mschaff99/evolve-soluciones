@@ -1,0 +1,412 @@
+{% extends "diseños/base.html" %}
+
+{% block titulo %}{{ titulo }} - Evolve Soluciones{% endblock %}
+
+{% block descripcion %}Planes y precios de Evolve Soluciones. Elige el plan perfecto para tu consultoría o estudio contable.{% endblock %}
+
+{% block estilos %}
+<style>
+    .pricing-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 80px 0;
+        margin-bottom: 50px;
+    }
+    
+    .plan-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        transition: all 0.3s ease;
+        height: 100%;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .plan-card:hover {
+        transform: translateY(-10px);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        border-color: #667eea;
+    }
+    
+    .plan-card.destacado {
+        border-color: #667eea;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+    
+    .plan-card.destacado::before {
+        content: 'RECOMENDADO';
+        position: absolute;
+        top: 20px;
+        right: -35px;
+        background: #667eea;
+        color: white;
+        padding: 5px 40px;
+        transform: rotate(45deg);
+        font-size: 12px;
+        font-weight: bold;
+        letter-spacing: 1px;
+    }
+    
+    .plan-header {
+        background: #f8f9fa;
+        padding: 30px;
+        text-align: center;
+        border-bottom: 2px solid #e9ecef;
+    }
+    
+    .plan-card.destacado .plan-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .plan-precio {
+        font-size: 48px;
+        font-weight: 700;
+        margin: 20px 0;
+    }
+    
+    .plan-precio sup {
+        font-size: 24px;
+        vertical-align: top;
+    }
+    
+    .plan-periodo {
+        color: #6c757d;
+        font-size: 16px;
+    }
+    
+    .plan-card.destacado .plan-periodo {
+        color: rgba(255,255,255,0.9);
+    }
+    
+    .plan-body {
+        padding: 30px;
+    }
+    
+    .plan-features {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+    
+    .plan-features li {
+        padding: 12px 0;
+        border-bottom: 1px solid #f1f3f5;
+        display: flex;
+        align-items: center;
+    }
+    
+    .plan-features li:last-child {
+        border-bottom: none;
+    }
+    
+    .plan-features li i {
+        color: #28a745;
+        margin-right: 10px;
+        font-size: 18px;
+    }
+    
+    .plan-features li.disabled {
+        color: #adb5bd;
+    }
+    
+    .plan-features li.disabled i {
+        color: #dee2e6;
+    }
+    
+    .btn-plan {
+        width: 100%;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: 600;
+        border-radius: 8px;
+        margin-top: 20px;
+    }
+    
+    .ahorro-badge {
+        background: #28a745;
+        color: white;
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 14px;
+        font-weight: 600;
+        display: inline-block;
+        margin-top: 10px;
+    }
+    
+    .periodo-toggle {
+        background: white;
+        border-radius: 50px;
+        padding: 5px;
+        display: inline-flex;
+        margin: 20px 0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    
+    .periodo-toggle label {
+        padding: 10px 30px;
+        border-radius: 50px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin: 0;
+    }
+    
+    .periodo-toggle input[type="radio"] {
+        display: none;
+    }
+    
+    .periodo-toggle input[type="radio"]:checked + label {
+        background: #667eea;
+        color: white;
+        box-shadow: 0 2px 10px rgba(102, 126, 234, 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<!-- Header de Precios -->
+<div class="pricing-header">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-8 mx-auto text-center">
+                <h1 class="display-4 fw-bold mb-3">Planes y Precios</h1>
+                <p class="lead mb-4">
+                    Elige el plan perfecto para tu consultoría o estudio contable.<br>
+                    Sin compromisos, cancela cuando quieras.
+                </p>
+                
+                <!-- Toggle Mensual/Anual -->
+                <div class="periodo-toggle">
+                    <input type="radio" name="periodo" id="periodo-mensual" value="mensual" checked>
+                    <label for="periodo-mensual">Mensual</label>
+                    
+                    <input type="radio" name="periodo" id="periodo-anual" value="anual">
+                    <label for="periodo-anual">Anual (Ahorra hasta 20%)</label>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Planes -->
+<div class="container mb-5">
+    <div class="row g-4">
+        {% for plan in planes %}
+        <div class="col-lg-3 col-md-6">
+            <div class="plan-card {% if plan.destacado %}destacado{% endif %}">
+                <div class="plan-header">
+                    <h3 class="mb-0">{{ plan.nombre }}</h3>
+                    <div class="plan-precio">
+                        <sup>$</sup>
+                        <span class="precio-mensual">{{ "{:,.0f}".format(plan.precio_mensual).replace(',', '.') }}</span>
+                        <span class="precio-anual" style="display: none;">{{ "{:,.0f}".format(plan.precio_anual).replace(',', '.') }}</span>
+                    </div>
+                    <div class="plan-periodo">
+                        <span class="texto-periodo-mensual">por mes</span>
+                        <span class="texto-periodo-anual" style="display: none;">por año</span>
+                    </div>
+                    {% if plan.calcular_ahorro_anual() > 0 %}
+                    <div class="ahorro-badge ahorro-anual" style="display: none;">
+                        Ahorra {{ plan.calcular_ahorro_anual() }}%
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="plan-body">
+                    <p class="text-muted mb-4">{{ plan.descripcion }}</p>
+                    
+                    <ul class="plan-features">
+                        {% if plan.max_usuarios %}
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Hasta {{ plan.max_usuarios }} usuario{% if plan.max_usuarios > 1 %}s{% endif %}</span>
+                        </li>
+                        {% else %}
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Usuarios ilimitados</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if plan.max_empresas %}
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Hasta {{ plan.max_empresas }} empresas</span>
+                        </li>
+                        {% else %}
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Empresas ilimitadas</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if plan.almacenamiento_gb %}
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>{{ plan.almacenamiento_gb }} GB de almacenamiento</span>
+                        </li>
+                        {% endif %}
+                        
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>{{ plan.modulos|length }} módulos incluidos</span>
+                        </li>
+                        
+                        {% if plan.incluye_soporte %}
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>Soporte {{ plan.nivel_soporte }}</span>
+                        </li>
+                        {% else %}
+                        <li class="disabled">
+                            <i class="fas fa-times-circle"></i>
+                            <span>Sin soporte técnico</span>
+                        </li>
+                        {% endif %}
+                        
+                        {% if plan.periodo_prueba_dias > 0 %}
+                        <li>
+                            <i class="fas fa-check-circle"></i>
+                            <span>{{ plan.periodo_prueba_dias }} días de prueba</span>
+                        </li>
+                        {% endif %}
+                    </ul>
+                    
+                    {% if current_user.is_authenticated %}
+                        <a href="{{ url_for('suscripciones.iniciar_checkout', codigo_plan=plan.codigo) }}" 
+                           class="btn {% if plan.destacado %}btn-primary{% else %}btn-outline-primary{% endif %} btn-plan">
+                            Seleccionar Plan
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('autenticacion.iniciar_sesion') }}?next={{ url_for('suscripciones.iniciar_checkout', codigo_plan=plan.codigo) }}" 
+                           class="btn {% if plan.destacado %}btn-primary{% else %}btn-outline-primary{% endif %} btn-plan">
+                            Comenzar Ahora
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    
+    <!-- Sección de Características Detalladas -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold">Compara todas las características</h2>
+                <p class="text-muted">Encuentra el plan que mejor se adapte a tus necesidades</p>
+            </div>
+            <div class="text-center">
+                <a href="{{ url_for('suscripciones.comparar_planes') }}" class="btn btn-lg btn-outline-primary">
+                    <i class="fas fa-table me-2"></i>Ver Comparación Detallada
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- FAQ Section -->
+    <div class="row mt-5">
+        <div class="col-lg-8 mx-auto">
+            <h2 class="text-center fw-bold mb-4">Preguntas Frecuentes</h2>
+            
+            <div class="accordion" id="faqAccordion">
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#faq1">
+                            ¿Puedo cambiar de plan en cualquier momento?
+                        </button>
+                    </h2>
+                    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Sí, puedes actualizar o cambiar tu plan en cualquier momento desde tu panel de control. Los cambios se aplicarán inmediatamente.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq2">
+                            ¿Qué métodos de pago aceptan?
+                        </button>
+                    </h2>
+                    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Aceptamos tarjetas de crédito, débito, y transferencias bancarias a través de nuestras pasarelas de pago seguras (Stripe, MercadoPago, Webpay).
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq3">
+                            ¿Ofrecen periodo de prueba?
+                        </button>
+                    </h2>
+                    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Sí, la mayoría de nuestros planes incluyen un período de prueba de 14 días sin necesidad de tarjeta de crédito.
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="accordion-item">
+                    <h2 class="accordion-header">
+                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#faq4">
+                            ¿Qué sucede si cancelo mi suscripción?
+                        </button>
+                    </h2>
+                    <div id="faq4" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body">
+                            Puedes cancelar en cualquier momento. Tendrás acceso hasta el final del período pagado, y tus datos se mantendrán seguros por 30 días adicionales.
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const periodoRadios = document.querySelectorAll('input[name="periodo"]');
+    
+    periodoRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            const periodo = this.value;
+            const esMensual = periodo === 'mensual';
+            
+            // Mostrar/ocultar precios
+            document.querySelectorAll('.precio-mensual').forEach(el => {
+                el.style.display = esMensual ? 'inline' : 'none';
+            });
+            document.querySelectorAll('.precio-anual').forEach(el => {
+                el.style.display = esMensual ? 'none' : 'inline';
+            });
+            
+            // Mostrar/ocultar texto del período
+            document.querySelectorAll('.texto-periodo-mensual').forEach(el => {
+                el.style.display = esMensual ? 'inline' : 'none';
+            });
+            document.querySelectorAll('.texto-periodo-anual').forEach(el => {
+                el.style.display = esMensual ? 'none' : 'inline';
+            });
+            
+            // Mostrar/ocultar badge de ahorro
+            document.querySelectorAll('.ahorro-anual').forEach(el => {
+                el.style.display = esMensual ? 'none' : 'inline-block';
+            });
+            
+            // Actualizar URLs de los botones
+            document.querySelectorAll('.btn-plan').forEach(btn => {
+                const href = btn.getAttribute('href');
+                if (href) {
+                    const url = new URL(href, window.location.origin);
+                    url.searchParams.set('periodo', periodo);
+                    btn.setAttribute('href', url.toString());
+                }
+            });
+        });
+    });
+});
+</script>
+{% endblock %}
