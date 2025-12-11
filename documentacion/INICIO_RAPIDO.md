@@ -1,5 +1,7 @@
 # Inicio Rápido - Sistema de Autenticación
 
+> **💡 Nota:** Si quieres saber qué puede hacer el sistema antes de instalarlo, lee [**¿Qué Puede Hacer Evolve Soluciones?**](../CAPACIDADES.md)
+
 ## Resumen de Arquitectura
 
 ```
