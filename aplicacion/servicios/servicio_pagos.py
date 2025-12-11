@@ -85,7 +85,7 @@ class ServicioPagosStripe(PasarelaPagoBase):
                 line_items=[{
                     'price_data': {
                         'currency': 'clp',
-                        'unit_amount': int(datos_pago['precio'] * 100),  # Stripe usa centavos
+                        'unit_amount': int(round(datos_pago['precio'] * 100)),  # Stripe usa centavos
                         'product_data': {
                             'name': f"Plan {datos_pago['codigo_plan'].title()}",
                             'description': f"Suscripción {datos_pago['periodo']}",
@@ -239,8 +239,8 @@ class ServicioPagosStripe(PasarelaPagoBase):
             consulta = """
                 INSERT INTO auth.transacciones
                 (id_suscripcion, tipo, estado, monto, moneda, metodo_pago,
-                 pasarela_pago, id_externo_transaccion, fecha_transaccion,
-                 fecha_completada, fecha_creacion)
+                pasarela_pago, id_externo_transaccion, fecha_transaccion,
+                fecha_completada, fecha_creacion)
                 VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             ejecutar_insercion_postgres(

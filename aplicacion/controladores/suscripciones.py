@@ -118,18 +118,23 @@ def procesar_pago():
         if not id_plan:
             return jsonify({'success': False, 'error': 'Plan no especificado'})
         
-        # Obtener información del usuario
+        # Obtener información del usuario con validación
         id_base_datos = None
-        if hasattr(current_user, 'base_datos_mysql'):
+        if hasattr(current_user, 'base_datos_mysql') and current_user.base_datos_mysql:
+            # Validar que el nombre de BD sea seguro (solo letras y guiones bajos)
+            import re
+            if not re.match(r'^[a-z0-9_]+$', current_user.base_datos_mysql):
+                return jsonify({'success': False, 'error': 'Nombre de base de datos inválido'})
+            
             # Obtener ID de la base de datos
             from aplicacion.modelos.base_datos import ejecutar_consulta_postgres
-            consulta = "SELECT id FROM auth.bases_datos_mysql WHERE nombre_base_datos = %s"
+            consulta = "SELECT id FROM auth.bases_datos_mysql WHERE nombre_base_datos = %s AND activo = TRUE"
             resultado = ejecutar_consulta_postgres(consulta, (current_user.base_datos_mysql,), obtener_uno=True)
             if resultado:
                 id_base_datos = resultado['id']
         
         if not id_base_datos:
-            return jsonify({'success': False, 'error': 'Base de datos no encontrada'})
+            return jsonify({'success': False, 'error': 'Base de datos no encontrada o inactiva'})
         
         # Crear servicio de pagos
         servicio_pagos = ServicioPagos(pasarela=pasarela)

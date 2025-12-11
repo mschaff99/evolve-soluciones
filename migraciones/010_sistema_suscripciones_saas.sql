@@ -382,7 +382,10 @@ SELECT
     p.destacado,
     p.activo,
     COUNT(mp.id) as total_modulos,
-    ROUND((p.precio_mensual * 12 - p.precio_anual) / (p.precio_mensual * 12) * 100, 1) as porcentaje_ahorro_anual
+    CASE 
+        WHEN p.precio_mensual = 0 THEN 0
+        ELSE ROUND((p.precio_mensual * 12 - p.precio_anual) / (p.precio_mensual * 12) * 100, 1)
+    END as porcentaje_ahorro_anual
 FROM auth.planes_suscripcion p
 LEFT JOIN auth.modulos_plan mp ON p.id = mp.id_plan AND mp.incluido = TRUE
 WHERE p.activo = TRUE

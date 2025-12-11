@@ -313,27 +313,28 @@ class Suscripcion:
         """
         try:
             if cancelar_inmediatamente:
-                estado = 'cancelada'
-                fecha_vencimiento = datetime.now()
+                # Cancelación inmediata
+                consulta = """
+                    UPDATE auth.suscripciones
+                    SET estado = 'cancelada',
+                        auto_renovacion = FALSE,
+                        cancelada_en = %s,
+                        motivo_cancelacion = %s,
+                        fecha_vencimiento = %s
+                    WHERE id = %s
+                """
+                parametros = (datetime.now(), motivo, datetime.now(), id_suscripcion)
             else:
-                estado = 'pendiente_cancelacion'
-                fecha_vencimiento = None  # Mantener fecha actual
-
-            consulta = """
-                UPDATE auth.suscripciones
-                SET estado = %s,
-                    auto_renovacion = FALSE,
-                    cancelada_en = %s,
-                    motivo_cancelacion = %s
-            """
-            
-            if fecha_vencimiento:
-                consulta += ", fecha_vencimiento = %s"
-                parametros = (estado, datetime.now(), motivo, fecha_vencimiento, id_suscripcion)
-            else:
-                parametros = (estado, datetime.now(), motivo, id_suscripcion)
-
-            consulta += " WHERE id = %s"
+                # Cancelación al final del período
+                consulta = """
+                    UPDATE auth.suscripciones
+                    SET estado = 'pendiente_cancelacion',
+                        auto_renovacion = FALSE,
+                        cancelada_en = %s,
+                        motivo_cancelacion = %s
+                    WHERE id = %s
+                """
+                parametros = (datetime.now(), motivo, id_suscripcion)
 
             filas_afectadas = ejecutar_actualizacion_postgres(consulta, parametros)
             return filas_afectadas > 0
