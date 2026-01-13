@@ -17,6 +17,6 @@ class PeriodoF29Esquema(Schema):
     fecha_proceso = fields.DateTime(dump_only=True, allow_none=True)
     
     # Campos de observaciones
-    tiene_observaciones = fields.Bool(dump_only=True, missing=False)
-    total_observaciones = fields.Int(dump_only=True, missing=0)
+    tiene_observaciones = fields.Bool(dump_only=True)
+    total_observaciones = fields.Int(dump_only=True)
     codigos_observaciones = fields.Str(dump_only=True, allow_none=True)
