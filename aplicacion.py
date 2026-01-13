@@ -9,9 +9,11 @@ from datetime import datetime
 
 # Importaciones locales
 from configuracion.configuracion import obtener_configuracion
+from configuracion.configuracion_jwt import ConfiguracionJWT
 from aplicacion.utilidades.inicializadores import inicializar_extensiones
 from aplicacion.utilidades.manejadores_errores import registrar_manejadores_errores
 from aplicacion.utilidades.logging_detallado import configurar_logging_detallado
+from aplicacion.extensiones import inicializar_extensiones_api
 
 
 def crear_aplicacion(nombre_entorno=None):
@@ -33,6 +35,9 @@ def crear_aplicacion(nombre_entorno=None):
     # Cargar configuración
     config_class = obtener_configuracion(nombre_entorno)
     aplicacion.config.from_object(config_class)
+
+    # Aplicar configuración JWT
+    ConfiguracionJWT.aplicar_configuracion(aplicacion)
 
     # Configurar timeouts para requests largos
     aplicacion.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
@@ -56,6 +61,9 @@ def crear_aplicacion(nombre_entorno=None):
 
     # Inicializar extensiones
     inicializar_extensiones(aplicacion)
+
+    # Inicializar extensiones de API
+    inicializar_extensiones_api(aplicacion)
 
     # Configurar sistema de logging detallado
     configurar_logging_detallado(aplicacion)
@@ -105,6 +113,11 @@ def registrar_blueprints(aplicacion):
     aplicacion.register_blueprint(erp_audisoft_bp)
     aplicacion.register_blueprint(situacion_tributaria_bp)
     aplicacion.register_blueprint(ia_bp)
+
+    # API REST v1
+    from aplicacion.controladores.api import api_v1
+    aplicacion.register_blueprint(api_v1)
+    print("✅ API REST v1 registrada en /api/v1")
 
     # Registros comentados - blueprints pendientes de crear
     # aplicacion.register_blueprint(consolidado_bp)
