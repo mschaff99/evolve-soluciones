@@ -383,3 +383,131 @@ Para soporte técnico o preguntas:
 ---
 
 **Desarrollado con ❤️ por el equipo de Evolve Soluciones**
+
+---
+
+## 🚀 Versión 2.0 - Arquitectura React + API REST
+
+### Descripción
+
+La versión 2.0 introduce una arquitectura moderna con separación completa Frontend/Backend:
+
+- **Frontend**: React 18 + TypeScript + Redux Toolkit
+- **Backend**: Flask API REST con JWT Authentication
+- **Compatibilidad**: Mantiene templates legacy existentes
+
+### Instalación y Uso
+
+#### Backend (Flask API)
+
+```bash
+# Instalar dependencias
+pip install -r requirements.txt
+
+# Ejecutar servidor
+python aplicacion.py
+
+# API disponible en http://localhost:5000/api/v1
+```
+
+#### Frontend (React)
+
+```bash
+# Navegar al directorio frontend
+cd frontend
+
+# Instalar dependencias
+npm install
+
+# Ejecutar en desarrollo
+npm run dev
+
+# App disponible en http://localhost:3000
+```
+
+### Endpoints API Principales
+
+#### Autenticación
+- `POST /api/v1/auth/login` - Iniciar sesión
+- `GET /api/v1/auth/me` - Obtener usuario actual
+- `POST /api/v1/auth/logout` - Cerrar sesión
+- `POST /api/v1/auth/refresh` - Refrescar token
+
+#### Empresas
+- `GET /api/v1/empresas` - Listar empresas
+- `GET /api/v1/empresas/<rut>` - Obtener empresa por RUT
+- `GET /api/v1/empresas/estadisticas` - Estadísticas
+
+#### F29
+- `GET /api/v1/f29` - Listar datos F29
+- `GET /api/v1/f29/<rut>` - Obtener F29 de empresa
+- `GET /api/v1/f29/<rut>/periodos` - Períodos F29
+
+### Estructura del Proyecto v2.0
+
+```
+evolve-soluciones/
+├── aplicacion/
+│   ├── controladores/
+│   │   └── api/              # 🆕 Controladores REST API
+│   ├── esquemas/             # 🆕 Esquemas Marshmallow
+│   └── extensiones.py        # 🆕 Extensiones Flask (JWT, CORS)
+├── configuracion/
+│   └── configuracion_jwt.py  # 🆕 Configuración JWT
+├── frontend/                 # 🆕 Frontend React completo
+│   ├── src/
+│   │   ├── api/             # Servicios API
+│   │   ├── components/      # Componentes React
+│   │   ├── pages/           # Páginas
+│   │   ├── store/           # Redux store
+│   │   ├── styles/          # CSS
+│   │   └── types/           # TypeScript types
+│   ├── package.json
+│   ├── vite.config.ts
+│   └── tsconfig.json
+└── requirements.txt          # 🆕 Incluye Flask-JWT-Extended, marshmallow
+```
+
+### Tecnologías Nuevas
+
+#### Backend
+- **Flask-JWT-Extended** - Autenticación JWT
+- **Flask-CORS** - Soporte CORS para React
+- **Marshmallow** - Serialización/validación de datos
+
+#### Frontend
+- **React 18** - Framework UI moderno
+- **TypeScript** - Tipado estático
+- **Redux Toolkit** - Manejo de estado
+- **Vite** - Build tool rápido
+- **Axios** - Cliente HTTP con interceptores
+
+### Compatibilidad
+
+La arquitectura nueva convive con el sistema legacy:
+- URLs legacy siguen funcionando (`/auth/iniciar-sesion`, etc.)
+- API nueva en `/api/v1/*`
+- Frontend React puede acceder a ambos sistemas
+
+### Migración
+
+Para migrar una funcionalidad del sistema legacy a React:
+
+1. Crear endpoints API en `aplicacion/controladores/api/`
+2. Crear servicios en `frontend/src/api/services/`
+3. Crear componentes React en `frontend/src/pages/`
+4. Agregar rutas en `frontend/src/App.tsx`
+
+### Seguridad
+
+- Autenticación JWT con tokens de acceso y refresh
+- CORS configurado para permitir solo orígenes autorizados
+- Consultas SQL parametrizadas (sin cambios del sistema original)
+- Validación de datos con Marshmallow
+
+### Performance
+
+- Compresión Gzip habilitada
+- Build optimizado de Vite para frontend
+- API REST con respuestas JSON ligeras
+- Lazy loading de componentes React (próximamente)
