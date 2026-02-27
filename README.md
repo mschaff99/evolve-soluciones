@@ -2,8 +2,11 @@
 
 Sistema integral de gestión empresarial para consultoría y asesoría tributaria, desarrollado con Flask y arquitectura MVC escalable.
 
+> **🎯 ¿Nuevo en el sistema?** Lee primero [**¿Qué Puede Hacer Evolve Soluciones?**](CAPACIDADES.md) para conocer todas las funcionalidades y casos de uso del sistema.
+
 ##  Tabla de Contenidos
 
+- [¿Qué Puede Hacer Este Sistema?](CAPACIDADES.md) 👈 **¡Empieza aquí!**
 - [Características](#características)
 - [Estructura del Proyecto](#estructura-del-proyecto)
 - [Instalación](#instalación)
