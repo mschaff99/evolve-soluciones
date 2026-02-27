@@ -1,0 +1,475 @@
+{% extends "diseños/base.html" %}
+
+{% block titulo %}{{ titulo }} - Evolve Soluciones{% endblock %}
+
+{% block estilos %}
+<style>
+    .subscription-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        padding: 30px;
+        margin-bottom: 30px;
+    }
+    
+    .subscription-header {
+        border-bottom: 2px solid #f1f3f5;
+        padding-bottom: 20px;
+        margin-bottom: 20px;
+    }
+    
+    .plan-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 14px;
+    }
+    
+    .plan-badge.gratuito {
+        background: #e9ecef;
+        color: #495057;
+    }
+    
+    .plan-badge.basico {
+        background: #d1ecf1;
+        color: #0c5460;
+    }
+    
+    .plan-badge.profesional {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .plan-badge.empresarial {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .status-badge {
+        padding: 6px 16px;
+        border-radius: 15px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+    
+    .status-badge.activa {
+        background: #d4edda;
+        color: #155724;
+    }
+    
+    .status-badge.periodo_prueba {
+        background: #fff3cd;
+        color: #856404;
+    }
+    
+    .status-badge.suspendida {
+        background: #f8d7da;
+        color: #721c24;
+    }
+    
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        margin: 20px 0;
+    }
+    
+    .info-item {
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 8px;
+    }
+    
+    .info-item-label {
+        font-size: 13px;
+        color: #6c757d;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 5px;
+    }
+    
+    .info-item-value {
+        font-size: 24px;
+        font-weight: 700;
+        color: #212529;
+    }
+    
+    .module-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        background: #f8f9fa;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .module-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 15px;
+    }
+    
+    .module-info {
+        flex: 1;
+    }
+    
+    .module-name {
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    
+    .module-description {
+        font-size: 13px;
+        color: #6c757d;
+    }
+    
+    .plan-comparison-card {
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .plan-comparison-card:hover {
+        border-color: #667eea;
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.1);
+    }
+    
+    .plan-comparison-card.current {
+        border-color: #28a745;
+        background: #f8fff9;
+    }
+    
+    .alert-renewal {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        padding: 20px;
+    }
+</style>
+{% endblock %}
+
+{% block contenido %}
+<div class="container py-4">
+    <div class="row">
+        <div class="col-lg-8">
+            <!-- Información de Suscripción -->
+            <div class="subscription-card">
+                <div class="subscription-header">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <h2 class="mb-2">Mi Suscripción</h2>
+                            {% if suscripcion %}
+                                <span class="plan-badge {{ plan_actual.codigo if plan_actual else 'gratuito' }}">
+                                    Plan {{ plan_actual.nombre if plan_actual else 'Sin Plan' }}
+                                </span>
+                                <span class="status-badge {{ suscripcion.estado }} ms-2">
+                                    {{ 'Activa' if suscripcion.estado == 'activa' else 
+                                       'Período de Prueba' if suscripcion.estado == 'periodo_prueba' else
+                                       suscripcion.estado.title() }}
+                                </span>
+                            {% else %}
+                                <span class="plan-badge gratuito">Sin Suscripción Activa</span>
+                            {% endif %}
+                        </div>
+                        {% if suscripcion %}
+                        <div>
+                            <button class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#cancelarModal">
+                                <i class="fas fa-times-circle me-2"></i>Cancelar
+                            </button>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if suscripcion %}
+                    <!-- Alertas -->
+                    {% if suscripcion.requiere_renovacion() %}
+                    <div class="alert alert-renewal mb-3">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>Tu suscripción vence pronto</strong><br>
+                        Renueva antes de {{ suscripcion.fecha_vencimiento.strftime('%d/%m/%Y') }} para mantener el acceso.
+                        <button class="btn btn-light btn-sm float-end">Renovar Ahora</button>
+                    </div>
+                    {% endif %}
+                    
+                    {% if suscripcion.esta_en_prueba() %}
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle me-2"></i>
+                        <strong>Período de prueba activo</strong><br>
+                        Tu prueba gratuita vence el {{ suscripcion.fecha_fin_prueba.strftime('%d/%m/%Y') }}.
+                        <a href="{{ url_for('suscripciones.ver_planes') }}" class="alert-link">Ver planes</a>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Grid de Información -->
+                    <div class="info-grid">
+                        <div class="info-item">
+                            <div class="info-item-label">Precio Actual</div>
+                            <div class="info-item-value">
+                                ${{ "{:,.0f}".format(suscripcion.precio_actual).replace(',', '.') }}
+                            </div>
+                            <small class="text-muted">{{ suscripcion.periodo }}</small>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-item-label">Próximo Cobro</div>
+                            <div class="info-item-value">
+                                {% if suscripcion.fecha_proximo_cobro %}
+                                    {{ suscripcion.fecha_proximo_cobro.strftime('%d/%m/%Y') }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">
+                                {% if suscripcion.auto_renovacion %}
+                                    Renovación automática activa
+                                {% else %}
+                                    Sin renovación automática
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-item-label">Días Restantes</div>
+                            <div class="info-item-value">
+                                {% set dias = suscripcion.dias_hasta_vencimiento() %}
+                                {% if dias is not none %}
+                                    {{ dias }}
+                                {% else %}
+                                    ∞
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">
+                                {% if dias and dias < 7 %}
+                                    <span class="text-danger">¡Renueva pronto!</span>
+                                {% else %}
+                                    días restantes
+                                {% endif %}
+                            </small>
+                        </div>
+                        
+                        <div class="info-item">
+                            <div class="info-item-label">Método de Pago</div>
+                            <div class="info-item-value" style="font-size: 18px;">
+                                {% if suscripcion.metodo_pago %}
+                                    <i class="fas fa-credit-card me-2"></i>{{ suscripcion.metodo_pago.title() }}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            </div>
+                            <small class="text-muted">
+                                <a href="#" class="text-decoration-none">Actualizar</a>
+                            </small>
+                        </div>
+                    </div>
+                {% else %}
+                    <!-- Sin suscripción -->
+                    <div class="text-center py-5">
+                        <i class="fas fa-inbox fa-4x text-muted mb-3"></i>
+                        <h4>No tienes una suscripción activa</h4>
+                        <p class="text-muted">Elige un plan para comenzar a disfrutar de todas las funcionalidades.</p>
+                        <a href="{{ url_for('suscripciones.ver_planes') }}" class="btn btn-primary btn-lg">
+                            <i class="fas fa-rocket me-2"></i>Ver Planes
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+            
+            <!-- Módulos Incluidos -->
+            {% if plan_actual and modulos_disponibles %}
+            <div class="subscription-card">
+                <h3 class="mb-4">
+                    <i class="fas fa-puzzle-piece me-2 text-primary"></i>
+                    Módulos Incluidos ({{ modulos_disponibles|length }})
+                </h3>
+                
+                <div class="row">
+                    {% for modulo in modulos_disponibles %}
+                    <div class="col-md-6 mb-3">
+                        <div class="module-item">
+                            <div class="module-icon">
+                                <i class="fas fa-{{ modulo.icono }}"></i>
+                            </div>
+                            <div class="module-info">
+                                <div class="module-name">{{ modulo.nombre }}</div>
+                                <div class="module-description">{{ modulo.descripcion }}</div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Sidebar -->
+        <div class="col-lg-4">
+            <!-- Cambiar Plan -->
+            {% if suscripcion %}
+            <div class="subscription-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-exchange-alt me-2 text-primary"></i>
+                    Cambiar Plan
+                </h4>
+                <p class="text-muted small">Actualiza o cambia tu plan según tus necesidades.</p>
+                
+                {% for plan in todos_planes %}
+                    {% if plan.id != (plan_actual.id if plan_actual else 0) %}
+                    <div class="plan-comparison-card">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="mb-0">{{ plan.nombre }}</h5>
+                            <span class="plan-badge {{ plan.codigo }}">
+                                ${{ "{:,.0f}".format(plan.precio_mensual).replace(',', '.') }}
+                            </span>
+                        </div>
+                        <p class="text-muted small mb-3">{{ plan.descripcion[:80] }}...</p>
+                        <form method="POST" action="{{ url_for('suscripciones.cambiar_plan') }}" class="cambiar-plan-form">
+                            <input type="hidden" name="nuevo_id_plan" value="{{ plan.id }}">
+                            <input type="hidden" name="inmediato" value="false">
+                            <button type="submit" class="btn btn-sm btn-outline-primary w-100">
+                                {% if plan.precio_mensual > (plan_actual.precio_mensual if plan_actual else 0) %}
+                                    <i class="fas fa-arrow-up me-1"></i>Actualizar
+                                {% else %}
+                                    <i class="fas fa-arrow-down me-1"></i>Cambiar
+                                {% endif %}
+                            </button>
+                        </form>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                
+                <div class="text-center mt-3">
+                    <a href="{{ url_for('suscripciones.comparar_planes') }}" class="btn btn-link">
+                        Ver comparación completa
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
+            <!-- Soporte -->
+            <div class="subscription-card">
+                <h4 class="mb-3">
+                    <i class="fas fa-headset me-2 text-primary"></i>
+                    ¿Necesitas Ayuda?
+                </h4>
+                <p class="text-muted small mb-3">
+                    Nuestro equipo está aquí para ayudarte con cualquier pregunta.
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="mailto:soporte@evolve-soluciones.com" class="btn btn-outline-primary btn-sm">
+                        <i class="fas fa-envelope me-2"></i>Contactar Soporte
+                    </a>
+                    <a href="#" class="btn btn-outline-secondary btn-sm">
+                        <i class="fas fa-book me-2"></i>Ver Documentación
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Cancelar Suscripción -->
+<div class="modal fade" id="cancelarModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Cancelar Suscripción</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form method="POST" action="{{ url_for('suscripciones.cancelar_suscripcion') }}" id="formCancelar">
+                <div class="modal-body">
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-triangle me-2"></i>
+                        <strong>¿Estás seguro?</strong><br>
+                        Esta acción cancelará tu suscripción.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">¿Por qué cancelas? (opcional)</label>
+                        <textarea class="form-control" name="motivo" rows="3" 
+                                  placeholder="Cuéntanos por qué cancelas para ayudarnos a mejorar..."></textarea>
+                    </div>
+                    
+                    <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="inmediato" value="true" id="cancelarInmediato">
+                        <label class="form-check-label" for="cancelarInmediato">
+                            Cancelar inmediatamente (perderás el acceso de inmediato)
+                        </label>
+                    </div>
+                    <small class="text-muted">
+                        Si no marcas esta opción, podrás seguir usando el servicio hasta el final del período pagado.
+                    </small>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No, mantener</button>
+                    <button type="submit" class="btn btn-danger">Sí, cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+// Manejar cambio de plan con AJAX
+document.querySelectorAll('.cambiar-plan-form').forEach(form => {
+    form.addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        const formData = new FormData(this);
+        
+        fetch(this.action, {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert(data.mensaje);
+                location.reload();
+            } else {
+                alert('Error: ' + data.error);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al cambiar plan');
+        });
+    });
+});
+
+// Manejar cancelación con AJAX
+document.getElementById('formCancelar').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(this);
+    
+    fetch(this.action, {
+        method: 'POST',
+        body: formData
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.mensaje);
+            location.reload();
+        } else {
+            alert('Error: ' + data.error);
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error al cancelar suscripción');
+    });
+});
+</script>
+{% endblock %}
